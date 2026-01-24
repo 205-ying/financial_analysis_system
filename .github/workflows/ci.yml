@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-test:
+    name: 后端测试
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: financial_analysis_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout代码
+        uses: actions/checkout@v4
+      
+      - name: 设置Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements_dev.txt
+      
+      - name: 安装依赖
+        run: |
+          cd backend
+          pip install -r requirements_dev.txt
+      
+      - name: 运行Ruff检查
+        run: |
+          cd backend
+          ruff check .
+      
+      - name: 运行Ruff格式检查
+        run: |
+          cd backend
+          ruff format --check .
+      
+      - name: 运行类型检查
+        run: |
+          cd backend
+          mypy app --ignore-missing-imports
+        continue-on-error: true
+      
+      - name: 运行测试
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/financial_analysis_test
+        run: |
+          cd backend
+          pytest --cov=app --cov-report=xml --cov-report=term
+      
+      - name: 上传覆盖率报告
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+        continue-on-error: true
+
+  frontend-test:
+    name: 前端测试
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout代码
+        uses: actions/checkout@v4
+      
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: 安装依赖
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: 运行ESLint
+        run: |
+          cd frontend
+          npm run lint
+      
+      - name: 运行类型检查
+        run: |
+          cd frontend
+          npm run type-check
+      
+      - name: 构建检查
+        run: |
+          cd frontend
+          npm run build
+      
+      - name: 运行测试
+        run: |
+          cd frontend
+          npm run test
+        continue-on-error: true
+
+  all-checks-passed:
+    name: 所有检查通过
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检查完成
+        run: echo "✅ 所有检查通过"

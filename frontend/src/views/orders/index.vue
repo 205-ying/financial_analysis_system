@@ -1,0 +1,412 @@
+<template>
+  <div class="orders-container">
+    <!-- 筛选条件 -->
+    <el-card class="filter-card" shadow="never">
+      <el-form :model="queryForm" :inline="true" label-width="80px">
+        <el-form-item label="门店">
+          <el-select
+            v-model="queryForm.store_id"
+            placeholder="请选择门店"
+            clearable
+            style="width: 200px"
+          >
+            <el-option label="全部门店" :value="undefined" />
+            <el-option
+              v-for="store in storeList"
+              :key="store.id"
+              :label="store.name"
+              :value="store.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="渠道">
+          <el-select
+            v-model="queryForm.channel"
+            placeholder="请选择渠道"
+            clearable
+            style="width: 180px"
+          >
+            <el-option label="全部渠道" value="" />
+            <el-option label="堂食" value="堂食" />
+            <el-option label="外卖" value="外卖" />
+            <el-option label="外带" value="外带" />
+            <el-option label="团购" value="团购" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="订单号">
+          <el-input
+            v-model="queryForm.order_no"
+            placeholder="请输入订单号"
+            clearable
+            style="width: 200px"
+          />
+        </el-form-item>
+
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            style="width: 360px"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
+          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
+          <el-button
+            type="success"
+            :icon="Plus"
+            v-permission="'order:create'"
+            @click="handleCreate"
+          >
+            新增订单
+          </el-button>
+          <el-button
+            type="warning"
+            :icon="Download"
+            v-permission="'order:export'"
+            @click="handleExport"
+          >
+            导出
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 统计卡片 -->
+    <el-row :gutter="20" class="stats-cards">
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover">
+          <el-statistic :value="stats.total_count" title="订单总数">
+            <template #suffix>笔</template>
+          </el-statistic>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover">
+          <el-statistic :value="stats.total_amount" :precision="2" title="订单总额">
+            <template #prefix>¥</template>
+          </el-statistic>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover">
+          <el-statistic :value="stats.avg_amount" :precision="2" title="平均客单价">
+            <template #prefix>¥</template>
+          </el-statistic>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover">
+          <el-statistic :value="stats.store_count" title="涉及门店">
+            <template #suffix>家</template>
+          </el-statistic>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 数据表格 -->
+    <el-card shadow="never">
+      <el-table
+        :data="tableData"
+        stripe
+        border
+        v-loading="loading"
+        :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
+      >
+        <el-table-column type="index" label="序号" width="60" align="center" />
+        <el-table-column prop="order_no" label="订单号" min-width="180" />
+        <el-table-column prop="store_name" label="门店" min-width="120" />
+        <el-table-column prop="channel" label="渠道" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="getChannelType(row.channel)">
+              {{ row.channel }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="amount" label="金额" width="150" align="right">
+          <template #default="{ row }">
+            <span style="color: #67c23a; font-weight: 600">
+              ¥{{ formatNumber(row.amount) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="order_time" label="订单时间" width="180" align="center">
+          <template #default="{ row }">
+            {{ formatDateTime(row.order_time) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="备注" min-width="150" show-overflow-tooltip />
+        <el-table-column label="操作" width="180" align="center" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              type="primary"
+              size="small"
+              link
+              :icon="View"
+              @click="handleView(row)"
+            >
+              查看
+            </el-button>
+            <el-button
+              type="primary"
+              size="small"
+              link
+              :icon="Edit"
+              v-permission="'order:update'"
+              @click="handleEdit(row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              link
+              :icon="Delete"
+              v-permission="'order:delete'"
+              @click="handleDelete(row)"
+            >
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="queryForm.page"
+          v-model:page-size="queryForm.page_size"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleQuery"
+          @current-change="handleQuery"
+        />
+      </div>
+    </el-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import { Search, Refresh, Plus, Download, View, Edit, Delete } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getAllStores } from '@/api/store'
+import { getOrderList } from '@/api/order'
+import type { StoreInfo, OrderInfo, OrderQuery } from '@/types'
+import dayjs from 'dayjs'
+
+// 门店列表
+const storeList = ref<StoreInfo[]>([])
+
+// 表格数据
+const tableData = ref<OrderInfo[]>([])
+const loading = ref(false)
+const total = ref(0)
+
+// 查询表单
+const queryForm = reactive<OrderQuery>({
+  store_id: undefined,
+  channel: undefined,
+  order_no: undefined,
+  start_date: undefined,
+  end_date: undefined,
+  page: 1,
+  page_size: 20
+})
+
+// 日期范围
+const dateRange = ref<[string, string]>()
+
+// 统计数据
+const stats = computed(() => {
+  const totalCount = total.value
+  const totalAmount = tableData.value.reduce((sum, item) => sum + item.amount, 0)
+  const avgAmount = totalCount > 0 ? totalAmount / totalCount : 0
+  const storeSet = new Set(tableData.value.map(item => item.store_id))
+  const storeCount = storeSet.size
+
+  return {
+    total_count: totalCount,
+    total_amount: totalAmount,
+    avg_amount: avgAmount,
+    store_count: storeCount
+  }
+})
+
+/**
+ * 获取渠道标签类型
+ */
+const getChannelType = (channel: string) => {
+  const typeMap: Record<string, string> = {
+    堂食: '',
+    外卖: 'success',
+    外带: 'warning',
+    团购: 'danger'
+  }
+  return typeMap[channel] || ''
+}
+
+/**
+ * 格式化数字
+ */
+const formatNumber = (value: number): string => {
+  if (value === 0) return '0.00'
+  if (!value) return '0.00'
+  return value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+/**
+ * 格式化日期时间
+ */
+const formatDateTime = (value: string): string => {
+  return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
+}
+
+/**
+ * 加载门店列表
+ */
+const loadStores = async () => {
+  try {
+    const { data } = await getAllStores()
+    storeList.value = data
+  } catch (error) {
+    console.error('加载门店列表失败:', error)
+  }
+}
+
+/**
+ * 加载表格数据
+ */
+const loadTableData = async () => {
+  try {
+    loading.value = true
+    const { data } = await getOrderList(queryForm)
+    tableData.value = data.items
+    total.value = data.total
+  } catch (error) {
+    console.error('加载订单列表失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+/**
+ * 处理查询
+ */
+const handleQuery = () => {
+  if (dateRange.value) {
+    queryForm.start_date = dateRange.value[0]
+    queryForm.end_date = dateRange.value[1]
+  } else {
+    queryForm.start_date = undefined
+    queryForm.end_date = undefined
+  }
+  queryForm.page = 1
+  loadTableData()
+}
+
+/**
+ * 处理重置
+ */
+const handleReset = () => {
+  queryForm.store_id = undefined
+  queryForm.channel = undefined
+  queryForm.order_no = undefined
+  queryForm.start_date = undefined
+  queryForm.end_date = undefined
+  queryForm.page = 1
+  queryForm.page_size = 20
+  dateRange.value = undefined
+  loadTableData()
+}
+
+/**
+ * 处理新增
+ */
+const handleCreate = () => {
+  ElMessage.info('新增订单功能待实现')
+}
+
+/**
+ * 处理导出
+ */
+const handleExport = () => {
+  ElMessage.info('导出功能待实现')
+}
+
+/**
+ * 处理查看
+ */
+const handleView = (row: OrderInfo) => {
+  ElMessage.info(`查看订单：${row.order_no}`)
+}
+
+/**
+ * 处理编辑
+ */
+const handleEdit = (row: OrderInfo) => {
+  ElMessage.info(`编辑订单：${row.order_no}`)
+}
+
+/**
+ * 处理删除
+ */
+const handleDelete = async (row: OrderInfo) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除订单"${row.order_no}"吗？`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    ElMessage.success('删除成功')
+    loadTableData()
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+    }
+  }
+}
+
+onMounted(() => {
+  loadStores()
+  loadTableData()
+})
+</script>
+
+<style scoped lang="scss">
+.orders-container {
+  padding: 0;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+}
+
+.stats-cards {
+  margin-bottom: 20px;
+
+  .el-card {
+    :deep(.el-card__body) {
+      padding: 20px;
+    }
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+</style>
