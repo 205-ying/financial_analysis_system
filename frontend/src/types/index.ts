@@ -21,5 +21,11 @@ export * from './modules/order'
 // KPI 相关
 export * from './modules/kpi'
 
+// 数据导入相关
+export * from './modules/import_job'
+
+// 报表相关
+export * from './modules/report'
+
 // 保留旧的 api.ts 的导出以保持向后兼容
 // 未来可以逐步迁移到按模块导入

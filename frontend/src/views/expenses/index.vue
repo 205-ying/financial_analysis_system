@@ -4,20 +4,7 @@
     <el-card class="filter-card" shadow="never">
       <el-form :model="queryForm" :inline="true" label-width="80px">
         <el-form-item label="门店">
-          <el-select
-            v-model="queryForm.store_id"
-            placeholder="请选择门店"
-            clearable
-            style="width: 200px"
-          >
-            <el-option label="全部门店" :value="undefined" />
-            <el-option
-              v-for="store in storeList"
-              :key="store.id"
-              :label="store.name"
-              :value="store.id"
-            />
-          </el-select>
+          <StoreSelect v-model="queryForm.store_id" width="200px" />
         </el-form-item>
 
         <el-form-item label="费用类型">
@@ -63,6 +50,7 @@
           <el-button
             type="warning"
             :icon="Download"
+            :loading="exportLoading"
             v-permission="'expense:export'"
             @click="handleExport"
           >
@@ -146,6 +134,9 @@
         />
       </div>
     </el-card>
+
+    <!-- 创建费用对话框 -->
+    <CreateExpenseDialog v-model="createDialogVisible" @success="handleCreateSuccess" />
   </div>
 </template>
 
@@ -153,13 +144,11 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh, Plus, Download, View, Edit, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getAllStores } from '@/api/store'
-import { getExpenseTypeList, getExpenseRecordList } from '@/api/expense'
-import type { StoreInfo, ExpenseTypeInfo, ExpenseRecordInfo, ExpenseRecordQuery } from '@/types'
+import StoreSelect from '@/components/StoreSelect.vue'
+import CreateExpenseDialog from '@/components/dialogs/CreateExpenseDialog.vue'
+import { getExpenseTypeList, getExpenseRecordList, exportExpenseRecords } from '@/api/expense'
+import type { ExpenseTypeInfo, ExpenseRecordInfo, ExpenseRecordQuery } from '@/types'
 import dayjs from 'dayjs'
-
-// 门店列表
-const storeList = ref<StoreInfo[]>([])
 
 // 费用类型列表
 const expenseTypeList = ref<ExpenseTypeInfo[]>([])
@@ -182,6 +171,12 @@ const queryForm = reactive<ExpenseRecordQuery>({
 // 日期范围
 const dateRange = ref<[string, string]>()
 
+// 对话框状态
+const createDialogVisible = ref(false)
+
+// 导出状态
+const exportLoading = ref(false)
+
 /**
  * 格式化数字
  */
@@ -196,18 +191,6 @@ const formatNumber = (value: number): string => {
  */
 const formatDateTime = (value: string): string => {
   return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
-}
-
-/**
- * 加载门店列表
- */
-const loadStores = async () => {
-  try {
-    const { data } = await getAllStores()
-    storeList.value = data
-  } catch (error) {
-    console.error('加载门店列表失败:', error)
-  }
 }
 
 /**
@@ -271,14 +254,51 @@ const handleReset = () => {
  * 处理新增
  */
 const handleCreate = () => {
-  ElMessage.info('新增费用功能待实现')
+  createDialogVisible.value = true
+}
+
+/**
+ * 处理创建成功
+ */
+const handleCreateSuccess = () => {
+  loadTableData()
 }
 
 /**
  * 处理导出
  */
-const handleExport = () => {
-  ElMessage.info('导出功能待实现')
+const handleExport = async () => {
+  try {
+    exportLoading.value = true
+    
+    // 准备查询参数
+    const params = {
+      store_id: queryForm.store_id,
+      expense_type_id: queryForm.expense_type_id,
+      start_date: queryForm.start_date,
+      end_date: queryForm.end_date
+    }
+    
+    // 调用导出API
+    const blob = await exportExpenseRecords(params)
+    
+    // 创建下载链接
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `费用记录_${dayjs().format('YYYYMMDDHHmmss')}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 /**
@@ -315,7 +335,6 @@ const handleDelete = async (row: ExpenseRecordInfo) => {
 }
 
 onMounted(() => {
-  loadStores()
   loadExpenseTypes()
   loadTableData()
 })

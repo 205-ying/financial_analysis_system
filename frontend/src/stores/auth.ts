@@ -15,11 +15,22 @@ export const useAuthStore = defineStore(
     const token = ref<string>('')
     const userInfo = ref<UserInfo | null>(null)
     const permissions = ref<string[]>([])
+    const accessibleStores = ref<number[] | null>(null) // null=全部门店, []=无权限, [id1,id2]=限定门店
 
     // Getters
     const isLoggedIn = computed(() => !!token.value)
     const username = computed(() => userInfo.value?.username || '')
     const roles = computed(() => userInfo.value?.roles || [])
+    
+    /**
+     * 是否可以访问所有门店
+     * - 超级管理员：true
+     * - accessibleStores为null：true（无限制）
+     * - 其他：false
+     */
+    const canAccessAllStores = computed(() => {
+      return userInfo.value?.is_superuser || accessibleStores.value === null
+    })
 
     // Actions
     /**
@@ -50,6 +61,11 @@ export const useAuthStore = defineStore(
         const response = await getCurrentUser()
         userInfo.value = response.data
         permissions.value = response.data.permissions
+        
+        // 缓存可访问门店列表
+        // accessible_stores: null=全部, []=无权限, [id1,id2]=限定门店
+        accessibleStores.value = (response.data as any).accessible_stores ?? null
+        
         return response.data
       } catch (error) {
         console.error('获取用户信息失败：', error)
@@ -71,6 +87,7 @@ export const useAuthStore = defineStore(
         token.value = ''
         userInfo.value = null
         permissions.value = []
+        accessibleStores.value = null
 
         // 跳转到登录页
         router.push('/login')
@@ -112,10 +129,12 @@ export const useAuthStore = defineStore(
       token,
       userInfo,
       permissions,
+      accessibleStores,
       // Getters
       isLoggedIn,
       username,
       roles,
+      canAccessAllStores,
       // Actions
       login,
       getUserInfo,
@@ -130,7 +149,7 @@ export const useAuthStore = defineStore(
     persist: {
       key: STORAGE_KEYS.AUTH,
       storage: localStorage,
-      paths: ['token', 'userInfo', 'permissions']
+      paths: ['token', 'userInfo', 'permissions', 'accessibleStores']
     }
   }
 )

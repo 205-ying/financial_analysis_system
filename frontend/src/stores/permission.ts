@@ -10,7 +10,8 @@ import {
   Document,
   Money,
   TrendCharts,
-  List
+  List,
+  Upload
 } from '@element-plus/icons-vue'
 
 export const usePermissionStore = defineStore('permission', () => {
@@ -77,6 +78,17 @@ export const usePermissionStore = defineStore('permission', () => {
         }
       },
       {
+        path: '/reports',
+        name: 'Reports',
+        component: () => import('@/views/analytics/ReportView.vue'),
+        meta: {
+          title: '报表中心',
+          icon: markRaw(Document),
+          requiresAuth: true,
+          permissions: ['report:view']
+        }
+      },
+      {
         path: '/audit-logs',
         name: 'AuditLogs',
         component: () => import('@/views/audit-logs/index.vue'),
@@ -85,6 +97,28 @@ export const usePermissionStore = defineStore('permission', () => {
           icon: markRaw(List),
           requiresAuth: true,
           permissions: ['audit:view']
+        }
+      },
+      {
+        path: '/system/import-jobs',
+        name: 'ImportJobs',
+        component: () => import('@/views/system/import/ImportJobListView.vue'),
+        meta: {
+          title: '数据导入',
+          icon: markRaw(Upload),
+          requiresAuth: true,
+          permissions: ['import_job:view']
+        }
+      },
+      {
+        path: '/system/import-jobs/:id',
+        name: 'ImportJobDetail',
+        component: () => import('@/views/system/import/ImportJobDetailView.vue'),
+        meta: {
+          title: '导入详情',
+          hidden: true,
+          requiresAuth: true,
+          permissions: ['import_job:view']
         }
       }
     ]

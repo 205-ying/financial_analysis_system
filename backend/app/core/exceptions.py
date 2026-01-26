@@ -291,12 +291,13 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
     """
     from datetime import datetime
     
-    # 记录异常日志（避免使用format以防止KeyError）
+    # 记录异常日志（完全避免格式化以防止KeyError）
+    error_msg = str(exc).replace("{", "{{").replace("}", "}}")  # 转义大括号
     logger.error(
-        f"Unhandled Exception: {str(exc)}",
+        f"Unhandled Exception: {error_msg}",
         extra={
             "exception_type": "unhandled_exception",
-            "error": str(exc),
+            "error": error_msg,
             "error_class": exc.__class__.__name__,
             "path": request.url.path,
             "method": request.method,

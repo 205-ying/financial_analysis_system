@@ -4,7 +4,7 @@ API 路由汇总模块
 
 from fastapi import APIRouter
 from app.api.v1 import health, auth, stores, orders, kpi, audit
-from app.api.v1 import expense_types, expense_records
+from app.api.v1 import expense_types, expense_records, import_jobs, reports, user_stores
 
 api_router = APIRouter()
 
@@ -21,3 +21,6 @@ api_router.include_router(expense_records.router, prefix="/expense-records", tag
 api_router.include_router(orders.router, prefix="/orders", tags=["订单管理"])
 api_router.include_router(kpi.router, prefix="/kpi", tags=["KPI 数据"])
 api_router.include_router(audit.router, prefix="/audit", tags=["审计日志"])
+api_router.include_router(import_jobs.router, prefix="/import-jobs", tags=["数据导入"])
+api_router.include_router(reports.router, prefix="/reports", tags=["报表中心"])
+api_router.include_router(user_stores.router, prefix="/user-stores", tags=["用户门店权限"])

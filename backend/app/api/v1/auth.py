@@ -175,10 +175,11 @@ async def login(
     "/me",
     response_model=dict,
     summary="获取当前用户信息",
-    description="获取当前登录用户的详细信息，包含角色和权限"
+    description="获取当前登录用户的详细信息，包含角色、权限和可访问门店"
 )
 async def get_current_user_info(
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)]
 ):
     """
     获取当前用户信息
@@ -192,6 +193,7 @@ async def get_current_user_info(
     - **is_superuser**: 是否超级用户
     - **roles**: 角色列表
     - **permissions**: 权限列表
+    - **accessible_stores**: 可访问门店列表（None表示全部，[]表示无权限，[id1,id2]表示限定门店）
     """
     # 构建角色列表
     roles = [role.code for role in current_user.roles]
@@ -207,6 +209,10 @@ async def get_current_user_info(
                 perm_set.add(perm.code)
         permissions = sorted(perm_set)
     
+    # 获取可访问门店列表
+    from app.services.data_scope_service import get_accessible_store_ids
+    accessible_store_ids = await get_accessible_store_ids(db, current_user)
+    
     user_info = UserInfo(
         id=current_user.id,
         username=current_user.username,
@@ -218,8 +224,12 @@ async def get_current_user_info(
         permissions=permissions
     )
     
+    # 将用户信息转为字典并添加门店信息
+    user_data = user_info.model_dump()
+    user_data["accessible_stores"] = accessible_store_ids  # None表示全部，[]表示无权限，[id1,id2]表示限定门店
+    
     return success(
-        data=user_info.model_dump(),
+        data=user_data,
         message="获取用户信息成功"
     )
 

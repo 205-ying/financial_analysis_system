@@ -40,7 +40,8 @@ service.interceptors.response.use(
     const res = response.data
     
     // 统一响应格式处理
-    if (res.code !== undefined && res.code !== 0) {
+    // 后端成功返回的 code 是 200，不是 0
+    if (res.code !== undefined && res.code !== 200 && res.code !== 0) {
       // 业务错误
       ElMessage.error(res.message || '请求失败')
       return Promise.reject(new Error(res.message || '请求失败'))
@@ -50,7 +51,7 @@ service.interceptors.response.use(
     return res
   },
   (error: AxiosError) => {
-    console.error('响应错误：', error)
+    console.error('响应错误：', error.message || error)
     
     if (error.response) {
       const { status, data } = error.response
@@ -78,11 +79,19 @@ service.interceptors.response.use(
           ElMessage.error('服务器错误，请稍后重试')
           break
           
+        case 504:
+          // 网关超时
+          ElMessage.error('请求超时，请缩小查询范围或稍后重试')
+          break
+          
         default:
           // 其他错误
           const message = (data as any)?.detail || (data as any)?.message || '请求失败'
           ElMessage.error(message)
       }
+    } else if (error.code === 'ECONNABORTED') {
+      // 请求超时
+      ElMessage.error('请求超时，请缩小查询范围或稍后重试')
     } else if (error.request) {
       // 请求已发送但没有收到响应
       ElMessage.error('网络错误，请检查网络连接')

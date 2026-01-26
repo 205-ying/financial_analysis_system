@@ -19,6 +19,7 @@ from app.models.expense import ExpenseRecord, ExpenseType
 from app.schemas.common import Response, success
 from app.services.kpi_calculator import KpiCalculator
 from app.services.audit import create_audit_log
+from app.services.data_scope_service import filter_stores_by_access, assert_store_access
 from decimal import Decimal
 
 router = APIRouter()
@@ -46,11 +47,16 @@ async def get_daily_kpi(
     db: AsyncSession = Depends(get_db)
 ):
     """获取日常KPI数据"""
+    # 数据权限过滤：获取可访问的门店ID列表
+    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
+    
     query = select(KpiDailyStore)
     
+    # 应用数据权限过滤
+    if accessible_store_ids is not None:
+        query = query.where(KpiDailyStore.store_id.in_(accessible_store_ids))
+    
     # 应用筛选条件
-    if store_id:
-        query = query.where(KpiDailyStore.store_id == store_id)
     if date_from:
         query = query.where(KpiDailyStore.biz_date >= date_from)
     if date_to:
@@ -96,13 +102,16 @@ async def get_kpi_summary(
     if not end_date:
         end_date = date.today()
     
+    # 数据权限过滤：获取可访问的门店ID列表
+    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
+    
     # 构建查询条件
     conditions = [
         KpiDailyStore.biz_date >= start_date,
         KpiDailyStore.biz_date <= end_date
     ]
-    if store_id:
-        conditions.append(KpiDailyStore.store_id == store_id)
+    if accessible_store_ids is not None:
+        conditions.append(KpiDailyStore.store_id.in_(accessible_store_ids))
     
     # 获取总营收
     revenue_result = await db.execute(
@@ -121,8 +130,8 @@ async def get_kpi_summary(
         ExpenseRecord.biz_date >= start_date,
         ExpenseRecord.biz_date <= end_date
     ]
-    if store_id:
-        expense_conditions.append(ExpenseRecord.store_id == store_id)
+    if accessible_store_ids is not None:
+        expense_conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
     
     cost_result = await db.execute(
         select(func.sum(ExpenseRecord.amount)).where(and_(*expense_conditions))
@@ -179,6 +188,9 @@ async def get_kpi_trend(
     """获取KPI趋势数据"""
     from sqlalchemy import and_, cast
     
+    # 数据权限过滤：获取可访问的门店ID列表
+    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
+    
     # 查询订单数据，将order_time转换为日期
     order_date_expr = func.date(OrderHeader.order_time)
     query = select(
@@ -192,8 +204,8 @@ async def get_kpi_trend(
         func.date(OrderHeader.order_time) <= end_date
     ]
     
-    if store_id:
-        conditions.append(OrderHeader.store_id == store_id)
+    if accessible_store_ids is not None:
+        conditions.append(OrderHeader.store_id.in_(accessible_store_ids))
     
     query = query.where(and_(*conditions))
     query = query.group_by(order_date_expr)
@@ -213,8 +225,8 @@ async def get_kpi_trend(
         ExpenseRecord.biz_date <= end_date
     ]
     
-    if store_id:
-        expense_conditions.append(ExpenseRecord.store_id == store_id)
+    if accessible_store_ids is not None:
+        expense_conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
     
     expense_query = expense_query.where(and_(*expense_conditions))
     expense_query = expense_query.group_by(ExpenseRecord.biz_date)
@@ -282,6 +294,9 @@ async def get_expense_category(
     from sqlalchemy import and_
     from sqlalchemy.orm import selectinload
     
+    # 数据权限过滤：获取可访问的门店ID列表
+    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
+    
     # 查询费用记录
     query = select(
         ExpenseType.name.label('category_name'),
@@ -294,8 +309,8 @@ async def get_expense_category(
         ExpenseRecord.biz_date <= end_date
     ]
     
-    if store_id:
-        conditions.append(ExpenseRecord.store_id == store_id)
+    if accessible_store_ids is not None:
+        conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
     
     query = query.where(and_(*conditions))
     query = query.group_by(ExpenseType.name)
@@ -349,6 +364,9 @@ async def get_store_ranking(
     """获取门店排名"""
     from sqlalchemy import and_
     
+    # 数据权限过滤：获取可访问的门店ID列表
+    accessible_store_ids = await filter_stores_by_access(db, current_user, None)
+    
     # 查询订单数据（按门店）
     order_query = select(
         Store.id.label('store_id'),
@@ -357,10 +375,14 @@ async def get_store_ranking(
         func.count(OrderHeader.id).label('order_count')
     ).join(Store, OrderHeader.store_id == Store.id)
     
-    order_query = order_query.where(and_(
+    order_conditions = [
         func.date(OrderHeader.order_time) >= start_date,
         func.date(OrderHeader.order_time) <= end_date
-    ))
+    ]
+    if accessible_store_ids is not None:
+        order_conditions.append(OrderHeader.store_id.in_(accessible_store_ids))
+    
+    order_query = order_query.where(and_(*order_conditions))
     order_query = order_query.group_by(Store.id, Store.name)
     
     order_result = await db.execute(order_query)
@@ -372,10 +394,14 @@ async def get_store_ranking(
         func.sum(ExpenseRecord.amount).label('cost')
     )
     
-    expense_query = expense_query.where(and_(
+    expense_conditions = [
         ExpenseRecord.biz_date >= start_date,
         ExpenseRecord.biz_date <= end_date
-    ))
+    ]
+    if accessible_store_ids is not None:
+        expense_conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
+    
+    expense_query = expense_query.where(and_(*expense_conditions))
     expense_query = expense_query.group_by(ExpenseRecord.store_id)
     
     expense_result = await db.execute(expense_query)
@@ -455,8 +481,9 @@ async def rebuild_kpi(
             detail="开始日期不能大于结束日期"
         )
     
-    # 如果指定了门店，验证门店存在
+    # 如果指定了门店，验证门店存在并校验数据权限
     if data.store_id:
+        await assert_store_access(db, current_user, data.store_id)
         store_result = await db.execute(select(Store).where(Store.id == data.store_id))
         if not store_result.scalar_one_or_none():
             raise HTTPException(

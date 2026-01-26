@@ -98,3 +98,29 @@ class PageData(BaseModel, Generic[DataT]):
     page: int = Field(description="当前页码")
     page_size: int = Field(description="每页数量")
     pages: int = Field(description="总页数")
+
+
+class PaginatedResponse(BaseModel, Generic[DataT]):
+    """
+    分页响应格式
+    
+    用于返回分页列表数据
+    """
+    code: int = Field(default=0, description="状态码，0 表示成功")
+    message: str = Field(default="ok", description="响应消息")
+    data: Optional[DataT] = Field(default=None, description="响应数据列表")
+    total: int = Field(default=0, description="总记录数")
+    page: int = Field(default=1, description="当前页码")
+    page_size: int = Field(default=20, description="每页数量")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "code": 0,
+                "message": "ok",
+                "data": [],
+                "total": 100,
+                "page": 1,
+                "page_size": 20
+            }
+        }

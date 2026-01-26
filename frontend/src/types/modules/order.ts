@@ -22,3 +22,12 @@ export interface OrderQuery extends PageParams {
   end_date?: string
   order_no?: string
 }
+
+export interface OrderCreate {
+  store_id: number
+  channel: string
+  order_no: string
+  net_amount: number
+  order_time: string
+  remark?: string
+}

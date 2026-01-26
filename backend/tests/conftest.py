@@ -17,7 +17,7 @@ from sqlalchemy.pool import NullPool
 from app.main import app
 from app.core.database import Base, get_db
 from app.models.user import User, Role, Permission
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 
 
 # 测试数据库URL（使用独立的测试数据库）
@@ -93,7 +93,7 @@ async def test_user(db_session: AsyncSession) -> User:
     user = User(
         username="testuser",
         email="test@example.com",
-        password_hash=get_password_hash("test123"),
+        password_hash=hash_password("test123"),
         full_name="测试用户",
         is_active=True,
         is_superuser=False
@@ -139,7 +139,7 @@ async def admin_user(db_session: AsyncSession) -> User:
     admin = User(
         username="admin",
         email="admin@example.com",
-        password_hash=get_password_hash("admin123"),
+        password_hash=hash_password("admin123"),
         full_name="管理员",
         is_active=True,
         is_superuser=True

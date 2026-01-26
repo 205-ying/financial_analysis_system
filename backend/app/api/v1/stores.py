@@ -47,7 +47,7 @@ async def get_all_stores(
 
 @router.get(
     "",
-    response_model=Response[PageData[List[StoreInDB]]],
+    response_model=Response[PageData[StoreInDB]],
     summary="获取门店列表",
     description="获取门店列表，支持分页和筛选"
 )
@@ -84,11 +84,12 @@ async def list_stores(
         query = query.order_by(Store.created_at.desc())
     
     # 获取总数
-    total_query = select(Store.id)
+    from sqlalchemy import func
+    count_query = select(func.count()).select_from(Store)
     if conditions:
-        total_query = total_query.where(and_(*conditions))
-    total_result = await db.execute(total_query)
-    total = len(total_result.all())
+        count_query = count_query.where(and_(*conditions))
+    count_result = await db.execute(count_query)
+    total = count_result.scalar() or 0
     
     # 应用分页
     offset = (query_params.page - 1) * query_params.page_size
@@ -98,14 +99,17 @@ async def list_stores(
     result = await db.execute(query)
     stores = result.scalars().all()
     
+    # 转换为字典列表
+    store_items = [StoreInDB.model_validate(store).model_dump() for store in stores]
+    
     return success(
-        data=PageData(
-            items=[StoreInDB.model_validate(store) for store in stores],
-            total=total,
-            page=query_params.page,
-            page_size=query_params.page_size,
-            pages=(total + query_params.page_size - 1) // query_params.page_size
-        )
+        data={
+            "items": store_items,
+            "total": total,
+            "page": query_params.page,
+            "page_size": query_params.page_size,
+            "pages": (total + query_params.page_size - 1) // query_params.page_size
+        }
     )
 
 

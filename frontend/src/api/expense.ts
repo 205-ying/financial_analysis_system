@@ -7,6 +7,7 @@ import type {
   ExpenseTypeInfo,
   ExpenseRecordInfo,
   ExpenseRecordQuery,
+  ExpenseRecordCreate,
   PageData
 } from '@/types'
 
@@ -31,4 +32,21 @@ export function getExpenseRecordList(
  */
 export function getExpenseRecordDetail(id: number): Promise<ApiResponse<ExpenseRecordInfo>> {
   return request.get(`/expense-records/${id}`)
+}
+
+/**
+ * 创建费用记录
+ */
+export function createExpenseRecord(data: ExpenseRecordCreate): Promise<ApiResponse<ExpenseRecordInfo>> {
+  return request.post('/expense-records', data)
+}
+
+/**
+ * 导出费用记录
+ */
+export function exportExpenseRecords(params: ExpenseRecordQuery): Promise<Blob> {
+  return request.get('/expense-records/export', { 
+    params,
+    responseType: 'blob'
+  })
 }

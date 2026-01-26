@@ -30,3 +30,11 @@ export interface ExpenseRecordQuery extends PageParams {
   start_date?: string
   end_date?: string
 }
+
+export interface ExpenseRecordCreate {
+  store_id: number
+  expense_type_id: number
+  biz_date: string
+  amount: number
+  remark?: string
+}

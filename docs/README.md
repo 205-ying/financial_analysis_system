@@ -21,7 +21,7 @@
 
 ### 📚 项目历程
 - [project_history.md](project_history.md) - **项目开发历程** ⭐
-  - Stage 2-8 各阶段技术总结
+  - Stage 2-11 各阶段技术总结
   - 完整技术栈说明
   - 核心功能实现要点
 
@@ -29,6 +29,18 @@
 - [system_verification_report_final.md](system_verification_report_final.md) - **系统最终验证报告** ⭐
   - 57/57 项测试通过（100%）
   - 生产就绪状态确认
+
+### 📊 优化报告
+- [optimization_complete.md](optimization_complete.md) - **项目整体优化完成总结** ⭐
+- [file_naming_normalization_report.md](file_naming_normalization_report.md) - **文件命名规范化与引用修复报告** ⭐
+- [project_structure_optimization_report.md](project_structure_optimization_report.md) - 整体结构优化详细报告（含后端、前端、整体三阶段）
+- [frontend_optimization_report.md](frontend_optimization_report.md) - 前端优化详细报告
+
+### 📄 最新功能交付（已归档）
+详细的功能交付文档已移至 [archive/](archive/) 目录：
+- Stage 9: 门店级数据权限 ([store_level_data_scope_delivery.md](archive/store_level_data_scope_delivery.md))
+- Stage 10: 数据导入中心 ([data_import_*.md](archive/))
+- Stage 11: 报表中心 ([reports_*.md](archive/))
 
 ---
 
@@ -38,11 +50,12 @@
 
 包含各开发阶段的详细交付文档：
 
-#### 阶段交付文档（19个）
+#### 阶段交付文档（26个）
 - **交付文档**: stage2-8_delivery.md - 各阶段功能交付说明
 - **测试文档**: stage3-7_test.md - 阶段测试计划和用例
 - **验证文档**: stage6_verification_report.md, stage6_final_verification.md
 - **部署文档**: stage7_deployment.md - 生产部署指南
+- **Stage 9-11 交付**: 门店数据权限、数据导入中心、报表中心完整交付文档
 
 详细的阶段技术总结请查看 [project_history.md](project_history.md)。
 

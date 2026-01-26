@@ -4,20 +4,7 @@
     <el-card class="filter-card" shadow="never">
       <el-form :model="queryForm" :inline="true" label-width="80px">
         <el-form-item label="门店">
-          <el-select
-            v-model="queryForm.store_id"
-            placeholder="请选择门店"
-            clearable
-            style="width: 200px"
-          >
-            <el-option label="全部门店" :value="undefined" />
-            <el-option
-              v-for="store in storeList"
-              :key="store.id"
-              :label="store.name"
-              :value="store.id"
-            />
-          </el-select>
+          <StoreSelect v-model="queryForm.store_id" width="200px" />
         </el-form-item>
 
         <el-form-item label="渠道">
@@ -70,6 +57,7 @@
           <el-button
             type="warning"
             :icon="Download"
+            :loading="exportLoading"
             v-permission="'order:export'"
             @click="handleExport"
           >
@@ -191,6 +179,9 @@
         />
       </div>
     </el-card>
+
+    <!-- 创建订单对话框 -->
+    <CreateOrderDialog v-model="createDialogVisible" @success="handleCreateSuccess" />
   </div>
 </template>
 
@@ -198,13 +189,11 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { Search, Refresh, Plus, Download, View, Edit, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getAllStores } from '@/api/store'
-import { getOrderList } from '@/api/order'
-import type { StoreInfo, OrderInfo, OrderQuery } from '@/types'
+import { getOrderList, exportOrders } from '@/api/order'
+import StoreSelect from '@/components/StoreSelect.vue'
+import CreateOrderDialog from '@/components/dialogs/CreateOrderDialog.vue'
+import type { OrderInfo, OrderQuery } from '@/types'
 import dayjs from 'dayjs'
-
-// 门店列表
-const storeList = ref<StoreInfo[]>([])
 
 // 表格数据
 const tableData = ref<OrderInfo[]>([])
@@ -224,6 +213,12 @@ const queryForm = reactive<OrderQuery>({
 
 // 日期范围
 const dateRange = ref<[string, string]>()
+
+// 对话框状态
+const createDialogVisible = ref(false)
+
+// 导出状态
+const exportLoading = ref(false)
 
 // 统计数据
 const stats = computed(() => {
@@ -268,18 +263,6 @@ const formatNumber = (value: number): string => {
  */
 const formatDateTime = (value: string): string => {
   return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
-}
-
-/**
- * 加载门店列表
- */
-const loadStores = async () => {
-  try {
-    const { data } = await getAllStores()
-    storeList.value = data
-  } catch (error) {
-    console.error('加载门店列表失败:', error)
-  }
 }
 
 /**
@@ -332,14 +315,52 @@ const handleReset = () => {
  * 处理新增
  */
 const handleCreate = () => {
-  ElMessage.info('新增订单功能待实现')
+  createDialogVisible.value = true
+}
+
+/**
+ * 处理创建成功
+ */
+const handleCreateSuccess = () => {
+  loadTableData()
 }
 
 /**
  * 处理导出
  */
-const handleExport = () => {
-  ElMessage.info('导出功能待实现')
+const handleExport = async () => {
+  try {
+    exportLoading.value = true
+    
+    // 准备查询参数
+    const params = {
+      store_id: queryForm.store_id,
+      channel: queryForm.channel,
+      order_no: queryForm.order_no,
+      start_date: queryForm.start_date,
+      end_date: queryForm.end_date
+    }
+    
+    // 调用导出API
+    const blob = await exportOrders(params)
+    
+    // 创建下载链接
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `订单列表_${dayjs().format('YYYYMMDDHHmmss')}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 /**
@@ -376,7 +397,6 @@ const handleDelete = async (row: OrderInfo) => {
 }
 
 onMounted(() => {
-  loadStores()
   loadTableData()
 })
 </script>

@@ -8,22 +8,34 @@
 
 ```
 scripts/
-├── seed_data.py              # 初始化种子数据（核心脚本）
-├── generate_bulk_data.py     # 生成批量测试数据
-├── clean_bulk_data.py        # 清理批量测试数据
-├── maintenance/              # 数据库维护脚本
+├── seed_data.py                      # 初始化种子数据（核心脚本）⭐
+├── generate_bulk_data.py             # 生成批量测试数据
+├── clean_bulk_data.py                # 清理批量测试数据
+├── generate_import_test_data.py      # 生成导入测试数据
+├── add_data_scope_permission.py      # 添加数据权限到数据库
+├── list_users.py                     # 列出所有用户
+├── check_import_db.py                # 检查导入数据库状态
+├── test_import_e2e.py                # 导入功能端到端测试
+├── verify_frontend_import.py         # 验证前端导入功能
+├── verify_import_feature.py          # 验证导入功能完整性
+├── verify_reports.py                 # 验证报表功能
+├── maintenance/                      # 数据库维护脚本
 │   ├── add_audit_permission.py
 │   ├── add_soft_delete_columns.py
 │   ├── fix_audit_log_table.py
 │   ├── fix_detail_column.py
 │   ├── fix_resource_column.py
 │   └── mark_migration_done.py
-└── testing/                  # 测试和检查脚本
-    ├── check_audit_data.py
-    ├── check_audit_table.py
-    ├── check_users.py
-    ├── simple_password_test.py
-    └── test_password.py
+├── testing/                          # 测试和检查脚本
+│   ├── check_audit_data.py
+│   ├── check_audit_table.py
+│   ├── check_users.py
+│   ├── simple_password_test.py
+│   └── test_password.py
+└── test_data_import/                 # 导入测试数据文件
+    ├── *.csv                         # CSV测试文件
+    ├── *.xlsx                        # Excel测试文件
+    └── README.md
 ```
 
 ---
@@ -90,6 +102,58 @@ python scripts/clean_bulk_data.py
 **安全性**:
 - ✅ 只删除测试数据，不影响基础配置
 - ✅ 保留用户、门店、产品等核心数据
+
+---
+
+### generate_import_test_data.py - 生成导入测试数据
+**用途**: 生成数据导入功能的测试CSV/Excel文件
+
+**功能**:
+- 生成门店导入测试数据
+- 生成订单导入测试数据
+- 生成费用记录导入测试数据
+- 生成费用类型导入测试数据
+
+**使用方法**:
+```bash
+cd backend
+python scripts/generate_import_test_data.py
+```
+
+**输出位置**: `scripts/test_data_import/` 目录下的 CSV 和 Excel 文件
+
+---
+
+### verify_import_feature.py - 验证导入功能
+**用途**: 验证数据导入中心功能完整性
+
+**使用方法**:
+```bash
+cd backend
+python scripts/verify_import_feature.py
+```
+
+---
+
+### verify_reports.py - 验证报表功能
+**用途**: 验证报表中心功能完整性
+
+**使用方法**:
+```bash
+cd backend
+python scripts/verify_reports.py
+```
+
+---
+
+### verify_frontend_import.py - 验证前端导入功能
+**用途**: 验证前端导入页面和API集成
+
+**使用方法**:
+```bash
+cd backend
+python scripts/verify_frontend_import.py
+```
 
 ---
 
@@ -255,5 +319,5 @@ if __name__ == "__main__":
 
 ---
 
-**最后更新**: 2026-01-24  
+**最后更新**: 2026-01-26  
 **维护人**: GitHub Copilot

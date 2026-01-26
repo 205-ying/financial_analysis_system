@@ -30,17 +30,19 @@
 financial_analysis_system/
 ├── backend/              # 后端服务（FastAPI + SQLAlchemy 2.0）
 │   ├── app/             # 应用源代码
-│   │   ├── api/         # API 路由和端点
-│   │   ├── core/        # 核心配置（数据库、安全等）
-│   │   ├── models/      # 数据模型（ORM）
+│   │   ├── api/         # API 路由和端点（v1版本）
+│   │   ├── core/        # 核心配置（数据库、安全、异常）
+│   │   ├── models/      # 数据模型（ORM - SQLAlchemy 2.0）
 │   │   ├── schemas/     # Pydantic 数据验证模式
-│   │   └── services/    # 业务逻辑服务
-│   ├── alembic/         # 数据库迁移脚本
+│   │   └── services/    # 业务逻辑服务（审计、KPI计算）
+│   ├── alembic/         # 数据库迁移脚本（Alembic）
 │   ├── scripts/         # 维护和测试脚本
-│   │   ├── maintenance/ # 数据库维护脚本
+│   │   ├── maintenance/ # 数据库维护（备份、清理）
 │   │   ├── testing/     # 测试验证脚本
+│   │   ├── seed_data.py # 初始化数据
 │   │   └── README.md    # 脚本使用文档
-│   ├── tests/           # 后端测试文件
+│   ├── tests/           # 后端测试文件（pytest）
+│   ├── dev.py           # 开发辅助脚本
 │   └── requirements.txt # Python 依赖
 ├── frontend/            # 前端应用（Vue3 + TypeScript + Vite）
 │   ├── src/
@@ -56,12 +58,16 @@ financial_analysis_system/
 │   └── package.json     # 前端依赖
 ├── docs/                # 项目文档
 │   ├── README.md                            # 文档索引 📚
-│   ├── development_guide.md                 # 开发指南
+│   ├── development_guide.md                 # 开发指南 ⭐
+│   ├── project_history.md                   # 项目开发历程（11阶段） ⭐
 │   ├── backend_structure.md                 # 后端架构文档
 │   ├── frontend_structure.md                # 前端架构文档
-│   ├── OPTIMIZATION_HISTORY.md              # 优化历史记录
+│   ├── naming_conventions.md                # 命名规范
+│   ├── dependency_guide.md                  # 依赖管理指南
+│   ├── development_roadmap.md               # 开发路线图
+│   ├── backend_refactoring_guide.md         # 后端重构指南
 │   ├── system_verification_report_final.md  # 系统验证报告
-│   └── archive/         # 历史文档归档（30+ 文件）
+│   └── archive/         # 历史文档归档（26个阶段和交付文档）
 ├── scripts/             # 工具脚本
 │   ├── start.bat        # Windows 启动脚本
 │   ├── start.sh         # Linux/Mac 启动脚本
@@ -118,13 +124,68 @@ bash scripts/start.sh
 
 ## 核心功能
 
-- 🏪 门店管理
-- 📊 订单分析
-- 💰 费用管理
-- 📈 财务指标
-- 👥 用户权限管理
-- 📝 审计日志
-- 📊 数据可视化
+### 1. 用户认证与权限管理 🔐
+- JWT 令牌认证（access_token + refresh_token）
+- 基于角色的访问控制（RBAC）
+- 28+ 细粒度权限（user:view, store:create, kpi:export等）
+- 完整的用户操作审计日志
+- 三种预定义角色（管理员、经理、收银员）
+
+### 2. 门店管理 🏪
+- 门店信息CRUD（增删改查）
+- 产品分类与产品管理
+- 软删除机制
+- 按门店查看订单和KPI
+
+### 3. 订单管理 📦
+- 订单头和订单项完整管理
+- 订单状态流转
+- 订单统计分析（按门店、时间）
+- 客单价、订单数等关键指标
+
+### 4. 费用管理 💰
+- 费用类型自定义配置
+- 费用记录批量导入导出
+- 多维度费用统计（按类型、门店、时间）
+- 月度/季度/年度对比分析
+
+### 5. KPI 数据管理 📊
+- 每日KPI数据采集
+- 多维度统计（销售、成本、利润、效率）
+- 趋势分析（同比、环比）
+- KPI数据导出（Excel）
+
+### 6. 审计日志 📝
+- 自动记录所有关键操作
+- 用户登录/登出追踪
+- 数据变更详细记录
+- IP地址和时间戳记录
+
+### 7. 数据可视化 📈
+- ECharts 图表集成
+- 销售趋势图表
+- 费用分析图表
+- KPI仪表盘
+- 多维度数据对比
+
+### 8. 数据导入中心 📥
+- CSV批量导入（门店、订单、费用）
+- 实时进度跟踪
+- 详细错误记录和报告
+- 支持增量和全量导入
+
+### 9. 报表中心 📊
+- 日汇总报表（销售、订单、费用）
+- 月汇总报表（同比、环比）
+- 门店绩效报表（排名、对比）
+- 费用明细报表（占比分析）
+- Excel一键导出
+
+### 10. 门店级数据权限 🔐
+- 细粒度数据访问控制
+- 用户只能查看授权门店数据
+- 结合RBAC的多层权限体系
+- 多租户数据隔离
 
 ## API 文档
 
@@ -155,25 +216,28 @@ python scripts/verify_system.py
 
 **核心文档** ⭐
 - [docs/README.md](docs/README.md) - 📚 文档索引（查看所有文档）
-- [docs/development_guide.md](docs/development_guide.md) - 开发指南
+- [docs/development_guide.md](docs/development_guide.md) - 开发指南（启动、开发流程）
+- [docs/project_history.md](docs/project_history.md) - 项目开发历程（Stage 2-11总结）
 - [docs/backend_structure.md](docs/backend_structure.md) - 后端架构说明
 - [docs/frontend_structure.md](docs/frontend_structure.md) - 前端架构说明
 
 **工具文档**
 - [backend/scripts/README.md](backend/scripts/README.md) - 后端脚本使用指南
-- [docs/optimization_history.md](docs/optimization_history.md) - 项目优化历史
-- [docs/project_optimization_report.md](docs/project_optimization_report.md) - 项目优化报告
+- [docs/naming_conventions.md](docs/naming_conventions.md) - 命名规范
+- [docs/dependency_guide.md](docs/dependency_guide.md) - 依赖管理指南
+- [docs/development_roadmap.md](docs/development_roadmap.md) - 开发路线图
 
 **验证报告**
 - [docs/system_verification_report_final.md](docs/system_verification_report_final.md) - 系统验证报告（57/57 通过）
 
-> 💡 更多历史文档请查看 [docs/archive/](docs/archive/) 目录
+> 💡 更多历史文档请查看 [docs/archive/](docs/archive/) 目录（26个阶段和交付文档）
 
 ## 项目状态
 
-✅ **当前版本**: v1.0.0-production-ready  
+✅ **当前版本**: v1.1.0-production-ready  
 ✅ **系统状态**: 🟢 生产就绪  
 ✅ **测试通过率**: 100% (57/57)  
-✅ **代码质量**: ⭐⭐⭐⭐⭐ 优秀
+✅ **代码质量**: ⭐⭐⭐⭐⭐ 优秀  
+✅ **功能完成度**: Stage 2-11 全部完成
 
-最后更新：2026-01-23
+最后更新：2026-01-26

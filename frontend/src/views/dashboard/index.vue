@@ -171,8 +171,9 @@ const loadKPISummary = async () => {
   try {
     const { data } = await getKPISummary(currentQuery.value)
     Object.assign(kpiSummary, data)
-  } catch (error) {
-    console.error('加载 KPI 汇总数据失败:', error)
+  } catch (error: any) {
+    console.error('加载 KPI 汇总数据失败:', error.message || error)
+    ElMessage.error('加载汇总数据失败')
   }
 }
 
@@ -184,11 +185,14 @@ const loadKPITrend = async () => {
     showTrendLoading()
     const { data } = await getKPITrend(currentQuery.value)
     // 后端返回的是 {items: [], summary: {}}，需要提取 items
-    const trendItems = (data as any).items || data
-    trendData.value = trendItems
-    renderTrendChart(trendItems)
-  } catch (error) {
-    console.error('加载 KPI 趋势数据失败:', error)
+    const trendItems = (data as any).items || data || []
+    trendData.value = Array.isArray(trendItems) ? trendItems : []
+    renderTrendChart(trendData.value)
+  } catch (error: any) {
+    console.error('加载 KPI 趋势数据失败:', error.message || error)
+    ElMessage.error('加载趋势数据失败')
+    trendData.value = []
+    renderTrendChart([])
   } finally {
     hideTrendLoading()
   }
@@ -198,10 +202,26 @@ const loadKPITrend = async () => {
  * 渲染趋势图表
  */
 const renderTrendChart = (data: KPITrendItem[]) => {
+  // 数据为空时不渲染
+  if (!data || data.length === 0) {
+    setTrendOption({
+      title: {
+        text: '暂无数据',
+        left: 'center',
+        top: 'center',
+        textStyle: {
+          color: '#999',
+          fontSize: 14
+        }
+      }
+    })
+    return
+  }
+
   const dates = data.map(item => item.date)
-  const revenues = data.map(item => item.revenue)
-  const costs = data.map(item => item.cost)
-  const profits = data.map(item => item.profit)
+  const revenues = data.map(item => item.revenue || 0)
+  const costs = data.map(item => item.cost || 0)
+  const profits = data.map(item => item.profit || 0)
 
   const option: ECOption = {
     tooltip: {

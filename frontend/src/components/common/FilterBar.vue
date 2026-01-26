@@ -2,20 +2,7 @@
   <el-card class="filter-card" shadow="never">
     <el-form :model="filterForm" :inline="true" label-width="80px">
       <el-form-item label="门店">
-        <el-select
-          v-model="filterForm.store_id"
-          placeholder="请选择门店"
-          clearable
-          style="width: 200px"
-        >
-          <el-option label="全部门店" :value="undefined" />
-          <el-option
-            v-for="store in storeList"
-            :key="store.id"
-            :label="store.name"
-            :value="store.id"
-          />
-        </el-select>
+        <StoreSelect v-model="filterForm.store_id" width="200px" />
       </el-form-item>
 
       <el-form-item label="日期范围">
@@ -43,8 +30,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
-import { getAllStores } from '@/api/store'
-import type { StoreInfo } from '@/types'
+import StoreSelect from '@/components/StoreSelect.vue'
 import dayjs from 'dayjs'
 
 interface FilterForm {
@@ -65,9 +51,6 @@ const emit = defineEmits<{
   query: [filters: FilterForm]
   reset: []
 }>()
-
-// 门店列表
-const storeList = ref<StoreInfo[]>([])
 
 // 筛选表单
 const filterForm = reactive<FilterForm>({
@@ -109,18 +92,6 @@ const dateShortcuts = [
     }
   }
 ]
-
-/**
- * 加载门店列表
- */
-const loadStores = async () => {
-  try {
-    const { data } = await getAllStores()
-    storeList.value = data
-  } catch (error) {
-    console.error('加载门店列表失败:', error)
-  }
-}
 
 /**
  * 处理查询
@@ -168,7 +139,6 @@ const initDefaultDateRange = () => {
 }
 
 onMounted(() => {
-  loadStores()
   initDefaultDateRange()
   // 自动触发一次查询
   handleQuery()

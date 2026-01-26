@@ -37,7 +37,8 @@ export const DATE_FORMAT = {
 }
 
 // 请求超时时间（毫秒）
-export const REQUEST_TIMEOUT = 30000
+// 报表查询可能涉及大量数据聚合，设置为60秒
+export const REQUEST_TIMEOUT = 60000
 
 // Token过期时间（毫秒）
 export const TOKEN_EXPIRE_TIME = 30 * 60 * 1000 // 30分钟

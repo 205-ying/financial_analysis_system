@@ -98,9 +98,17 @@ class User(Base, IDMixin, TimestampMixin):
     
     # 关联关系
     roles: Mapped[List["Role"]] = relationship(
+        "Role",
         secondary=user_role,
         back_populates="users",
         lazy="selectin"
+    )
+    
+    # 门店数据权限
+    store_permissions: Mapped[List["UserStorePermission"]] = relationship(
+        "UserStorePermission",
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
     
     def __repr__(self) -> str:

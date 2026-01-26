@@ -22,6 +22,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.user import User, Role, Permission, user_role, role_permission
 from app.models.store import Store, ProductCategory, Product
 from app.models.expense import ExpenseType
+from app.models.user_store import UserStorePermission
 
 
 def hash_password(password: str) -> str:
@@ -75,9 +76,22 @@ async def seed_users_and_permissions(session: AsyncSession):
         Permission(code="kpi:view", name="查看 KPI", resource="kpi", action="view", description="查看 KPI 报表"),
         Permission(code="kpi:export", name="导出 KPI", resource="kpi", action="export", description="导出 KPI 数据"),
         
+        # 数据导入
+        Permission(code="import_job:create", name="创建导入任务", resource="import_job", action="create", description="上传文件创建导入任务"),
+        Permission(code="import_job:run", name="执行导入任务", resource="import_job", action="run", description="执行数据导入"),
+        Permission(code="import_job:view", name="查看导入任务", resource="import_job", action="view", description="查看导入任务列表和详情"),
+        Permission(code="import_job:download", name="下载错误报告", resource="import_job", action="download", description="下载导入错误报告"),
+        
+        # 报表中心
+        Permission(code="report:view", name="查看报表", resource="report", action="view", description="查看各类报表"),
+        Permission(code="report:export", name="导出报表", resource="report", action="export", description="导出报表为Excel文件"),
+        
         # 系统管理
         Permission(code="system:config", name="系统配置", resource="system", action="config", description="系统配置管理"),
         Permission(code="system:audit", name="审计日志", resource="system", action="audit", description="查看审计日志"),
+        
+        # 用户门店权限管理
+        Permission(code="user:assign-store", name="分配门店权限", resource="user", action="assign-store", description="为用户分配门店数据权限"),
     ]
     session.add_all(permissions)
     await session.flush()  # 确保权限 ID 生成
@@ -603,6 +617,49 @@ async def seed_expense_types(session: AsyncSession):
     print(f"  ✅ 创建了 6 个一级科目和 6 个二级科目")
 
 
+async def seed_user_store_permissions(session: AsyncSession):
+    """初始化用户门店权限（用于测试数据权限功能）"""
+    print("🔑 初始化用户门店权限...")
+    
+    # 检查是否已经初始化过
+    result = await session.execute(select(UserStorePermission).limit(1))
+    if result.scalar_one_or_none() is not None:
+        print("  ⚠️  用户门店权限已存在，跳过初始化")
+        return
+    
+    # 获取门店和用户（需要重新查询，因为可能是在同一事务内）
+    from sqlalchemy import func
+    stores_result = await session.execute(select(Store).order_by(Store.id))
+    stores = stores_result.scalars().all()
+    
+    # 获取manager用户
+    manager_result = await session.execute(select(User).where(User.username == "manager"))
+    manager = manager_result.scalar_one_or_none()
+    
+    print(f"  调试信息: 找到 {len(stores)} 个门店")
+    print(f"  调试信息: manager 用户: {manager is not None}")
+    
+    if not manager:
+        print("  ⚠️  manager 用户不存在，跳过门店权限初始化")
+        return
+    
+    if not stores:
+        print("  ⚠️  门店不存在，跳过门店权限初始化")
+        return
+    
+    # 为manager用户分配第一个门店的权限（用于测试数据权限）
+    first_store = stores[0]
+    permission = UserStorePermission(
+        user_id=manager.id,
+        store_id=first_store.id
+    )
+    session.add(permission)
+    
+    print(f"  ✅ 为 manager 分配了门店权限: {first_store.name} (ID={first_store.id})")
+    print(f"  ℹ️  admin 用户为超级管理员，自动拥有所有门店权限")
+    print(f"  ℹ️  cashier 用户未分配门店权限，默认可访问所有门店（向后兼容）")
+
+
 async def main():
     """主函数"""
     print("\n" + "="*60)
@@ -617,6 +674,7 @@ async def main():
             categories = await seed_product_categories(session)
             await seed_products(session, categories)
             await seed_expense_types(session)
+            await seed_user_store_permissions(session)
             
             # 提交事务
             await session.commit()

@@ -49,7 +49,7 @@ class StoreInDB(StoreBase):
 class StoreListQuery(BaseModel):
     """门店列表查询参数"""
     page: int = Field(1, ge=1, description="页码")
-    page_size: int = Field(20, ge=1, le=100, description="每页大小")
+    page_size: int = Field(20, ge=1, le=500, description="每页大小，最大500条")
     name: Optional[str] = Field(None, description="门店名称（模糊匹配）")
     city: Optional[str] = Field(None, description="城市")
     status: Optional[str] = Field(None, description="门店状态")
