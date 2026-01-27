@@ -1,8 +1,33 @@
 """
-审计日志服务
+审计日志服务 - API 层便捷函数
+
+📌 使用场景：API 路由中快速记录审计日志
+✅ 推荐用于：有 FastAPI Request 对象的场景
+❌ 不推荐用于：后台任务、定时任务、脚本
+
+核心函数：
+- create_audit_log(request=Request, ...) - 自动提取 IP/UA/路径
+
+替代选择：
+- 后台任务/脚本请使用 audit_log_service.log_audit()
+- 复杂查询请使用 audit_log_service.AuditLogService
+
+示例：
+    from app.services.audit import create_audit_log
+    
+    @router.post("/orders")
+    async def create_order(request: Request, ...):
+        order = await create_order_logic(...)
+        await create_audit_log(
+            db=db,
+            user=current_user,
+            action="CREATE",
+            resource="order",
+            resource_id=str(order.id),
+            request=request  # ⭐ 自动提取 IP/UA
+        )
 """
 
-from datetime import datetime
 from typing import Any, Optional
 
 from fastapi import Request
@@ -21,11 +46,11 @@ async def create_audit_log(
     detail: Optional[dict[str, Any]] = None,
     request: Optional[Request] = None,
     status_code: Optional[int] = None,
-    error_message: Optional[str] = None
+    error_message: Optional[str] = None,
 ) -> AuditLog:
     """
     创建审计日志
-    
+
     Args:
         db: 数据库会话
         user: 操作用户（可选，匿名操作传 None）
@@ -36,10 +61,10 @@ async def create_audit_log(
         request: FastAPI Request 对象（用于提取 IP、UA、路径）
         status_code: HTTP 状态码
         error_message: 错误信息（操作失败时）
-        
+
     Returns:
         AuditLog: 创建的审计日志对象
-        
+
     Examples:
         ```python
         # 记录用户登录
@@ -52,7 +77,7 @@ async def create_audit_log(
             request=request,
             status_code=200
         )
-        
+
         # 记录订单创建
         await create_audit_log(
             db=db,
@@ -73,13 +98,13 @@ async def create_audit_log(
     # 过滤敏感字段
     if detail:
         detail = _filter_sensitive_data(detail)
-    
+
     # 提取请求信息
     ip_address = None
     user_agent = None
     method = None
     path = None
-    
+
     if request:
         # 获取真实 IP（考虑代理）
         forwarded = request.headers.get("X-Forwarded-For")
@@ -87,11 +112,11 @@ async def create_audit_log(
             ip_address = forwarded.split(",")[0].strip()
         else:
             ip_address = request.client.host if request.client else None
-        
+
         user_agent = request.headers.get("User-Agent")
         method = request.method
         path = str(request.url.path)
-    
+
     # 创建审计日志
     audit_log = AuditLog(
         user_id=user.id if user else None,
@@ -103,24 +128,24 @@ async def create_audit_log(
         ip_address=ip_address,
         user_agent=user_agent,
         status="success" if status_code and 200 <= status_code < 300 else "failure",
-        error_message=error_message
+        error_message=error_message,
     )
-    
+
     db.add(audit_log)
     await db.flush()
-    
+
     return audit_log
 
 
 def _filter_sensitive_data(data: dict[str, Any]) -> dict[str, Any]:
     """
     过滤敏感数据
-    
+
     移除密码、令牌等敏感字段
-    
+
     Args:
         data: 原始数据
-        
+
     Returns:
         dict: 过滤后的数据
     """
@@ -133,9 +158,9 @@ def _filter_sensitive_data(data: dict[str, Any]) -> dict[str, Any]:
         "secret",
         "api_key",
         "private_key",
-        "credential"
+        "credential",
     }
-    
+
     filtered = {}
     for key, value in data.items():
         # 跳过敏感字段
@@ -152,7 +177,7 @@ def _filter_sensitive_data(data: dict[str, Any]) -> dict[str, Any]:
             ]
         else:
             filtered[key] = value
-    
+
     return filtered
 
 
@@ -163,11 +188,11 @@ async def log_operation(
     resource: str,
     resource_id: str,
     detail: dict[str, Any],
-    request: Request
+    request: Request,
 ) -> None:
     """
     便捷函数：记录成功的操作
-    
+
     Args:
         db: 数据库会话
         user: 操作用户
@@ -185,7 +210,7 @@ async def log_operation(
         resource_id=resource_id,
         detail=detail,
         request=request,
-        status_code=200
+        status_code=200,
     )
 
 
@@ -196,11 +221,11 @@ async def log_error(
     resource: str,
     error_message: str,
     request: Request,
-    status_code: int = 500
+    status_code: int = 500,
 ) -> None:
     """
     便捷函数：记录失败的操作
-    
+
     Args:
         db: 数据库会话
         user: 操作用户
@@ -217,5 +242,5 @@ async def log_error(
         resource=resource,
         error_message=error_message,
         request=request,
-        status_code=status_code
+        status_code=status_code,
     )

@@ -1,28 +1,64 @@
 """
-审计日志服务
+审计日志服务 - 完整服务（OOP + 查询）
 
-提供审计日志的创建、查询等功能
+📌 使用场景：
+1. 后台任务、定时任务、脚本（无 Request 对象）
+2. 复杂查询（分页、过滤、统计）
+3. 面向对象编程风格
+
+核心组件：
+- log_audit() - 便捷函数（适用于脚本/任务）
+- AuditLogService - 完整服务类（查询 + 统计）
+
+替代选择：
+- API 路由请优先使用 audit.create_audit_log()
+
+示例1（脚本/任务）：
+    from app.services.audit_log_service import log_audit
+    
+    # 定时任务中记录操作
+    await log_audit(
+        db=db,
+        user_id=1,
+        action="SYNC",
+        resource_type="kpi",
+        ip_address="127.0.0.1"  # ⭐ 手动传入 IP
+    )
+
+示例2（复杂查询）：
+    from app.services.audit_log_service import AuditLogService
+    
+    service = AuditLogService(db)
+    logs = await service.list_logs(
+        user_id=1,
+        action="CREATE",
+        page=1,
+        page_size=20
+    )
 """
 
 import json
-from datetime import datetime
 from typing import Optional
 
 from fastapi import Request
-from sqlalchemy import select, and_, or_, func, desc, asc
+from sqlalchemy import select, and_, func, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit_log import AuditLog
 from app.models.user import User
-from app.schemas.audit_log import AuditLogCreate, AuditLogListRequest, AuditLogListResponse, AuditLogResponse
+from app.schemas.audit_log import (
+    AuditLogListRequest,
+    AuditLogListResponse,
+    AuditLogResponse,
+)
 
 
 class AuditLogService:
     """审计日志服务类"""
-    
+
     def __init__(self, db: AsyncSession):
         self.db = db
-    
+
     async def create_log(
         self,
         action: str,
@@ -38,7 +74,7 @@ class AuditLogService:
     ) -> AuditLog:
         """
         创建审计日志记录
-        
+
         Args:
             action: 操作类型
             username: 操作用户名
@@ -50,14 +86,14 @@ class AuditLogService:
             user_agent: 客户端User-Agent
             status: 操作结果
             error_message: 错误信息
-            
+
         Returns:
             创建的审计日志对象
         """
         # 过滤敏感信息
         if detail:
             detail = self._filter_sensitive_info(detail)
-        
+
         audit_log = AuditLog(
             user_id=user_id,
             username=username,
@@ -70,78 +106,78 @@ class AuditLogService:
             status=status,
             error_message=error_message,
         )
-        
+
         self.db.add(audit_log)
         await self.db.commit()
         await self.db.refresh(audit_log)
-        
+
         return audit_log
-    
+
     async def get_logs(
         self,
         request: AuditLogListRequest,
     ) -> AuditLogListResponse:
         """
         查询审计日志列表
-        
+
         Args:
             request: 查询请求参数
-            
+
         Returns:
             分页的日志列表
         """
         # 构建查询条件
         conditions = []
-        
+
         if request.user_id:
             conditions.append(AuditLog.user_id == request.user_id)
-        
+
         if request.username:
             conditions.append(AuditLog.username.ilike(f"%{request.username}%"))
-        
+
         if request.action:
             conditions.append(AuditLog.action == request.action)
-        
+
         if request.resource_type:
             conditions.append(AuditLog.resource_type == request.resource_type)
-        
+
         if request.status:
             conditions.append(AuditLog.status == request.status)
-        
+
         if request.start_date:
             conditions.append(AuditLog.created_at >= request.start_date)
-        
+
         if request.end_date:
             conditions.append(AuditLog.created_at <= request.end_date)
-        
+
         # 构建查询
         query = select(AuditLog)
         if conditions:
             query = query.where(and_(*conditions))
-        
+
         # 计算总数
         count_query = select(func.count()).select_from(query.subquery())
         result = await self.db.execute(count_query)
         total = result.scalar_one()
-        
+
         # 排序
         sort_column = getattr(AuditLog, request.sort_by, AuditLog.created_at)
         if request.sort_order == "desc":
             query = query.order_by(desc(sort_column))
         else:
             query = query.order_by(asc(sort_column))
-        
+
         # 分页
         offset = (request.page - 1) * request.page_size
         query = query.offset(offset).limit(request.page_size)
-        
+
         # 执行查询
         result = await self.db.execute(query)
         logs = result.scalars().all()
-        
+
         # 计算总页数
         total_pages = (total + request.page_size - 1) // request.page_size
-        
+
         return AuditLogListResponse(
             total=total,
             page=request.page,
@@ -149,30 +185,28 @@ class AuditLogService:
             total_pages=total_pages,
             items=[AuditLogResponse.model_validate(log) for log in logs],
         )
-    
+
     async def get_log_by_id(self, log_id: int) -> Optional[AuditLog]:
         """
         根据ID获取审计日志
-        
+
         Args:
             log_id: 日志ID
-            
+
         Returns:
             审计日志对象，如果不存在则返回None
         """
-        result = await self.db.execute(
-            select(AuditLog).where(AuditLog.id == log_id)
-        )
+        result = await self.db.execute(select(AuditLog).where(AuditLog.id == log_id))
         return result.scalar_one_or_none()
-    
+
     @staticmethod
     def _filter_sensitive_info(detail: dict) -> dict:
         """
         过滤敏感信息
-        
+
         Args:
             detail: 原始详情字典
-            
+
         Returns:
             过滤后的字典
         """
@@ -187,7 +221,7 @@ class AuditLogService:
             "api_key",
             "private_key",
         ]
-        
+
         filtered = {}
         for key, value in detail.items():
             # 检查键名是否包含敏感词
@@ -198,17 +232,17 @@ class AuditLogService:
                 filtered[key] = AuditLogService._filter_sensitive_info(value)
             else:
                 filtered[key] = value
-        
+
         return filtered
-    
+
     @staticmethod
     def get_client_ip(request: Request) -> str:
         """
         获取客户端IP地址
-        
+
         Args:
             request: FastAPI请求对象
-            
+
         Returns:
             客户端IP地址
         """
@@ -216,26 +250,26 @@ class AuditLogService:
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
-        
+
         # 其次从 X-Real-IP 获取
         real_ip = request.headers.get("X-Real-IP")
         if real_ip:
             return real_ip
-        
+
         # 最后使用直连IP
         if request.client:
             return request.client.host
-        
+
         return "unknown"
-    
+
     @staticmethod
     def get_user_agent(request: Request) -> str:
         """
         获取客户端User-Agent
-        
+
         Args:
             request: FastAPI请求对象
-            
+
         Returns:
             User-Agent字符串
         """
@@ -256,7 +290,7 @@ async def log_audit(
 ) -> AuditLog:
     """
     记录审计日志的便捷函数
-    
+
     Args:
         db: 数据库会话
         action: 操作类型
@@ -267,12 +301,12 @@ async def log_audit(
         detail: 操作详情
         status: 操作结果
         error_message: 错误信息
-        
+
     Returns:
         创建的审计日志对象
     """
     service = AuditLogService(db)
-    
+
     return await service.create_log(
         action=action,
         username=user.username,
