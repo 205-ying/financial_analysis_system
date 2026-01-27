@@ -23,11 +23,16 @@ ENV/
 htmlcov/
 *.cover
 
+# Ruff cache
+.ruff_cache/
+
 # Logs
+logs/
 logs/*.log
 logs/*.txt
 
 # Environment
+.env
 .env.local
 .env.*.local
 

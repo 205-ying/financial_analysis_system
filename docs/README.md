@@ -32,9 +32,18 @@
 
 ### 📊 优化报告
 - [optimization_complete.md](optimization_complete.md) - **项目整体优化完成总结** ⭐
-- [file_naming_normalization_report.md](file_naming_normalization_report.md) - **文件命名规范化与引用修复报告** ⭐
-- [project_structure_optimization_report.md](project_structure_optimization_report.md) - 整体结构优化详细报告（含后端、前端、整体三阶段）
-- [frontend_optimization_report.md](frontend_optimization_report.md) - 前端优化详细报告
+
+### 📋 历史报告与分析
+- [reports/](reports/) - 历史报告与分析文档
+  - [file_naming_normalization_report.md](reports/file_naming_normalization_report.md) - 文件命名规范化报告
+  - [project_structure_optimization_report.md](reports/project_structure_optimization_report.md) - 结构优化报告
+  - [frontend_optimization_report.md](reports/frontend_optimization_report.md) - 前端优化报告
+  - [代码瘦身与冗余清理报告.md](reports/代码瘦身与冗余清理报告.md) - 代码清理报告
+  - [跨端一致性审计报告.md](reports/跨端一致性审计报告.md) - 一致性审计报告
+  - [前端清理完成报告.md](reports/前端清理完成报告.md) - 前端清理完成报告
+  - [类型常量去重分析.md](reports/类型常量去重分析.md) - 类型去重分析
+  - [页面权限映射表.md](reports/页面权限映射表.md) - 页面权限映射
+  - [项目文件目录树.md](reports/项目文件目录树.md) - 项目目录树
 
 ### 📄 最新功能交付（已归档）
 详细的功能交付文档已移至 [archive/](archive/) 目录：
