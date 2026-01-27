@@ -12,6 +12,29 @@
 - **Vue Router 4.2.5** - Vue 官方路由
 - **Axios 1.6.5** - 基于 Promise 的 HTTP 客户端
 
+## 自动生成文件
+
+项目使用以下插件自动生成类型声明文件：
+
+### auto-imports.d.ts
+- **生成工具**: `unplugin-auto-import`
+- **用途**: 自动导入 Vue、Vue Router、Pinia 等常用 API，无需手动 import
+- **配置**: [vite.config.ts](vite.config.ts) - AutoImport 插件
+- **Git 策略**: ❌ 不提交（已在 .gitignore 中忽略）
+- **可再生性**: ✅ 运行 `npm run dev` 或 `npm run build` 时自动生成
+
+### components.d.ts
+- **生成工具**: `unplugin-vue-components`
+- **用途**: 自动导入 Element Plus 组件和项目组件，提供类型提示
+- **配置**: [vite.config.ts](vite.config.ts) - Components 插件
+- **Git 策略**: ❌ 不提交（已在 .gitignore 中忽略）
+- **可再生性**: ✅ 运行 `npm run dev` 或 `npm run build` 时自动生成
+
+**重要提示**: 
+- 这两个文件由构建工具自动维护，**禁止手动编辑**
+- CI/CD 环境需在构建前运行 `npm install` 以触发插件生成
+- 如果本地缺失这些文件，运行 `npm run dev` 即可自动生成
+
 ## 快速开始
 
 ### 安装依赖
@@ -49,15 +72,17 @@ npm run type-check
 ## 项目结构
 
 ```
+public/               # 静态资源目录（不经过 Vite 处理）
+                      # 用途：放置 favicon.ico、robots.txt 等需要保持原始路径的文件
+                      # 访问方式：/public/file.ext → http://localhost:5173/file.ext
 src/
-├── api/              # API 接口
+├── api/              # API 接口（无 index.ts，直接按模块导入）
 │   ├── auth.ts      # 认证接口
 │   ├── order.ts     # 订单接口
 │   ├── expense.ts   # 费用接口
 │   ├── store.ts     # 门店接口
 │   ├── kpi.ts       # KPI 接口
-│   └── index.ts     # 统一导出
-├── assets/           # 静态资源
+│   └── reports.ts   # 报表接口
 ├── components/       # 公共组件
 │   └── FilterBar.vue
 ├── composables/      # 组合式函数

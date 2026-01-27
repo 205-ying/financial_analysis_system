@@ -498,6 +498,81 @@ tail -f backend/logs/app.log
 - 前端: 使用浏览器开发者工具
 - 数据库: PostgreSQL 慢查询日志
 
+## 前端自动生成文件管理
+
+### 生成文件策略
+
+项目采用 **不提交策略（Git Ignore）** 管理自动生成的类型声明文件：
+
+#### auto-imports.d.ts
+- **生成工具**: `unplugin-auto-import` 
+- **用途**: 自动导入 Vue、Vue Router、Pinia、VueUse 等常用 API
+- **配置位置**: [frontend/vite.config.ts](../frontend/vite.config.ts)
+- **Git 策略**: ❌ 不提交（已在 `.gitignore` 忽略）
+- **生成时机**: 运行 `npm run dev` 或 `npm run build` 时自动生成
+- **可再生性**: ✅ 完全可再生，每次构建自动更新
+
+#### components.d.ts
+- **生成工具**: `unplugin-vue-components`
+- **用途**: 自动导入 Element Plus 组件和项目组件，提供类型提示
+- **配置位置**: [frontend/vite.config.ts](../frontend/vite.config.ts)
+- **Git 策略**: ❌ 不提交（已在 `.gitignore` 忽略）
+- **生成时机**: 运行 `npm run dev` 或 `npm run build` 时自动生成
+- **可再生性**: ✅ 完全可再生，根据组件使用情况自动更新
+
+### CI/CD 配置要求
+
+```yaml
+# 示例: .github/workflows/frontend.yml
+- name: Install dependencies
+  run: cd frontend && npm install
+  # ↑ npm install 会触发 postinstall 钩子，生成类型文件
+
+- name: Type check
+  run: cd frontend && npm run type-check
+  # ↑ 此时 auto-imports.d.ts 和 components.d.ts 已存在
+
+- name: Build
+  run: cd frontend && npm run build
+```
+
+**重要提示**:
+- 🚫 **禁止手动编辑** 这两个文件，所有修改会在下次构建时被覆盖
+- ✅ CI/CD 环境只需运行 `npm install`，插件会自动生成所需文件
+- ⚠️ 如果遇到类型错误，检查 `vite.config.ts` 中的 AutoImport 和 Components 配置
+
+### barrel exports (index.ts) 使用规范
+
+项目中各模块的 `index.ts` 导出策略：
+
+| 模块 | 是否使用 index.ts | 用途 | 说明 |
+|------|------------------|------|------|
+| **api/** | ❌ 不使用 | - | 直接按模块导入（如 `@/api/auth`），无统一导出入口 |
+| **types/** | ✅ 使用 | 统一类型导出 | 核心入口，所有类型从此导出 |
+| **stores/** | ✅ 使用 | setupStore + 导出stores | main.ts 需要 setupStore 函数 |
+| **directives/** | ✅ 使用 | 导出指令安装函数 | main.ts 需要 setupPermissionDirective |
+| **components/** | ✅ 使用 | 导出公共组件 | FilterBar 等公共组件统一导出 |
+| **config/** | ✅ 使用 | 导出配置常量 | 环境变量、常量统一管理 |
+| **router/** | ✅ 使用 | 标准路由入口 | Vue Router 标准结构 |
+
+**导入示例**:
+```typescript
+// ✅ 推荐 - 使用 index.ts 的模块
+import { LoginRequest, UserInfo } from '@/types'
+import { setupStore } from '@/stores'
+import { setupPermissionDirective } from '@/directives'
+import { FilterBar } from '@/components'
+import { STORAGE_KEYS } from '@/config'
+
+// ✅ 推荐 - API 直接按模块导入
+import { login, logout } from '@/api/auth'
+import { getOrderList } from '@/api/order'
+import { getKPISummary } from '@/api/kpi'
+
+// ❌ 避免 - api 无统一导出
+// import { authApi } from '@/api'  // ❌ api/index.ts 已删除
+```
+
 ## 参考资料
 
 - [FastAPI 官方文档](https://fastapi.tiangolo.com/)
