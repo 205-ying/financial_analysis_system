@@ -1,4 +1,4 @@
-# 文档二次治理执行报告
+﻿# 文档二次治理执行报告
 
 **执行日期**: 2026年1月27日  
 **执行范围**: 文档结构优化，建立 INDEX 索引体系  
@@ -35,7 +35,7 @@
 - docs/reports/ 目录下有 19 个报告文件
 - README.md 和 docs/README.md 逐一列举文件名
 - 缺少主题分类和时间线导航
-- 重复文件未标注（项目文件目录树.md vs 项目完整目录树.md）
+- 重复文件未标注（project_file_directory_tree.md vs project_complete_directory_tree.md）
 
 **影响**:
 - 新人难以快速找到相关报告
@@ -73,8 +73,8 @@
 - 项目结构优化交付
 
 ### 🗂️ 目录树（2个文件）
-- 项目完整目录树.md（保留）
-- 项目文件目录树.md（重复，待删除）
+- project_complete_directory_tree.md（保留）
+- project_file_directory_tree.md（重复，待删除）
 
 ## 🎯 按时间线分类
 ### 2026-01-27（8个文件）
@@ -88,15 +88,15 @@
 
 ## 📋 推荐阅读路径
 ### 🆕 新人了解项目优化历程
-1. 仓库清理执行报告.md
-2. 二次结构优化诊断报告.md
-3. 后端二次收敛执行报告.md
-4. 前端二次结构优化执行报告.md
-5. 文档治理执行报告.md
+1. repository_cleanup_report.md
+2. second_structure_optimization_diagnosis.md
+3. backend_second_convergence_report.md
+4. frontend_second_optimization_report.md
+5. documentation_governance_report.md
 
 ## 🗑️ 待清理文件（建议删除或合并）
 ### 重复文件
-- ❌ 项目文件目录树.md（与"项目完整目录树.md"重复，相差0.1 KB）
+- ❌ project_file_directory_tree.md（与"project_complete_directory_tree.md"重复，相差0.1 KB）
 
 ### 已过时文件
 - ⚠️ project_structure_optimization_report.md（已被二次优化替代）
@@ -116,7 +116,7 @@
 - ✅ docs/reports/INDEX.md 已创建（264行）
 
 **内容完整性**:
-- ✅ 18个报告文件全部覆盖（项目文件目录树.md 后续删除）
+- ✅ 18个报告文件全部覆盖（project_file_directory_tree.md 后续删除）
 - ✅ 6大主题分类清晰
 - ✅ 时间线和推荐路径完整
 - ✅ 重复文件标注明确（含哈希对比证据）
@@ -139,14 +139,14 @@ $ cat docs/reports/INDEX.md | grep ".md" | wc -l
 **发现**:
 ```bash
 $ ls -lh docs/reports/ | grep "项目"
-项目完整目录树.md   30173 bytes (29.5 KB)
-项目文件目录树.md   30103 bytes (29.4 KB)
+project_complete_directory_tree.md   30173 bytes (29.5 KB)
+project_file_directory_tree.md   30103 bytes (29.4 KB)
 ```
 
 **哈希对比**:
 ```powershell
-$ $file1 = Get-FileHash "docs\reports\项目文件目录树.md"
-$ $file2 = Get-FileHash "docs\reports\项目完整目录树.md"
+$ $file1 = Get-FileHash "docs\reports\project_file_directory_tree.md"
+$ $file2 = Get-FileHash "docs\reports\project_complete_directory_tree.md"
 $ if ($file1.Hash -eq $file2.Hash) { "相同" } else { "不同" }
 # 输出: 不同（但相差仅70字节，0.2%）
 ```
@@ -160,27 +160,27 @@ $ if ($file1.Hash -eq $file2.Hash) { "相同" } else { "不同" }
 **引用检查**:
 ```bash
 $ grep -r "项目文件目录树" docs/
-docs/reports/INDEX.md:2. [项目文件目录树.md](项目文件目录树.md)  # 标注为重复
-docs/reports/仓库清理执行报告.md: 提及该文件从根目录移动到 docs/reports/
-docs/reports/项目完整目录树.md: 内部提及自身
+docs/reports/INDEX.md:2. [project_file_directory_tree.md](project_file_directory_tree.md)  # 标注为重复
+docs/reports/repository_cleanup_report.md: 提及该文件从根目录移动到 docs/reports/
+docs/reports/project_complete_directory_tree.md: 内部提及自身
 
 # 结论：无其他文档依赖此文件
 ```
 
 ### 执行操作
 
-#### 2.1 删除 docs/reports/项目文件目录树.md
+#### 2.1 删除 docs/reports/project_file_directory_tree.md
 
 **删除命令**:
 ```powershell
-Remove-Item "docs\reports\项目文件目录树.md" -Force
+Remove-Item "docs\reports\project_file_directory_tree.md" -Force
 ```
 
 **删除原因**:
-1. 与"项目完整目录树.md"重复（内容相似度>99.8%）
+1. 与"project_complete_directory_tree.md"重复（内容相似度>99.8%）
 2. 两文件生成日期相同，无历史价值差异
 3. 无其他文档引用（除了标注重复的 INDEX.md）
-4. "项目完整目录树.md"名称更准确（强调"完整"）
+4. "project_complete_directory_tree.md"名称更准确（强调"完整"）
 
 **影响范围**: 
 - 删除 1 个文件（-30.1 KB）
@@ -190,10 +190,10 @@ Remove-Item "docs\reports\项目文件目录树.md" -Force
 
 **文件删除**:
 ```bash
-$ Test-Path "docs\reports\项目文件目录树.md"
+$ Test-Path "docs\reports\project_file_directory_tree.md"
 # 输出: False（已删除）
 
-$ Test-Path "docs\reports\项目完整目录树.md"
+$ Test-Path "docs\reports\project_complete_directory_tree.md"
 # 输出: True（已保留）
 ```
 
@@ -339,22 +339,22 @@ $ cat README.md | grep "### " | wc -l
 ### [reports/](reports/) - 历史报告与分析（12个文档）
 
 **最新报告**（2026-01-27）:
-- 仓库清理执行报告.md
-- 仓库清理变更清单.md
-- 同功能文件整合分析报告.md
+- repository_cleanup_report.md
+- repository_cleanup_changelog.md
+- same_function_file_integration_analysis.md
 
 **结构优化**:
 - file_naming_normalization_report.md
 - project_structure_optimization_report.md
 - frontend_optimization_report.md
-- 代码瘦身与冗余清理报告.md
+- code_slimming_redundancy_cleanup.md
 
 **审计与分析**:
-- 跨端一致性审计报告.md
-- 前端清理完成报告.md
-- 类型常量去重分析.md
-- 页面权限映射表.md
-- 项目文件目录树.md
+- cross_platform_consistency_audit.md
+- frontend_cleanup_completion_report.md
+- type_constant_deduplication_analysis.md
+- page_permission_mapping.md
+- project_file_directory_tree.md
 ```
 
 **问题**:
@@ -382,11 +382,11 @@ $ cat README.md | grep "### " | wc -l
 - **目录树** (1个) - 项目完整目录树
 
 **最新报告**（2026-01-27）:
-- [二次结构优化诊断报告.md](reports/二次结构优化诊断报告.md) - 完整诊断分析（54.4 KB）⭐
-- [后端二次收敛执行报告.md](reports/后端二次收敛执行报告.md) - 后端优化记录（18.8 KB）⭐
-- [前端二次结构优化执行报告.md](reports/前端二次结构优化执行报告.md) - 前端优化记录（24.0 KB）⭐
-- [仓库清理执行报告.md](reports/仓库清理执行报告.md) - 清理完整报告（13.7 KB）⭐
-- [文档治理执行报告.md](reports/文档治理执行报告.md) - 文档分层建立（18.7 KB）⭐
+- [second_structure_optimization_diagnosis.md](reports/second_structure_optimization_diagnosis.md) - 完整诊断分析（54.4 KB）⭐
+- [backend_second_convergence_report.md](reports/backend_second_convergence_report.md) - 后端优化记录（18.8 KB）⭐
+- [frontend_second_optimization_report.md](reports/frontend_second_optimization_report.md) - 前端优化记录（24.0 KB）⭐
+- [repository_cleanup_report.md](reports/repository_cleanup_report.md) - 清理完整报告（13.7 KB）⭐
+- [documentation_governance_report.md](reports/documentation_governance_report.md) - 文档分层建立（18.7 KB）⭐
 ```
 
 **改进点**:
@@ -452,7 +452,7 @@ True ✅
 | 操作 | 文件路径 | 行数变化 | 说明 |
 |------|---------|---------|------|
 | **新增** | `docs/reports/INDEX.md` | +264 | 完整索引（主题+时间线） |
-| **删除** | `docs/reports/项目文件目录树.md` | -400 | 与"项目完整目录树.md"重复 |
+| **删除** | `docs/reports/project_file_directory_tree.md` | -400 | 与"project_complete_directory_tree.md"重复 |
 | **更新** | `README.md` | +19 | 精简为五块导航 |
 | **更新** | `docs/README.md` | -5 | reports/章节指向INDEX |
 
@@ -472,10 +472,10 @@ $ git diff --stat HEAD~1 HEAD
  README.md                          |  69 ++++++---
  docs/README.md                     |  35 +++--
  docs/reports/INDEX.md              | 264 +++++++++++++++++++++++++++++++
- docs/reports/项目文件目录树.md      | 400 -----------------------------------
+ docs/reports/project_file_directory_tree.md      | 400 -----------------------------------
  4 files changed, 384 insertions(+), 384 deletions(-)
  create mode 100644 docs/reports/INDEX.md
- delete mode 100644 docs/reports/项目文件目录树.md
+ delete mode 100644 docs/reports/project_file_directory_tree.md
 ```
 
 ---
@@ -550,7 +550,7 @@ git revert 32b5ecd
 git reset --hard HEAD~1
 
 # 3. 恢复删除的文件
-git checkout HEAD~1 -- "docs/reports/项目文件目录树.md"
+git checkout HEAD~1 -- "docs/reports/project_file_directory_tree.md"
 
 # 4. 验证回滚
 ls docs/reports/ | grep "项目文件目录树"  # 应存在
@@ -583,7 +583,7 @@ ls docs/reports/ | grep "INDEX.md"        # 应不存在
 
 **核心成果**:
 1. ✅ 生成 docs/reports/INDEX.md（264行完整索引）
-2. ✅ 删除 1 个重复文件（项目文件目录树.md）
+2. ✅ 删除 1 个重复文件（project_file_directory_tree.md）
 3. ✅ 精简根 README.md（五块导航）
 4. ✅ 精简 docs/README.md（指向 INDEX）
 5. ✅ 验证所有关键文档链接可达（8个核心文档）

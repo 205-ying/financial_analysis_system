@@ -1,4 +1,4 @@
-# 前端二次结构优化执行报告
+﻿# 前端二次结构优化执行报告
 
 **执行日期**: 2026年1月27日  
 **执行范围**: frontend/ 目录结构优化  
@@ -690,8 +690,8 @@ cd frontend && npm run build
 
 ## 📚 相关文档
 
-- [二次结构优化诊断报告](./二次结构优化诊断报告.md) - 完整问题扫描和规划
-- [后端二次收敛执行报告](./后端二次收敛执行报告.md) - 后端优化记录
+- [二次结构优化诊断报告](./second_structure_optimization_diagnosis.md) - 完整问题扫描和规划
+- [后端二次收敛执行报告](./backend_second_convergence_report.md) - 后端优化记录
 - [frontend/README.md](../../frontend/README.md) - 前端项目说明
 - [docs/development_guide.md](../development_guide.md) - 开发指南
 

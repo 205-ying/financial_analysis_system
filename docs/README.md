@@ -85,11 +85,12 @@
 - **目录树** (1个) - 项目完整目录树
 
 **最新报告**（2026-01-27）:
-- [二次结构优化诊断报告.md](reports/二次结构优化诊断报告.md) - 完整诊断分析（54.4 KB）⭐
-- [后端二次收敛执行报告.md](reports/后端二次收敛执行报告.md) - 后端优化记录（18.8 KB）⭐
-- [前端二次结构优化执行报告.md](reports/前端二次结构优化执行报告.md) - 前端优化记录（24.0 KB）⭐
-- [仓库清理执行报告.md](reports/仓库清理执行报告.md) - 清理完整报告（13.7 KB）⭐
-- [文档治理执行报告.md](reports/文档治理执行报告.md) - 文档分层建立（18.7 KB）⭐
+- [second_structure_optimization_diagnosis.md](reports/second_structure_optimization_diagnosis.md) - 完整诊断分析（54.4 KB）⭐
+- [backend_second_convergence_report.md](reports/backend_second_convergence_report.md) - 后端优化记录（18.8 KB）⭐
+- [frontend_second_optimization_report.md](reports/frontend_second_optimization_report.md) - 前端优化记录（24.0 KB）⭐
+- [repository_cleanup_report.md](reports/repository_cleanup_report.md) - 清理完整报告（13.7 KB）⭐
+- [documentation_governance_report.md](reports/documentation_governance_report.md) - 文档分层建立（18.7 KB）⭐
+- [second_structure_optimization_delivery.md](reports/second_structure_optimization_delivery.md) - 最终交付报告⭐
 
 ### [archive/](archive/) - 阶段交付文档（25个文档）
 

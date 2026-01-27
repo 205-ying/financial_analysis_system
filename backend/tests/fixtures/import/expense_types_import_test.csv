@@ -1,0 +1,11 @@
+﻿type_code,name,level,category,parent_code,description,is_active,sort_order
+TEST_EXP_L1_01,测试一级科目1,1,cost,,测试一级费用科目 1,True,1
+TEST_EXP_L1_02,测试一级科目2,1,tax,,测试一级费用科目 2,True,2
+TEST_EXP_L1_03,测试一级科目3,1,tax,,测试一级费用科目 3,True,3
+TEST_EXP_L1_04,测试一级科目4,1,expense,,测试一级费用科目 4,True,4
+TEST_EXP_L1_05,测试一级科目5,1,cost,,测试一级费用科目 5,True,5
+TEST_EXP_L2_01,测试二级科目1,2,cost,TEST_EXP_L1_01,测试二级费用科目 1，属于 TEST_EXP_L1_01,True,1
+TEST_EXP_L2_02,测试二级科目2,2,expense,TEST_EXP_L1_02,测试二级费用科目 2，属于 TEST_EXP_L1_02,True,2
+TEST_EXP_L2_03,测试二级科目3,2,cost,TEST_EXP_L1_03,测试二级费用科目 3，属于 TEST_EXP_L1_03,True,3
+TEST_EXP_L2_04,测试二级科目4,2,cost,TEST_EXP_L1_04,测试二级费用科目 4，属于 TEST_EXP_L1_04,True,4
+TEST_EXP_L2_05,测试二级科目5,2,expense,TEST_EXP_L1_05,测试二级费用科目 5，属于 TEST_EXP_L1_05,True,5

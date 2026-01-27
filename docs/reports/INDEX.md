@@ -1,4 +1,4 @@
-# 历史报告索引
+﻿# 历史报告索引
 
 > 📁 **目录说明**: 本目录存放项目历史报告和优化分析文档  
 > 🔒 **维护规则**: L2级文档，归档不再修改，仅供历史参考  
@@ -11,16 +11,16 @@
 ### 🏗️ 结构优化（Structure Optimization）
 
 **二次结构优化系列**（2026-01-27）:
-1. [二次结构优化诊断报告.md](二次结构优化诊断报告.md) - 54.4 KB  
+1. [second_structure_optimization_diagnosis.md](second_structure_optimization_diagnosis.md) - 54.4 KB  
    完整诊断分析，识别重复/并存点，规划6个批次优化方案
 
-2. [克制型结构优化执行报告.md](克制型结构优化执行报告.md) - 13.6 KB  
+2. [restrained_structure_optimization_report.md](restrained_structure_optimization_report.md) - 13.6 KB  
    第一轮结构优化执行记录（脚本治理 + 测试数据迁移）
 
-3. [后端二次收敛执行报告.md](后端二次收敛执行报告.md) - 18.8 KB  
+3. [backend_second_convergence_report.md](backend_second_convergence_report.md) - 18.8 KB  
    后端二次优化执行记录（deps唯一化 + 审计服务文档化）
 
-4. [前端二次结构优化执行报告.md](前端二次结构优化执行报告.md) - 24.0 KB  
+4. [frontend_second_optimization_report.md](frontend_second_optimization_report.md) - 24.0 KB  
    前端二次优化执行记录（生成文件治理 + barrel exports清理）
 
 **早期结构优化**（2026-01-26）:
@@ -38,47 +38,56 @@
 ### 🧹 仓库清理（Repository Cleanup）
 
 **仓库清理系列**（2026-01-27）:
-1. [仓库清理执行报告.md](仓库清理执行报告.md) - 13.7 KB ⭐  
+1. [repository_cleanup_report.md](repository_cleanup_report.md) - 13.7 KB ⭐  
    完整清理报告：.gitignore加固 + 文档归位 + 验收结果
 
-2. [仓库清理变更清单.md](仓库清理变更清单.md) - 13.9 KB ⭐  
+2. [repository_cleanup_changelog.md](repository_cleanup_changelog.md) - 13.9 KB ⭐  
    详细变更清单与验收命令（回滚方案完整）
 
-3. [代码瘦身与冗余清理报告.md](代码瘦身与冗余清理报告.md) - 14.2 KB  
+3. [code_slimming_redundancy_cleanup.md](code_slimming_redundancy_cleanup.md) - 14.2 KB  
    代码冗余清理分析报告
 
-4. [前端清理完成报告.md](前端清理完成报告.md) - 3.8 KB  
+4. [frontend_cleanup_completion_report.md](frontend_cleanup_completion_report.md) - 3.8 KB  
    前端清理完成总结
 
 ---
 
 ### 🔍 一致性审计（Consistency Audit）
 
-1. [跨端一致性审计报告.md](跨端一致性审计报告.md) - 9.0 KB  
+1. [cross_platform_consistency_audit.md](cross_platform_consistency_audit.md) - 9.0 KB  
    前后端一致性审计（类型定义、命名风格、API对接）
 
-2. [同功能文件整合分析报告.md](同功能文件整合分析报告.md) - 20.8 KB ⭐  
+2. [same_function_file_integration_analysis.md](same_function_file_integration_analysis.md) - 20.8 KB ⭐  
    同功能文件整合分析（审计服务双实现、权限检查重复等）
 
-3. [类型常量去重分析.md](类型常量去重分析.md) - 3.6 KB  
+3. [type_constant_deduplication_analysis.md](type_constant_deduplication_analysis.md) - 3.6 KB  
    类型和常量去重分析
 
 ---
 
 ### 📚 文档治理（Documentation Management）
 
-1. [文档治理执行报告.md](文档治理执行报告.md) - 18.7 KB ⭐  
+1. [documentation_governance_report.md](documentation_governance_report.md) - 18.7 KB ⭐  
    文档分层治理执行报告（L0/L1/L2三级分层建立）
 
-2. [页面权限映射表.md](页面权限映射表.md) - 3.3 KB  
+2. [page_permission_mapping.md](page_permission_mapping.md) - 3.3 KB  
    前端页面与权限映射关系表
+
+3. [documentation_second_governance_report.md](documentation_second_governance_report.md) - 新增  
+   文档二次治理执行报告（INDEX索引与精简README）
+
+4. [script_entry_unification_report.md](script_entry_unification_report.md) - 新增  
+   脚本入口统一执行报告
 
 ---
 
 ### 📦 项目交付（Project Delivery）
 
-1. [项目结构优化交付报告.md](项目结构优化交付报告.md) - 30.7 KB  
+1. [project_structure_optimization_delivery_report.md](project_structure_optimization_delivery_report.md) - 30.7 KB  
    项目结构优化交付总结（阶段性交付文档）
+
+2. [second_structure_optimization_delivery.md](second_structure_optimization_delivery.md) - 新增  
+   二次结构优化交付报告（最终交付文档）
 
 ---
 
@@ -86,10 +95,10 @@
 
 > ⚠️ **重复文件**: 以下两个文件内容几乎完全相同，保留其一即可
 
-1. [项目完整目录树.md](项目完整目录树.md) - 29.5 KB  
+1. [project_complete_directory_tree.md](project_complete_directory_tree.md) - 29.5 KB  
    项目完整目录结构树（2026-01-27生成）
 
-2. [项目文件目录树.md](项目文件目录树.md) - 29.4 KB  
+2. [project_file_directory_tree.md](project_file_directory_tree.md) - 29.4 KB  
    项目文件目录树（与上文重复，可删除）
 
 ---
@@ -97,23 +106,26 @@
 ## 🎯 按时间线分类
 
 ### 2026-01-27（第二轮优化）
-- ✅ 二次结构优化诊断报告（54.4 KB）
-- ✅ 克制型结构优化执行报告（13.6 KB）
-- ✅ 后端二次收敛执行报告（18.8 KB）
-- ✅ 前端二次结构优化执行报告（24.0 KB）
-- ✅ 仓库清理执行报告（13.7 KB）
-- ✅ 仓库清理变更清单（13.9 KB）
-- ✅ 文档治理执行报告（18.7 KB）
-- ✅ 项目完整目录树（29.5 KB）
+- ✅ second_structure_optimization_diagnosis.md（54.4 KB）
+- ✅ restrained_structure_optimization_report.md（13.6 KB）
+- ✅ backend_second_convergence_report.md（18.8 KB）
+- ✅ frontend_second_optimization_report.md（24.0 KB）
+- ✅ repository_cleanup_report.md（13.7 KB）
+- ✅ repository_cleanup_changelog.md（13.9 KB）
+- ✅ documentation_governance_report.md（18.7 KB）
+- ✅ documentation_second_governance_report.md（新增）
+- ✅ script_entry_unification_report.md（新增）
+- ✅ second_structure_optimization_delivery.md（最终交付）
+- ✅ project_complete_directory_tree.md（29.5 KB）
 
 ### 2026-01-26（第一轮优化）
-- ✅ 代码瘦身与冗余清理报告（14.2 KB）
-- ✅ 同功能文件整合分析报告（20.8 KB）
-- ✅ 跨端一致性审计报告（9.0 KB）
-- ✅ 前端清理完成报告（3.8 KB）
-- ✅ 类型常量去重分析（3.6 KB）
-- ✅ 页面权限映射表（3.3 KB）
-- ✅ 项目结构优化交付报告（30.7 KB）
+- ✅ code_slimming_redundancy_cleanup.md（14.2 KB）
+- ✅ same_function_file_integration_analysis.md（20.8 KB）
+- ✅ cross_platform_consistency_audit.md（9.0 KB）
+- ✅ frontend_cleanup_completion_report.md（3.8 KB）
+- ✅ type_constant_deduplication_analysis.md（3.6 KB）
+- ✅ page_permission_mapping.md（3.3 KB）
+- ✅ project_structure_optimization_delivery_report.md（30.7 KB）
 
 ### 早期报告（已过时）
 - ⚠️ project_structure_optimization_report.md（12.4 KB） - 已被二次优化替代
@@ -125,30 +137,30 @@
 ## 📋 推荐阅读路径
 
 ### 🆕 新人了解项目优化历程
-1. **第一轮清理**: [仓库清理执行报告.md](仓库清理执行报告.md)
-2. **结构诊断**: [二次结构优化诊断报告.md](二次结构优化诊断报告.md)
-3. **后端优化**: [后端二次收敛执行报告.md](后端二次收敛执行报告.md)
-4. **前端优化**: [前端二次结构优化执行报告.md](前端二次结构优化执行报告.md)
-5. **文档治理**: [文档治理执行报告.md](文档治理执行报告.md)
+1. **第一轮清理**: [repository_cleanup_report.md](repository_cleanup_report.md)
+2. **结构诊断**: [second_structure_optimization_diagnosis.md](second_structure_optimization_diagnosis.md)
+3. **后端优化**: [backend_second_convergence_report.md](backend_second_convergence_report.md)
+4. **前端优化**: [frontend_second_optimization_report.md](frontend_second_optimization_report.md)
+5. **文档治理**: [documentation_governance_report.md](documentation_governance_report.md)
 
 ### 🔍 查找具体问题的优化记录
-- **deps并存问题** → [后端二次收敛执行报告.md](后端二次收敛执行报告.md)
-- **审计服务双实现** → [同功能文件整合分析报告.md](同功能文件整合分析报告.md)
-- **生成文件治理** → [前端二次结构优化执行报告.md](前端二次结构优化执行报告.md)
-- **.gitignore配置** → [仓库清理执行报告.md](仓库清理执行报告.md)
-- **文档分层规则** → [文档治理执行报告.md](文档治理执行报告.md)
+- **deps并存问题** → [backend_second_convergence_report.md](backend_second_convergence_report.md)
+- **审计服务双实现** → [same_function_file_integration_analysis.md](same_function_file_integration_analysis.md)
+- **生成文件治理** → [frontend_second_optimization_report.md](frontend_second_optimization_report.md)
+- **.gitignore配置** → [repository_cleanup_report.md](repository_cleanup_report.md)
+- **文档分层规则** → [documentation_governance_report.md](documentation_governance_report.md)
 
 ### 📊 查看一致性检查
-- **跨端一致性** → [跨端一致性审计报告.md](跨端一致性审计报告.md)
-- **权限映射** → [页面权限映射表.md](页面权限映射表.md)
-- **类型去重** → [类型常量去重分析.md](类型常量去重分析.md)
+- **跨端一致性** → [cross_platform_consistency_audit.md](cross_platform_consistency_audit.md)
+- **权限映射** → [page_permission_mapping.md](page_permission_mapping.md)
+- **类型去重** → [type_constant_deduplication_analysis.md](type_constant_deduplication_analysis.md)
 
 ---
 
 ## 🗑️ 待清理文件（建议删除或合并）
 
 ### 重复文件
-- ❌ [项目文件目录树.md](项目文件目录树.md) - 与"项目完整目录树.md"重复（相差0.1 KB）
+- ❌ [project_file_directory_tree.md](project_file_directory_tree.md) - 与"project_complete_directory_tree.md"重复（相差0.1 KB）
 
 ### 已过时文件
 - ⚠️ [project_structure_optimization_report.md](project_structure_optimization_report.md) - 已被"二次结构优化"系列替代
@@ -156,7 +168,7 @@
 - ⚠️ [file_naming_normalization_report.md](file_naming_normalization_report.md) - 历史记录，可归档
 
 **清理建议**:
-1. 删除 `项目文件目录树.md`（保留"项目完整目录树.md"）
+1. 删除 `project_file_directory_tree.md`（保留"project_complete_directory_tree.md"）
 2. 将过时文件移至 `archive/deprecated/` 子目录
 3. 在本 INDEX 中标注 `[已废弃]` 标签
 

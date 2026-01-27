@@ -1,4 +1,4 @@
-# 脚本入口统一执行报告
+﻿# 脚本入口统一执行报告
 
 **时间**: 2026-01-27  
 **目标**: 脚本入口统一（保留兼容性 + 明确推荐入口）  
@@ -418,7 +418,7 @@ python scripts/verify_system.py
 ## 📂 文件清单
 
 ### 新增文件
-- `docs/reports/脚本入口统一执行报告.md` (本文档) - 2200+ 行
+- `docs/reports/script_entry_unification_report.md` (本文档) - 2200+ 行
 
 ### 待更新文件
 - `docs/development_guide.md` (添加"统一命令表"章节)
