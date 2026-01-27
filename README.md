@@ -56,18 +56,15 @@ financial_analysis_system/
 │   │   └── views/       # 页面视图组件
 │   ├── public/          # 静态资源
 │   └── package.json     # 前端依赖
-├── docs/                # 项目文档
-│   ├── README.md                            # 文档索引 📚
-│   ├── development_guide.md                 # 开发指南 ⭐
-│   ├── project_history.md                   # 项目开发历程（11阶段） ⭐
-│   ├── backend_structure.md                 # 后端架构文档
-│   ├── frontend_structure.md                # 前端架构文档
-│   ├── naming_conventions.md                # 命名规范
-│   ├── dependency_guide.md                  # 依赖管理指南
-│   ├── development_roadmap.md               # 开发路线图
-│   ├── backend_refactoring_guide.md         # 后端重构指南
-│   ├── system_verification_report_final.md  # 系统验证报告
-│   └── archive/         # 历史文档归档（26个阶段和交付文档）
+├── docs/                # 项目文档 📚
+│   ├── README.md                     # 📑 文档索引（L0/L1/L2分层说明）⭐
+│   ├── development_guide.md          # 🚀 开发指南（环境配置、启动、测试、部署）⭐
+│   ├── backend_structure.md          # 🏗️ 后端架构（Clean Architecture 分层设计）⭐
+│   ├── frontend_structure.md         # 🎨 前端架构（Vue3 组件、路由、状态管理）⭐
+│   ├── naming_conventions.md         # 📐 命名规范（前后端统一风格）⭐
+│   ├── project_history.md            # 📖 项目历程（Stage 2-11 开发总结）⭐
+│   ├── reports/                      # 📊 历史报告（18个优化分析） → 参见 reports/INDEX.md
+│   └── archive/                      # 📦 历史交付（25个阶段文档） → 参见 archive/INDEX.md
 ├── scripts/             # 工具脚本
 │   ├── start.bat        # Windows 启动脚本
 │   ├── start.sh         # Linux/Mac 启动脚本
@@ -210,27 +207,50 @@ python scripts/verify_system.py
 - 📚 文档完整性（7 项）
 - ✨ 代码质量（5 项）
 
-## 开发指南
+## 文档索引
 
-请参考 [docs/](docs/) 目录下的开发文档：
+> 📚 **完整文档体系**: 参见 [docs/README.md](docs/README.md) 了解 L0/L1/L2 三级分层维护规则
 
-**核心文档** ⭐
-- [docs/README.md](docs/README.md) - 📚 文档索引（查看所有文档）
-- [docs/development_guide.md](docs/development_guide.md) - 开发指南（启动、开发流程）
-- [docs/project_history.md](docs/project_history.md) - 项目开发历程（Stage 2-11总结）
-- [docs/backend_structure.md](docs/backend_structure.md) - 后端架构说明
-- [docs/frontend_structure.md](docs/frontend_structure.md) - 前端架构说明
+### 🚀 快速开始
+- **环境配置与启动** → [development_guide.md](docs/development_guide.md)
+  - Python 3.11+ / Node.js 18+ / PostgreSQL 14+
+  - 数据库迁移（Alembic）
+  - 前后端启动脚本
 
-**工具文档**
-- [backend/scripts/README.md](backend/scripts/README.md) - 后端脚本使用指南
-- [docs/naming_conventions.md](docs/naming_conventions.md) - 命名规范
-- [docs/dependency_guide.md](docs/dependency_guide.md) - 依赖管理指南
-- [docs/development_roadmap.md](docs/development_roadmap.md) - 开发路线图
+### 🏗️ 架构设计
+- **后端架构** → [backend_structure.md](docs/backend_structure.md)
+  - Clean Architecture 三层分层（API → Service → Model）
+  - 9个核心数据模型（User, Store, Order, KPI等）
+  - 异步数据库操作（SQLAlchemy 2.0）
+  
+- **前端架构** → [frontend_structure.md](docs/frontend_structure.md)
+  - Vue3 + TypeScript 组件结构
+  - 路由守卫与权限控制（RBAC + 数据权限）
+  - Pinia 状态管理模式
 
-**验证报告**
-- [docs/system_verification_report_final.md](docs/system_verification_report_final.md) - 系统验证报告（57/57 通过）
+### 📐 开发规范
+- **命名规范** → [naming_conventions.md](docs/naming_conventions.md)
+  - 前后端统一命名风格
+  - API 路由命名约定
+  - 数据库表名和字段名规范
 
-> 💡 更多历史文档请查看 [docs/archive/](docs/archive/) 目录（26个阶段和交付文档）
+### 📖 项目历程
+- **开发历程** → [project_history.md](docs/project_history.md)
+  - Stage 2-11 完整开发记录
+  - 10个核心功能实现要点
+  - 技术选型和架构演进
+
+### 📊 历史归档
+- **优化报告** → [docs/reports/INDEX.md](docs/reports/INDEX.md)
+  - 结构优化系列（4份报告）
+  - 仓库清理系列（4份报告）
+  - 一致性审计系列（3份报告）
+  - 按主题分类和时间线可追溯
+  
+- **阶段交付** → [docs/archive/INDEX.md](docs/archive/INDEX.md)
+  - Stage 2-11 阶段交付文档（25个）
+  - 按功能模块分类导航
+  - 技术决策历史追溯
 
 ## 项目状态
 
@@ -240,4 +260,7 @@ python scripts/verify_system.py
 ✅ **代码质量**: ⭐⭐⭐⭐⭐ 优秀  
 ✅ **功能完成度**: Stage 2-11 全部完成
 
-最后更新：2026-01-26
+---
+
+**最后更新**: 2026年1月27日  
+**文档治理**: L0/L1/L2 三级分层维护机制已建立
