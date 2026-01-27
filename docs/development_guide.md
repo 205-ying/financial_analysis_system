@@ -1,5 +1,88 @@
 # 开发指南
 
+## 统一命令表（推荐入口）
+
+### Windows 环境（推荐）
+
+使用 `dev.bat` 作为主入口，提供所有常用开发命令：
+
+| 命令 | 功能 | 说明 |
+|-----|------|------|
+| `dev.bat help` | 显示帮助 | 查看所有可用命令 |
+| `dev.bat install` | 安装所有依赖 | 首次运行必需（前后端） |
+| `dev.bat install-backend` | 安装后端依赖 | 仅安装Python依赖 |
+| `dev.bat install-frontend` | 安装前端依赖 | 仅安装npm依赖 |
+| `dev.bat dev-backend` | 启动后端服务器 | http://localhost:8000 |
+| `dev.bat dev-frontend` | 启动前端服务器 | http://localhost:5173 |
+| `dev.bat test` | 运行所有测试 | 前后端测试 |
+| `dev.bat test-backend` | 运行后端测试 | pytest + 覆盖率 |
+| `dev.bat lint` | 检查所有代码 | 前后端代码检查 |
+| `dev.bat lint-backend` | 检查后端代码 | ruff检查 |
+| `dev.bat lint-frontend` | 检查前端代码 | ESLint检查 |
+| `dev.bat format` | 格式化所有代码 | 前后端代码格式化 |
+| `dev.bat format-backend` | 格式化后端代码 | ruff格式化 |
+| `dev.bat format-frontend` | 格式化前端代码 | Prettier格式化 |
+| `dev.bat check` | 运行所有检查 | lint+format+type+test |
+| `dev.bat check-backend` | 运行后端所有检查 | lint+format+type+test |
+| `dev.bat check-frontend` | 运行前端所有检查 | lint+format+type+test |
+| `dev.bat migrate` | 数据库迁移 | alembic upgrade head |
+| `dev.bat clean` | 清理生成文件 | 删除缓存和临时文件 |
+
+### 跨平台环境（Linux/Mac/CI）
+
+使用 `Makefile`（命令与 dev.bat 完全对应）：
+
+```bash
+make help               # 显示帮助
+make install            # 安装所有依赖
+make install-backend    # 安装后端依赖
+make install-frontend   # 安装前端依赖
+make dev-backend        # 启动后端服务器
+make dev-frontend       # 启动前端服务器
+make test               # 运行所有测试
+make test-backend       # 运行后端测试
+make lint               # 检查所有代码
+make lint-backend       # 检查后端代码
+make lint-frontend      # 检查前端代码
+make format             # 格式化所有代码
+make format-backend     # 格式化后端代码
+make format-frontend    # 格式化前端代码
+make check              # 运行所有检查
+make check-backend      # 运行后端所有检查
+make check-frontend     # 运行前端所有检查
+make migrate            # 数据库迁移
+make clean              # 清理生成文件
+```
+
+### 其他脚本（特定场景）
+
+#### 快捷启动（已配置环境）
+```bash
+cd backend
+start_dev.bat           # Windows CMD
+start_dev.ps1           # PowerShell
+python dev.py start     # Python直接调用
+```
+
+⚠️ **注意**: 假设环境已配置（虚拟环境、依赖、.env），不进行环境检查。适用于快速重启服务。
+
+#### 首次运行（完整初始化）
+```bash
+scripts\start.bat       # Windows 首次部署
+scripts/start.sh        # Linux/Mac 首次部署
+```
+
+✅ **包含**: 环境检查 → 创建虚拟环境 → 安装依赖 → 复制.env → 迁移数据库 → 启动服务
+
+#### 系统验证（CI/CD）
+```bash
+python scripts/verify_system.py
+```
+
+✅ **用途**: 检查文件结构完整性，验证所有关键文件是否存在。
+
+---
+
 ## 项目架构概览
 
 ### 整体架构
