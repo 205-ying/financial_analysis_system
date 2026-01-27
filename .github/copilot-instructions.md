@@ -170,10 +170,13 @@ PaginatedResponse[List[StoreSchema]](
 所有API端点在 [app/api/router.py](backend/app/api/router.py) 统一注册，挂载到 `/api/v1` 前缀:
 - `/api/v1/auth/*` - 认证和授权 (login, refresh)
 - `/api/v1/stores/*` - 门店管理
+- `/api/v1/user-stores/*` - 用户门店权限管理（数据权限）
 - `/api/v1/orders/*` - 订单管理
 - `/api/v1/expense-types/*` - 费用科目管理
 - `/api/v1/expense-records/*` - 费用记录管理
 - `/api/v1/kpi/*` - KPI数据查询和导出
+- `/api/v1/reports/*` - 报表中心（日汇总、月汇总、门店绩效）
+- `/api/v1/import-jobs/*` - 数据导入任务（Excel/CSV导入）
 - `/api/v1/audit/*` - 审计日志查询
 
 **新增API端点流程**:
@@ -349,6 +352,106 @@ await log_audit(
 - `ip_address`: 操作IP
 - `created_at`: 操作时间
 
+### 数据权限系统（门店访问控制）
+基于用户-门店关联控制数据访问范围 ([app/services/data_scope_service.py](backend/app/services/data_scope_service.py)):
+
+**核心功能**:
+- 超级管理员：访问所有门店数据
+- 普通用户：仅访问授权门店数据
+- 向后兼容：无门店权限记录时默认可访问全部
+
+**使用模式**:
+```python
+from app.services.data_scope_service import get_accessible_store_ids, assert_store_access
+
+# 获取用户可访问的门店ID列表
+store_ids = await get_accessible_store_ids(db, current_user)
+if store_ids is not None:
+    # 限制查询范围
+    query = query.where(Store.id.in_(store_ids))
+
+# 断言用户有权访问特定门店（无权限抛403）
+await assert_store_access(db, current_user, store_id=123)
+```
+
+**管理端点**: 
+- `POST /api/v1/user-stores` - 授权用户访问门店
+- `DELETE /api/v1/user-stores/{user_id}/{store_id}` - 撤销门店权限
+- `GET /api/v1/user-stores/user/{user_id}` - 查询用户门店权限
+
+### 数据导入系统
+支持Excel/CSV批量导入订单和费用记录 ([app/services/import_service.py](backend/app/services/import_service.py)):
+
+**工作流程**:
+```
+1. 上传文件（POST /api/v1/import-jobs）
+   ↓
+2. 文件解析和数据校验（pandas）
+   ↓
+3. 批量写入数据库（bulk_insert_mappings）
+   ↓
+4. 错误记录生成（可下载）
+```
+
+**关键特性**:
+- 支持 .xlsx, .xls, .csv 格式
+- 最大文件 50MB，单次最多 10,000 行
+- 异步处理大文件导入
+- 详细的错误报告（行号、字段、错误原因）
+- 导入任务状态跟踪（pending → processing → completed/failed）
+
+**使用示例**:
+```python
+from app.services.import_service import ImportService
+
+# 创建导入任务
+job = await ImportService.create_job(
+    db=db,
+    file=uploaded_file,
+    target_type="order",  # 或 "expense_record"
+    store_id=123,
+    user_id=current_user.id
+)
+
+# 执行导入
+result = await ImportService.execute_job(db, job.id)
+
+# 下载错误报告（如果有）
+error_file = await ImportService.download_error_report(db, job.id)
+```
+
+**导入文件格式**:
+- 订单: biz_date, order_no, total_amount, payment_method, product_name, quantity, unit_price
+- 费用记录: biz_date, expense_type_name, amount, description
+
+### 报表中心
+提供多维度汇总报表和导出功能 ([app/services/report_service.py](backend/app/services/report_service.py)):
+
+**可用报表**:
+1. **日汇总报表**: 按日期汇总营收、订单数、客单价、费用
+2. **月汇总报表**: 按月汇总关键指标，支持同比/环比
+3. **门店绩效报表**: 多门店对比分析（排名、占比）
+4. **费用明细报表**: 费用类型分解和趋势分析
+
+**API端点**:
+- `GET /api/v1/reports/daily-summary` - 日汇总数据
+- `GET /api/v1/reports/daily-summary/export` - Excel导出
+- `GET /api/v1/reports/monthly-summary` - 月汇总数据
+- `GET /api/v1/reports/store-performance` - 门店绩效对比
+
+**Excel导出模式**:
+```python
+from app.services.report_service import export_daily_summary_excel
+
+# 流式导出避免内存溢出
+buffer = await export_daily_summary_excel(db, filters, current_user)
+return StreamingResponse(
+    buffer,
+    media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    headers={"Content-Disposition": f"attachment; filename={filename}"}
+)
+```
+
 ## 常见陷阱
 
 1. **不要混用同步/异步数据库API** - 必须全部使用 `AsyncSession` 和 `await`
@@ -392,6 +495,32 @@ for order in orders:
 2. **利用 Alembic 自动生成**: 修改模型后让 Alembic 自动生成迁移，再人工审查
 3. **pytest fixtures**: 测试数据在 conftest.py 中复用，避免重复创建
 4. **API文档**: 后端启动后访问 http://localhost:8000/docs 查看自动生成的API文档
+
+### 维护脚本
+[backend/scripts/](backend/scripts/) 目录包含数据库维护和测试工具:
+
+**数据初始化**:
+- `seed_data.py`: 创建初始用户、角色、权限、示例门店
+- `generate_bulk_data.py`: 生成大量测试数据（订单、KPI）用于性能测试
+- `clean_bulk_data.py`: 清理测试数据
+
+**数据库维护** (scripts/maintenance/):
+- `backup_database.py`: PostgreSQL数据库备份
+- `clean_old_audit_logs.py`: 清理过期审计日志
+- `verify_data_integrity.py`: 数据完整性检查
+
+**验证脚本** (scripts/testing/):
+- `verify_import_feature.py`: 测试导入功能端到端
+- `verify_reports.py`: 验证报表计算准确性
+- `test_import_e2e.py`: 完整导入流程集成测试
+
+**使用方式**:
+```bash
+cd backend
+python scripts/seed_data.py                    # 初始化数据
+python scripts/generate_bulk_data.py           # 生成测试数据
+python scripts/maintenance/backup_database.py  # 备份数据库
+```
 
 ## 项目文档
 
