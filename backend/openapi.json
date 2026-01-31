@@ -1,0 +1,5359 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "餐饮企业财务分析系统",
+    "description": "餐饮企业财务分析与可视化系统 API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "Health Check",
+        "description": "健康检查接口\n\n检查服务状态和数据库连接\n\nReturns:\n    Dict[str, Any]: 健康状态信息",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Health Check Api V1 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "Readiness Check",
+        "description": "就绪状态检查\n\n检查服务是否准备好接收请求\n\nReturns:\n    Dict[str, str]: 就绪状态",
+        "operationId": "readiness_check_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Readiness Check Api V1 Health Ready Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/live": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "Liveness Check",
+        "description": "存活状态检查\n\n检查服务是否正在运行\n\nReturns:\n    Dict[str, str]: 存活状态",
+        "operationId": "liveness_check_api_v1_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Liveness Check Api V1 Health Live Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "用户登录",
+        "description": "使用用户名和密码登录，返回 JWT 访问令牌",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Login Api V1 Auth Login Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "获取当前用户信息",
+        "description": "获取当前登录用户的详细信息，包含角色、权限和可访问门店",
+        "operationId": "get_current_user_info_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Get Current User Info Api V1 Auth Me Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "用户登出",
+        "description": "用户登出（前端需清除 token）",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Logout Api V1 Auth Logout Post"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/stores/all": {
+      "get": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "获取所有门店",
+        "description": "获取所有激活的门店（不分页）",
+        "operationId": "get_all_stores_api_v1_stores_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_StoreInDB__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/stores": {
+      "get": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "获取门店列表",
+        "description": "获取门店列表，支持分页和筛选",
+        "operationId": "list_stores_api_v1_stores_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Active"
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "created_at",
+              "title": "Order By"
+            }
+          },
+          {
+            "name": "desc",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PageData_StoreInDB__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "创建门店",
+        "description": "创建新的门店",
+        "operationId": "create_store_api_v1_stores_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_StoreInDB_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{store_id}": {
+      "get": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "获取门店详情",
+        "description": "根据ID获取门店详情",
+        "operationId": "get_store_api_v1_stores__store_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_StoreInDB_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "更新门店",
+        "description": "更新门店信息",
+        "operationId": "update_store_api_v1_stores__store_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_StoreInDB_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "门店管理"
+        ],
+        "summary": "删除门店",
+        "description": "删除门店（软删除）",
+        "operationId": "delete_store_api_v1_stores__store_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/expense-types/all": {
+      "get": {
+        "tags": [
+          "费用科目管理"
+        ],
+        "summary": "获取所有费用科目",
+        "description": "获取所有激活的费用科目（不分页）",
+        "operationId": "get_all_expense_types_api_v1_expense_types_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_dict__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/expense-types": {
+      "get": {
+        "tags": [
+          "费用科目管理"
+        ],
+        "summary": "获取费用科目列表",
+        "description": "获取费用科目列表（支持分页）",
+        "operationId": "list_expense_types_api_v1_expense_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_dict__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/expense-types/{expense_type_id}": {
+      "get": {
+        "tags": [
+          "费用科目管理"
+        ],
+        "summary": "获取费用科目详情",
+        "description": "获取费用科目详情",
+        "operationId": "get_expense_type_api_v1_expense_types__expense_type_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "expense_type_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Expense Type Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/expense-records": {
+      "get": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "获取费用记录列表",
+        "description": "获取费用记录列表",
+        "operationId": "list_expense_records_api_v1_expense_records_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "expense_type_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "费用类型ID",
+              "title": "Expense Type Id"
+            },
+            "description": "费用类型ID"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "页码",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "页码"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "每页大小",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "创建费用记录",
+        "description": "创建新的费用记录",
+        "operationId": "create_expense_record_api_v1_expense_records_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/expense-records/export": {
+      "get": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "导出费用记录",
+        "description": "导出费用记录列表为Excel文件",
+        "operationId": "export_expense_records_api_v1_expense_records_export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "expense_type_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "费用类型ID",
+              "title": "Expense Type Id"
+            },
+            "description": "费用类型ID"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/expense-records/{record_id}": {
+      "get": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "获取费用记录详情",
+        "description": "获取费用记录详情",
+        "operationId": "get_expense_record_api_v1_expense_records__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "更新费用记录",
+        "description": "更新费用记录信息",
+        "operationId": "update_expense_record_api_v1_expense_records__record_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseRecordUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "费用记录管理"
+        ],
+        "summary": "删除费用记录",
+        "description": "删除费用记录",
+        "operationId": "delete_expense_record_api_v1_expense_records__record_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders": {
+      "get": {
+        "tags": [
+          "订单管理"
+        ],
+        "summary": "获取订单列表",
+        "description": "获取订单列表",
+        "operationId": "list_orders_api_v1_orders_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "渠道",
+              "title": "Channel"
+            },
+            "description": "渠道"
+          },
+          {
+            "name": "order_no",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "订单号",
+              "title": "Order No"
+            },
+            "description": "订单号"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "页码",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "页码"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "每页大小",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "订单管理"
+        ],
+        "summary": "创建订单",
+        "description": "创建新的订单",
+        "operationId": "create_order_api_v1_orders_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders/export": {
+      "get": {
+        "tags": [
+          "订单管理"
+        ],
+        "summary": "导出订单",
+        "description": "导出订单列表为Excel文件",
+        "operationId": "export_orders_api_v1_orders_export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "渠道",
+              "title": "Channel"
+            },
+            "description": "渠道"
+          },
+          {
+            "name": "order_no",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "订单号",
+              "title": "Order No"
+            },
+            "description": "订单号"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders/{order_id}": {
+      "get": {
+        "tags": [
+          "订单管理"
+        ],
+        "summary": "获取订单详情",
+        "description": "获取订单详情",
+        "operationId": "get_order_api_v1_orders__order_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/daily": {
+      "get": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "获取日常KPI数据",
+        "description": "获取门店日常KPI数据",
+        "operationId": "get_daily_kpi_api_v1_kpi_daily_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Date From"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "Date To"
+            },
+            "description": "结束日期"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_Dict_str__Any___"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/summary": {
+      "get": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "获取KPI汇总数据",
+        "description": "获取KPI汇总统计数据",
+        "operationId": "get_kpi_summary_api_v1_kpi_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/trend": {
+      "get": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "获取KPI趋势数据",
+        "description": "获取KPI趋势数据，支持按日、周、月聚合",
+        "operationId": "get_kpi_trend_api_v1_kpi_trend_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "粒度：day/week/month",
+              "default": "day",
+              "title": "Granularity"
+            },
+            "description": "粒度：day/week/month"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/expense-category": {
+      "get": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "获取费用分类统计",
+        "description": "按费用类型统计费用金额和占比",
+        "operationId": "get_expense_category_api_v1_kpi_expense_category_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "门店ID",
+              "title": "Store Id"
+            },
+            "description": "门店ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/store-ranking": {
+      "get": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "获取门店排名",
+        "description": "按营收、利润或利润率对门店进行排名",
+        "operationId": "get_store_ranking_api_v1_kpi_store_ranking_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "开始日期",
+              "title": "Start Date"
+            },
+            "description": "开始日期"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "结束日期",
+              "title": "End Date"
+            },
+            "description": "结束日期"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Top N，999表示全部",
+              "default": 999,
+              "title": "Top N"
+            },
+            "description": "Top N，999表示全部"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "排序字段：revenue/profit/profit_margin",
+              "default": "profit",
+              "title": "Sort By"
+            },
+            "description": "排序字段：revenue/profit/profit_margin"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/kpi/rebuild": {
+      "post": {
+        "tags": [
+          "KPI 数据"
+        ],
+        "summary": "重建KPI数据",
+        "description": "重建指定日期范围的KPI数据（可选指定门店）",
+        "operationId": "rebuild_kpi_api_v1_kpi_rebuild_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiRebuildRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/audit/logs": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "获取审计日志列表",
+        "description": "分页查询审计日志，支持按日期、用户、操作类型、资源类型筛选",
+        "operationId": "get_audit_logs_api_v1_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "页码",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "页码"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "每页数量",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "每页数量"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "用户ID",
+              "title": "User Id"
+            },
+            "description": "用户ID"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "用户名（模糊查询）",
+              "title": "Username"
+            },
+            "description": "用户名（模糊查询）"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "操作类型",
+              "title": "Action"
+            },
+            "description": "操作类型"
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "资源类型",
+              "title": "Resource Type"
+            },
+            "description": "资源类型"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "操作结果：success/failure/error",
+              "title": "Status"
+            },
+            "description": "操作结果：success/failure/error"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "开始日期（ISO格式）",
+              "title": "Start Date"
+            },
+            "description": "开始日期（ISO格式）"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "结束日期（ISO格式）",
+              "title": "End Date"
+            },
+            "description": "结束日期（ISO格式）"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "排序字段",
+              "default": "created_at",
+              "title": "Sort By"
+            },
+            "description": "排序字段"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "排序方式：asc/desc",
+              "default": "desc",
+              "title": "Sort Order"
+            },
+            "description": "排序方式：asc/desc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AuditLogListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/logs/{log_id}": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "获取审计日志详情",
+        "description": "根据ID获取单条审计日志的详细信息",
+        "operationId": "get_audit_log_detail_api_v1_audit_logs__log_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "log_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Log Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AuditLogResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/actions": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "获取所有操作类型",
+        "description": "获取系统支持的所有审计操作类型列表",
+        "operationId": "get_audit_actions_api_v1_audit_actions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_str__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/audit/resource-types": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "获取所有资源类型",
+        "description": "获取系统支持的所有资源类型列表",
+        "operationId": "get_resource_types_api_v1_audit_resource_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_str__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/import-jobs": {
+      "post": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "Create Import Job",
+        "description": "创建导入任务（上传文件）\n\n- 支持 Excel (.xlsx, .xls) 和 CSV 文件\n- 文件大小限制 50MB\n- 订单和费用记录导入必须指定门店ID",
+        "operationId": "create_import_job_api_v1_import_jobs_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_import_job_api_v1_import_jobs_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ImportJobOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "List Import Jobs",
+        "description": "分页查询导入任务列表\n\n- 支持按目标类型、状态、创建人筛选\n- 默认按创建时间倒序",
+        "operationId": "list_import_jobs_api_v1_import_jobs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "target_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ImportTargetType"
+                }
+              ],
+              "description": "目标类型筛选",
+              "title": "Target Type"
+            },
+            "description": "目标类型筛选"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "状态筛选",
+              "title": "Status"
+            },
+            "description": "状态筛选"
+          },
+          {
+            "name": "created_by_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "创建用户ID筛选",
+              "title": "Created By Id"
+            },
+            "description": "创建用户ID筛选"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "页码",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "页码"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "每页数量",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "每页数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_List_ImportJobListItem__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import-jobs/{job_id}/run": {
+      "post": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "Run Import Job",
+        "description": "执行导入任务\n\n- 解析文件内容\n- 校验数据有效性\n- 批量写入数据库\n- 生成错误报告",
+        "operationId": "run_import_job_api_v1_import_jobs__job_id__run_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ImportJobOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import-jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "Get Import Job",
+        "description": "获取导入任务详情\n\n- 包含任务配置、创建者信息等",
+        "operationId": "get_import_job_api_v1_import_jobs__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ImportJobDetailOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import-jobs/{job_id}/errors": {
+      "get": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "List Import Job Errors",
+        "description": "分页查询导入任务错误记录\n\n- 按行号排序\n- 每页最多200条",
+        "operationId": "list_import_job_errors_api_v1_import_jobs__job_id__errors_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "页码",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "页码"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "每页数量",
+              "default": 50,
+              "title": "Page Size"
+            },
+            "description": "每页数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_List_ImportJobErrorListItem__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import-jobs/{job_id}/error-report": {
+      "get": {
+        "tags": [
+          "数据导入",
+          "数据导入"
+        ],
+        "summary": "Download Error Report",
+        "description": "下载错误报告文件\n\n- 返回 CSV 格式的错误明细\n- 包含行号、错误字段、错误信息、原始数据",
+        "operationId": "download_error_report_api_v1_import_jobs__job_id__error_report_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/daily-summary": {
+      "get": {
+        "tags": [
+          "报表中心"
+        ],
+        "summary": "Get Daily Summary Report",
+        "description": "获取日汇总报表\n\n权限: report:view",
+        "operationId": "get_daily_summary_report_api_v1_reports_daily_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "开始日期 (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "开始日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "结束日期 (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "结束日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "门店ID（为空表示全部门店）",
+              "title": "Store Id"
+            },
+            "description": "门店ID（为空表示全部门店）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_DailySummaryRow__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/monthly-summary": {
+      "get": {
+        "tags": [
+          "报表中心"
+        ],
+        "summary": "Get Monthly Summary Report",
+        "description": "获取月汇总报表\n\n权限: report:view",
+        "operationId": "get_monthly_summary_report_api_v1_reports_monthly_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "开始日期 (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "开始日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "结束日期 (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "结束日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "门店ID（为空表示全部门店）",
+              "title": "Store Id"
+            },
+            "description": "门店ID（为空表示全部门店）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_MonthlySummaryRow__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/store-performance": {
+      "get": {
+        "tags": [
+          "报表中心"
+        ],
+        "summary": "Get Store Performance Report",
+        "description": "获取门店绩效报表\n\n权限: report:view",
+        "operationId": "get_store_performance_report_api_v1_reports_store_performance_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "开始日期 (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "开始日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "结束日期 (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "结束日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "门店ID（为空表示全部门店）",
+              "title": "Store Id"
+            },
+            "description": "门店ID（为空表示全部门店）"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "TOP N排名（1-100）",
+              "title": "Top N"
+            },
+            "description": "TOP N排名（1-100）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_StorePerformanceRow__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/expense-breakdown": {
+      "get": {
+        "tags": [
+          "报表中心"
+        ],
+        "summary": "Get Expense Breakdown Report",
+        "description": "获取费用明细报表\n\n权限: report:view",
+        "operationId": "get_expense_breakdown_report_api_v1_reports_expense_breakdown_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "开始日期 (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "开始日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "结束日期 (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "结束日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "门店ID（为空表示全部门店）",
+              "title": "Store Id"
+            },
+            "description": "门店ID（为空表示全部门店）"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "TOP N排名（1-100）",
+              "title": "Top N"
+            },
+            "description": "TOP N排名（1-100）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_List_ExpenseBreakdownRow__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/export": {
+      "get": {
+        "tags": [
+          "报表中心"
+        ],
+        "summary": "Export Report",
+        "description": "导出报表为 Excel 文件\n\n权限: report:export",
+        "operationId": "export_report_api_v1_reports_export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "开始日期 (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "开始日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "结束日期 (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "结束日期 (YYYY-MM-DD)"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "门店ID（为空表示全部门店）",
+              "title": "Store Id"
+            },
+            "description": "门店ID（为空表示全部门店）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user-stores": {
+      "get": {
+        "tags": [
+          "用户门店权限"
+        ],
+        "summary": "查询用户的门店权限",
+        "description": "查询指定用户被分配的门店权限",
+        "operationId": "get_user_stores_api_v1_user_stores_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "用户ID",
+              "title": "User Id"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Dict_str__Any__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "用户门店权限"
+        ],
+        "summary": "删除用户的所有门店权限",
+        "description": "删除指定用户的所有门店权限",
+        "operationId": "delete_user_stores_api_v1_user_stores_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "用户ID",
+              "title": "User Id"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user-stores/assign": {
+      "post": {
+        "tags": [
+          "用户门店权限"
+        ],
+        "summary": "分配门店权限",
+        "description": "为用户分配门店权限（覆盖式更新）",
+        "operationId": "assign_user_stores_api_v1_user_stores_assign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserStoreAssignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuditLogListResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "总记录数"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "每页数量"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages",
+            "description": "总页数"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditLogResponse"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "日志列表"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "page",
+          "page_size",
+          "total_pages",
+          "items"
+        ],
+        "title": "AuditLogListResponse",
+        "description": "审计日志列表响应 Schema"
+      },
+      "AuditLogResponse": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Action",
+            "description": "操作类型"
+          },
+          "resource_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Type",
+            "description": "资源类型"
+          },
+          "resource_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Id",
+            "description": "资源ID"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail",
+            "description": "操作详情（JSON格式）"
+          },
+          "ip_address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 45
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Address",
+            "description": "客户端IP地址"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent",
+            "description": "客户端User-Agent"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Status",
+            "description": "操作结果：success/failure/error",
+            "default": "success"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message",
+            "description": "错误信息"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "日志ID"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "操作用户ID"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username",
+            "description": "操作用户名"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "更新时间"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AuditLogResponse",
+        "description": "审计日志响应 Schema"
+      },
+      "Body_create_import_job_api_v1_import_jobs_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "上传的 Excel 或 CSV 文件"
+          },
+          "target_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImportTargetType"
+              }
+            ],
+            "description": "目标数据类型"
+          },
+          "job_name": {
+            "type": "string",
+            "title": "Job Name",
+            "description": "任务名称"
+          },
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID (订单和费用记录导入必需)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "target_type"
+        ],
+        "title": "Body_create_import_job_api_v1_import_jobs_post"
+      },
+      "DailySummaryRow": {
+        "properties": {
+          "biz_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Biz Date",
+            "description": "业务日期"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name",
+            "description": "门店名称"
+          },
+          "revenue": {
+            "type": "string",
+            "title": "Revenue",
+            "description": "营业收入",
+            "default": "0.00"
+          },
+          "net_revenue": {
+            "type": "string",
+            "title": "Net Revenue",
+            "description": "净收入",
+            "default": "0.00"
+          },
+          "discount_amount": {
+            "type": "string",
+            "title": "Discount Amount",
+            "description": "优惠金额",
+            "default": "0.00"
+          },
+          "refund_amount": {
+            "type": "string",
+            "title": "Refund Amount",
+            "description": "退款金额",
+            "default": "0.00"
+          },
+          "cost_total": {
+            "type": "string",
+            "title": "Cost Total",
+            "description": "总成本",
+            "default": "0.00"
+          },
+          "cost_material": {
+            "type": "string",
+            "title": "Cost Material",
+            "description": "原材料成本",
+            "default": "0.00"
+          },
+          "cost_labor": {
+            "type": "string",
+            "title": "Cost Labor",
+            "description": "人工成本",
+            "default": "0.00"
+          },
+          "expense_total": {
+            "type": "string",
+            "title": "Expense Total",
+            "description": "总费用",
+            "default": "0.00"
+          },
+          "order_count": {
+            "type": "integer",
+            "title": "Order Count",
+            "description": "订单数",
+            "default": 0
+          },
+          "gross_profit": {
+            "type": "string",
+            "title": "Gross Profit",
+            "description": "毛利润",
+            "default": "0.00"
+          },
+          "operating_profit": {
+            "type": "string",
+            "title": "Operating Profit",
+            "description": "营业利润",
+            "default": "0.00"
+          },
+          "gross_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Profit Rate",
+            "description": "毛利率（%）"
+          },
+          "operating_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operating Profit Rate",
+            "description": "营业利润率（%）"
+          }
+        },
+        "type": "object",
+        "required": [
+          "biz_date"
+        ],
+        "title": "DailySummaryRow",
+        "description": "日汇总行"
+      },
+      "ExpenseBreakdownRow": {
+        "properties": {
+          "expense_type_id": {
+            "type": "integer",
+            "title": "Expense Type Id",
+            "description": "费用科目ID"
+          },
+          "expense_type_code": {
+            "type": "string",
+            "title": "Expense Type Code",
+            "description": "费用科目编码"
+          },
+          "expense_type_name": {
+            "type": "string",
+            "title": "Expense Type Name",
+            "description": "费用科目名称"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "费用类别"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name",
+            "description": "门店名称"
+          },
+          "total_amount": {
+            "type": "string",
+            "title": "Total Amount",
+            "description": "费用总额",
+            "default": "0.00"
+          },
+          "record_count": {
+            "type": "integer",
+            "title": "Record Count",
+            "description": "记录笔数",
+            "default": 0
+          },
+          "avg_amount": {
+            "type": "string",
+            "title": "Avg Amount",
+            "description": "平均单笔金额",
+            "default": "0.00"
+          },
+          "percentage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentage",
+            "description": "占总费用比例（%）"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expense_type_id",
+          "expense_type_code",
+          "expense_type_name",
+          "category"
+        ],
+        "title": "ExpenseBreakdownRow",
+        "description": "费用明细行"
+      },
+      "ExpenseRecordCreate": {
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "expense_type_id": {
+            "type": "integer",
+            "title": "Expense Type Id",
+            "description": "费用类型ID"
+          },
+          "biz_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Biz Date",
+            "description": "业务日期"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount",
+            "description": "金额"
+          },
+          "remark": {
+            "type": "string",
+            "title": "Remark",
+            "description": "备注",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "store_id",
+          "expense_type_id",
+          "biz_date",
+          "amount"
+        ],
+        "title": "ExpenseRecordCreate",
+        "description": "创建费用记录请求"
+      },
+      "ExpenseRecordUpdate": {
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "expense_type_id": {
+            "type": "integer",
+            "title": "Expense Type Id",
+            "description": "费用类型ID"
+          },
+          "biz_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Biz Date",
+            "description": "业务日期"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount",
+            "description": "金额"
+          },
+          "remark": {
+            "type": "string",
+            "title": "Remark",
+            "description": "备注"
+          }
+        },
+        "type": "object",
+        "title": "ExpenseRecordUpdate",
+        "description": "更新费用记录请求"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImportJobDetailOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "job_name": {
+            "type": "string",
+            "title": "Job Name"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/ImportSourceType"
+          },
+          "target_type": {
+            "$ref": "#/components/schemas/ImportTargetType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImportJobStatus"
+          },
+          "file_name": {
+            "type": "string",
+            "title": "File Name"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "success_rows": {
+            "type": "integer",
+            "title": "Success Rows"
+          },
+          "fail_rows": {
+            "type": "integer",
+            "title": "Fail Rows"
+          },
+          "error_report_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Report Path"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "job_name",
+          "source_type",
+          "target_type",
+          "status",
+          "file_name",
+          "total_rows",
+          "success_rows",
+          "fail_rows",
+          "error_report_path",
+          "created_by_id",
+          "created_at",
+          "updated_at",
+          "config"
+        ],
+        "title": "ImportJobDetailOut",
+        "description": "导入任务详情输出（含配置和创建者信息）"
+      },
+      "ImportJobErrorListItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "row_no": {
+            "type": "integer",
+            "title": "Row No"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "row_no",
+          "field",
+          "message"
+        ],
+        "title": "ImportJobErrorListItem",
+        "description": "错误列表项（轻量级）"
+      },
+      "ImportJobListItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "job_name": {
+            "type": "string",
+            "title": "Job Name"
+          },
+          "target_type": {
+            "$ref": "#/components/schemas/ImportTargetType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImportJobStatus"
+          },
+          "file_name": {
+            "type": "string",
+            "title": "File Name"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "success_rows": {
+            "type": "integer",
+            "title": "Success Rows"
+          },
+          "fail_rows": {
+            "type": "integer",
+            "title": "Fail Rows"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "job_name",
+          "target_type",
+          "status",
+          "file_name",
+          "total_rows",
+          "success_rows",
+          "fail_rows",
+          "created_by_id",
+          "created_at"
+        ],
+        "title": "ImportJobListItem",
+        "description": "导入任务列表项（轻量级）"
+      },
+      "ImportJobOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "job_name": {
+            "type": "string",
+            "title": "Job Name"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/ImportSourceType"
+          },
+          "target_type": {
+            "$ref": "#/components/schemas/ImportTargetType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImportJobStatus"
+          },
+          "file_name": {
+            "type": "string",
+            "title": "File Name"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "success_rows": {
+            "type": "integer",
+            "title": "Success Rows"
+          },
+          "fail_rows": {
+            "type": "integer",
+            "title": "Fail Rows"
+          },
+          "error_report_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Report Path"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "job_name",
+          "source_type",
+          "target_type",
+          "status",
+          "file_name",
+          "total_rows",
+          "success_rows",
+          "fail_rows",
+          "error_report_path",
+          "created_by_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ImportJobOut",
+        "description": "导入任务基础输出"
+      },
+      "ImportJobStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "success",
+          "partial_fail",
+          "fail"
+        ],
+        "title": "ImportJobStatus",
+        "description": "导入任务状态"
+      },
+      "ImportSourceType": {
+        "type": "string",
+        "enum": [
+          "excel",
+          "csv"
+        ],
+        "title": "ImportSourceType",
+        "description": "导入源类型"
+      },
+      "ImportTargetType": {
+        "type": "string",
+        "enum": [
+          "orders",
+          "expense_records",
+          "stores",
+          "expense_types"
+        ],
+        "title": "ImportTargetType",
+        "description": "导入目标类型"
+      },
+      "KpiRebuildRequest": {
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date",
+            "description": "开始日期"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "title": "End Date",
+            "description": "结束日期"
+          },
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID（可选，不填则重建所有门店）"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "title": "KpiRebuildRequest",
+        "description": "KPI重建请求"
+      },
+      "LoginRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
+            "title": "Username",
+            "description": "用户名"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 6,
+            "title": "Password",
+            "description": "密码"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginRequest",
+        "description": "登录请求",
+        "example": {
+          "password": "Admin@123",
+          "username": "admin"
+        }
+      },
+      "MonthlySummaryRow": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year",
+            "description": "年份"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month",
+            "description": "月份"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name",
+            "description": "门店名称"
+          },
+          "revenue": {
+            "type": "string",
+            "title": "Revenue",
+            "description": "营业收入",
+            "default": "0.00"
+          },
+          "net_revenue": {
+            "type": "string",
+            "title": "Net Revenue",
+            "description": "净收入",
+            "default": "0.00"
+          },
+          "discount_amount": {
+            "type": "string",
+            "title": "Discount Amount",
+            "description": "优惠金额",
+            "default": "0.00"
+          },
+          "refund_amount": {
+            "type": "string",
+            "title": "Refund Amount",
+            "description": "退款金额",
+            "default": "0.00"
+          },
+          "cost_total": {
+            "type": "string",
+            "title": "Cost Total",
+            "description": "总成本",
+            "default": "0.00"
+          },
+          "expense_total": {
+            "type": "string",
+            "title": "Expense Total",
+            "description": "总费用",
+            "default": "0.00"
+          },
+          "order_count": {
+            "type": "integer",
+            "title": "Order Count",
+            "description": "订单数",
+            "default": 0
+          },
+          "gross_profit": {
+            "type": "string",
+            "title": "Gross Profit",
+            "description": "毛利润",
+            "default": "0.00"
+          },
+          "operating_profit": {
+            "type": "string",
+            "title": "Operating Profit",
+            "description": "营业利润",
+            "default": "0.00"
+          },
+          "gross_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Profit Rate",
+            "description": "毛利率（%）"
+          },
+          "operating_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operating Profit Rate",
+            "description": "营业利润率（%）"
+          },
+          "avg_daily_revenue": {
+            "type": "string",
+            "title": "Avg Daily Revenue",
+            "description": "日均收入",
+            "default": "0.00"
+          },
+          "avg_daily_order_count": {
+            "type": "string",
+            "title": "Avg Daily Order Count",
+            "description": "日均订单数",
+            "default": "0.00"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month"
+        ],
+        "title": "MonthlySummaryRow",
+        "description": "月汇总行"
+      },
+      "OrderCreate": {
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "渠道"
+          },
+          "order_no": {
+            "type": "string",
+            "title": "Order No",
+            "description": "订单号"
+          },
+          "net_amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Net Amount",
+            "description": "订单金额"
+          },
+          "order_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Order Time",
+            "description": "订单时间"
+          },
+          "remark": {
+            "type": "string",
+            "title": "Remark",
+            "description": "备注",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "store_id",
+          "channel",
+          "order_no",
+          "net_amount",
+          "order_time"
+        ],
+        "title": "OrderCreate",
+        "description": "创建订单请求"
+      },
+      "PageData_StoreInDB_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StoreInDB"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "数据列表"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "总数"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "当前页码"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "每页数量"
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Pages",
+            "description": "总页数"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "PageData[StoreInDB]"
+      },
+      "PaginatedResponse_List_ImportJobErrorListItem__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ImportJobErrorListItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据列表"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "总记录数",
+            "default": 0
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "当前页码",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "每页数量",
+            "default": 20
+          }
+        },
+        "type": "object",
+        "title": "PaginatedResponse[List[ImportJobErrorListItem]]",
+        "example": {
+          "code": 0,
+          "data": [],
+          "message": "ok",
+          "page": 1,
+          "page_size": 20,
+          "total": 100
+        }
+      },
+      "PaginatedResponse_List_ImportJobListItem__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ImportJobListItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据列表"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "总记录数",
+            "default": 0
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "当前页码",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "每页数量",
+            "default": 20
+          }
+        },
+        "type": "object",
+        "title": "PaginatedResponse[List[ImportJobListItem]]",
+        "example": {
+          "code": 0,
+          "data": [],
+          "message": "ok",
+          "page": 1,
+          "page_size": 20,
+          "total": 100
+        }
+      },
+      "Response_AuditLogListResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditLogListResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[AuditLogListResponse]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_AuditLogResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditLogResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[AuditLogResponse]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_Dict_str__Any__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[Dict[str, Any]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_ImportJobDetailOut_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImportJobDetailOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[ImportJobDetailOut]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_ImportJobOut_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImportJobOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[ImportJobOut]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_DailySummaryRow__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DailySummaryRow"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[DailySummaryRow]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_Dict_str__Any___": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[Dict[str, Any]]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_ExpenseBreakdownRow__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ExpenseBreakdownRow"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[ExpenseBreakdownRow]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_MonthlySummaryRow__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MonthlySummaryRow"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[MonthlySummaryRow]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_StoreInDB__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/StoreInDB"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[StoreInDB]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_StorePerformanceRow__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/StorePerformanceRow"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[StorePerformanceRow]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_dict__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[dict]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_List_str__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[List[str]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_NoneType_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "type": "null",
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[NoneType]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_PageData_StoreInDB__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PageData_StoreInDB_"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[PageData[StoreInDB]]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_StoreInDB_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StoreInDB"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[StoreInDB]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "Response_dict_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "状态码，0 表示成功",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "响应消息",
+            "default": "ok"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "响应数据"
+          }
+        },
+        "type": "object",
+        "title": "Response[dict]",
+        "example": {
+          "code": 0,
+          "message": "ok"
+        }
+      },
+      "StoreCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "门店名称"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "门店代码"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address",
+            "description": "门店地址"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "城市"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "description": "联系电话"
+          },
+          "manager": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager",
+            "description": "店长姓名"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "门店状态",
+            "default": "active"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "是否激活",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "StoreCreate",
+        "description": "创建门店请求模型"
+      },
+      "StoreInDB": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "门店名称"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "门店代码"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address",
+            "description": "门店地址"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "城市"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "description": "联系电话"
+          },
+          "manager": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager",
+            "description": "店长姓名"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "门店状态",
+            "default": "active"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "是否激活",
+            "default": true
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "门店ID"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "更新时间"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StoreInDB",
+        "description": "门店数据库模型"
+      },
+      "StorePerformanceRow": {
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "title": "Store Id",
+            "description": "门店ID"
+          },
+          "store_name": {
+            "type": "string",
+            "title": "Store Name",
+            "description": "门店名称"
+          },
+          "revenue": {
+            "type": "string",
+            "title": "Revenue",
+            "description": "营业收入",
+            "default": "0.00"
+          },
+          "net_revenue": {
+            "type": "string",
+            "title": "Net Revenue",
+            "description": "净收入",
+            "default": "0.00"
+          },
+          "order_count": {
+            "type": "integer",
+            "title": "Order Count",
+            "description": "订单数",
+            "default": 0
+          },
+          "avg_order_amount": {
+            "type": "string",
+            "title": "Avg Order Amount",
+            "description": "客单价",
+            "default": "0.00"
+          },
+          "gross_profit": {
+            "type": "string",
+            "title": "Gross Profit",
+            "description": "毛利润",
+            "default": "0.00"
+          },
+          "operating_profit": {
+            "type": "string",
+            "title": "Operating Profit",
+            "description": "营业利润",
+            "default": "0.00"
+          },
+          "gross_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Profit Rate",
+            "description": "毛利率（%）"
+          },
+          "operating_profit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operating Profit Rate",
+            "description": "营业利润率（%）"
+          },
+          "revenue_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revenue Rank",
+            "description": "营收排名"
+          },
+          "profit_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profit Rank",
+            "description": "利润排名"
+          }
+        },
+        "type": "object",
+        "required": [
+          "store_id",
+          "store_name"
+        ],
+        "title": "StorePerformanceRow",
+        "description": "门店绩效行"
+      },
+      "StoreUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "门店名称"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "门店代码"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address",
+            "description": "门店地址"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "城市"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "description": "联系电话"
+          },
+          "manager": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager",
+            "description": "店长姓名"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "门店状态"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "description": "是否激活"
+          }
+        },
+        "type": "object",
+        "title": "StoreUpdate",
+        "description": "更新门店请求模型"
+      },
+      "UserStoreAssignRequest": {
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "title": "User Id",
+            "description": "用户ID"
+          },
+          "store_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Store Ids",
+            "description": "门店ID列表"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "store_ids"
+        ],
+        "title": "UserStoreAssignRequest",
+        "description": "分配门店权限请求"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
