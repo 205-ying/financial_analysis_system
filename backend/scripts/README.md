@@ -9,6 +9,7 @@
 ```
 scripts/
 ├── seed_data.py                      # 初始化种子数据（核心脚本）⭐
+├── export_api_docs.py                # 导出 OpenAPI 文档（JSON/Markdown）⭐
 ├── generate_bulk_data.py             # 生成批量测试数据
 ├── clean_bulk_data.py                # 清理批量测试数据
 ├── generate_import_test_data.py      # 生成导入测试数据
@@ -62,6 +63,43 @@ python scripts/seed_data.py
 - ⚠️ 运行前确保已执行数据库迁移 (`alembic upgrade head`)
 - ⚠️ 脚本会检查数据是否已存在，避免重复创建
 - ✅ 默认密码：Admin@123, Manager@123, Cashier@123
+
+---
+
+### export_api_docs.py - 导出 OpenAPI 文档 ⭐
+**用途**: 导出完整的 API 文档（OpenAPI 3.1.0 规范），用于论文和开发文档
+
+**功能**:
+- 导出 OpenAPI JSON 规范（openapi.json）
+- 生成 Markdown 格式的 API 文档（api-documentation.md）
+- 支持详细输出模式（显示端点和模型统计）
+
+**使用方法**:
+```bash
+cd backend
+
+# 导出 JSON 格式
+python scripts/export_api_docs.py --format json
+
+# 导出 Markdown 格式
+python scripts/export_api_docs.py --format markdown
+
+# 同时导出两种格式（推荐）
+python scripts/export_api_docs.py --format both
+
+# 详细输出模式
+python scripts/export_api_docs.py --format both --verbose
+```
+
+**输出位置**:
+- `backend/openapi.json` - OpenAPI 3.1.0 规范（包含40个端点，45个模型）
+- `backend/api-documentation.md` - Markdown 格式的完整 API 文档
+
+**适用场景**:
+- 📄 论文附录：提供完整的 API 接口规范
+- 📚 开发文档：团队协作和接口对接
+- 🔄 版本管理：记录 API 变更历史
+- 🧪 API 测试：可导入 Postman/Swagger UI 等工具
 
 ---
 

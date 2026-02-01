@@ -40,6 +40,7 @@ financial_analysis_system/
 │   │   ├── maintenance/ # 数据库维护（备份、清理）
 │   │   ├── testing/     # 测试验证脚本
 │   │   ├── seed_data.py # 初始化数据
+│   │   ├── export_api_docs.py # 导出 OpenAPI 文档 ⭐
 │   │   └── README.md    # 脚本使用文档
 │   ├── tests/           # 后端测试文件（pytest）
 │   ├── dev.py           # 开发辅助脚本

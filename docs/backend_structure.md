@@ -31,6 +31,7 @@ backend/
 │   │   ├── common.py     # 通用响应模型（Response, PaginatedResponse）
 │   │   ├── auth.py       # 认证相关Schema（登录、Token）
 │   │   ├── store.py      # 门店相关Schema
+│   │   ├── kpi.py        # KPI 请求/响应Schema（汇总、趋势、排名）⭐
 │   │   ├── audit_log.py  # 审计日志Schema
 │   │   ├── import_job.py # 数据导入Schema
 │   │   └── report.py     # 报表查询Schema
@@ -72,6 +73,7 @@ backend/
 │   ├── testing/          # 测试和验证脚本
 │   ├── test_data_import/ # 测试数据文件（CSV等）
 │   ├── seed_data.py      # 初始化数据脚本
+│   ├── export_api_docs.py     # 导出 OpenAPI 文档（JSON/Markdown）⭐
 │   ├── generate_bulk_data.py  # 批量测试数据生成
 │   ├── clean_bulk_data.py     # 清理测试数据
 │   └── README.md         # 脚本使用文档
