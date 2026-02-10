@@ -7,7 +7,7 @@ from datetime import datetime
 from urllib.parse import quote
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +29,7 @@ router = APIRouter()
 
 @router.get("/daily-summary", response_model=Response[List[DailySummaryRow]])
 async def get_daily_summary_report(
+    request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
@@ -54,6 +55,21 @@ async def get_daily_summary_report(
     # 查询数据（传入current_user进行数据权限过滤）
     data = await report_service.get_daily_summary(db, filters, current_user)
     
+    # 记录审计日志
+    await log_audit(
+        db=db,
+        user=current_user,
+        action="view_daily_summary",
+        request=request,
+        resource_type="report",
+        detail={
+            "start_date": start_date,
+            "end_date": end_date,
+            "store_id": store_id,
+            "record_count": len(data)
+        }
+    )
+    
     return Response(
         code=200,
         message="查询成功",
@@ -63,6 +79,7 @@ async def get_daily_summary_report(
 
 @router.get("/monthly-summary", response_model=Response[List[MonthlySummaryRow]])
 async def get_monthly_summary_report(
+    request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
@@ -88,6 +105,21 @@ async def get_monthly_summary_report(
     # 查询数据（传入current_user进行数据权限过滤）
     data = await report_service.get_monthly_summary(db, filters, current_user)
     
+    # 记录审计日志
+    await log_audit(
+        db=db,
+        user=current_user,
+        action="view_monthly_summary",
+        request=request,
+        resource_type="report",
+        detail={
+            "start_date": start_date,
+            "end_date": end_date,
+            "store_id": store_id,
+            "record_count": len(data)
+        }
+    )
+    
     return Response(
         code=200,
         message="查询成功",
@@ -97,6 +129,7 @@ async def get_monthly_summary_report(
 
 @router.get("/store-performance", response_model=Response[List[StorePerformanceRow]])
 async def get_store_performance_report(
+    request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
@@ -124,6 +157,22 @@ async def get_store_performance_report(
     # 查询数据（传入current_user进行数据权限过滤）
     data = await report_service.get_store_performance(db, filters, current_user)
     
+    # 记录审计日志
+    await log_audit(
+        db=db,
+        user=current_user,
+        action="view_store_performance",
+        request=request,
+        resource_type="report",
+        detail={
+            "start_date": start_date,
+            "end_date": end_date,
+            "store_id": store_id,
+            "top_n": top_n,
+            "record_count": len(data)
+        }
+    )
+    
     return Response(
         code=200,
         message="查询成功",
@@ -133,6 +182,7 @@ async def get_store_performance_report(
 
 @router.get("/expense-breakdown", response_model=Response[List[ExpenseBreakdownRow]])
 async def get_expense_breakdown_report(
+    request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
@@ -160,6 +210,22 @@ async def get_expense_breakdown_report(
     # 查询数据（传入current_user进行数据权限过滤）
     data = await report_service.get_expense_breakdown(db, filters, current_user)
     
+    # 记录审计日志
+    await log_audit(
+        db=db,
+        user=current_user,
+        action="view_expense_breakdown",
+        request=request,
+        resource_type="report",
+        detail={
+            "start_date": start_date,
+            "end_date": end_date,
+            "store_id": store_id,
+            "top_n": top_n,
+            "record_count": len(data)
+        }
+    )
+    
     return Response(
         code=200,
         message="查询成功",
@@ -169,6 +235,7 @@ async def get_expense_breakdown_report(
 
 @router.get("/export")
 async def export_report(
+    request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
@@ -197,8 +264,9 @@ async def export_report(
     # 记录审计日志
     await log_audit(
         db=db,
-        user_id=current_user.id,
+        user=current_user,
         action="export_report",
+        request=request,
         resource_type="report",
         detail={
             "start_date": start_date,
@@ -217,7 +285,7 @@ async def export_report(
     
     # 返回文件流
     return StreamingResponse(
-        iter([excel_data]),
+        iter([excel_bytes]),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={
             "Content-Disposition": f"attachment; filename=report.xlsx; filename*=UTF-8''{encoded_filename}"

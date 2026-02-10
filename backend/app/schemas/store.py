@@ -52,7 +52,6 @@ class StoreListQuery(BaseModel):
     page_size: int = Field(20, ge=1, le=500, description="每页大小，最大500条")
     name: Optional[str] = Field(None, description="门店名称（模糊匹配）")
     city: Optional[str] = Field(None, description="城市")
-    status: Optional[str] = Field(None, description="门店状态")
     is_active: Optional[bool] = Field(None, description="是否激活")
     order_by: Optional[str] = Field("created_at", description="排序字段")
     desc: bool = Field(True, description="是否降序")

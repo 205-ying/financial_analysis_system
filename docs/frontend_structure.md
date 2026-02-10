@@ -25,7 +25,9 @@ frontend/
 │   │   │   └── PieChart.vue    # 饼图
 │   │   └── dialogs/      # 对话框组件
 │   │       ├── CreateExpenseDialog.vue  # 创建费用对话框
-│   │       └── CreateOrderDialog.vue    # 创建订单对话框
+│   │       ├── CreateOrderDialog.vue    # 创建订单对话框
+│   │       ├── EditRoleDialog.vue       # 角色编辑对话框
+│   │       └── AssignPermissionsDialog.vue # 权限分配对话框
 │   ├── layout/           # 布局组件
 │   │   ├── index.vue           # 主布局
 │   │   └── components/
@@ -46,9 +48,11 @@ frontend/
 │   │   ├── audit-logs/   # 审计日志
 │   │   │   └── index.vue
 │   │   ├── system/       # 系统管理
-│   │   │   └── import/   # 数据导入
-│   │   │       ├── ImportJobListView.vue   # 导入任务列表
-│   │   │       └── ImportJobDetailView.vue # 导入任务详情
+│   │   │   ├── import/   # 数据导入
+│   │   │   │   ├── ImportJobListView.vue   # 导入任务列表
+│   │   │   │   └── ImportJobDetailView.vue # 导入任务详情
+│   │   │   └── roles/    # 角色管理
+│   │   │       └── index.vue       # 角色管理页面
 │   │   └── error/        # 错误页面
 │   │       ├── 403.vue   # 无权限
 │   │       └── 404.vue   # 未找到
@@ -70,7 +74,9 @@ frontend/
 │   │   ├── audit.ts      # 审计日志API
 │   │   ├── import_jobs.ts # 数据导入API
 │   │   ├── reports.ts    # 报表API
-│   │   └── user_stores.ts # 用户门店权限API
+│   │   ├── user_stores.ts # 用户门店权限API
+│   │   ├── role.ts       # 角色管理API
+│   │   └── permission.ts # 权限查询API
 │   ├── types/            # TypeScript类型定义（模块化）
 │   │   ├── index.ts      # 类型导出
 │   │   └── modules/      # 按模块分类
@@ -219,6 +225,7 @@ frontend/
 | `/analytics/reports` | views/analytics/ReportView.vue | `report:view` |
 | `/system/import` | views/system/import/ImportJobListView.vue | `import:view` |
 | `/system/import/:id` | views/system/import/ImportJobDetailView.vue | `import:view` |
+| `/system/roles` | views/system/roles/index.vue | `role:view` |
 | `/403` | views/error/403.vue | 无 |
 | `/404` | views/error/404.vue | 无 |
 
@@ -235,6 +242,8 @@ frontend/
 | reports.ts | `/api/v1/reports/generate`, `/api/v1/reports/templates` |
 | import_jobs.ts | `/api/v1/import-jobs`, `/api/v1/import-jobs/{id}` |
 | user_stores.ts | `/api/v1/user-stores` |
+| role.ts | `/api/v1/roles`, `/api/v1/roles/{id}`, `/api/v1/roles/{id}/permissions` |
+| permission.ts | `/api/v1/permissions`, `/api/v1/permissions/all`, `/api/v1/permissions/resources` |
 
 ### 状态管理（完整Store列表）
 
@@ -428,4 +437,4 @@ npm run type-check  # TypeScript类型检查
 
 ---
 
-*最后更新: 2026年1月26日*
+*最后更新: 2026年2月8日*

@@ -13,6 +13,9 @@ const whiteList = ['/login', '/403', '/404']
  * 设置路由守卫
  */
 export function setupRouterGuard(router: Router) {
+  // 标记是否正在处理认证错误，避免重复提示
+  let isHandlingAuthError = false
+
   // 全局前置守卫
   router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore()
@@ -60,9 +63,21 @@ export function setupRouterGuard(router: Router) {
             next({ ...to, replace: true })
           } catch (error) {
             console.error('获取用户信息失败：', error)
-            // 清除 token 并跳转登录
-            authStore.logout()
-            ElMessage.error('获取用户信息失败，请重新登录')
+            
+            // 避免重复显示错误提示
+            if (!isHandlingAuthError) {
+              isHandlingAuthError = true
+              
+              // 清除 token 并跳转登录
+              authStore.logout()
+              ElMessage.error('获取用户信息失败，请重新登录')
+              
+              // 延迟重置标记
+              setTimeout(() => {
+                isHandlingAuthError = false
+              }, 1000)
+            }
+            
             next(`/login?redirect=${to.path}`)
           }
         }

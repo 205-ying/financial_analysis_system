@@ -27,5 +27,14 @@ export * from './modules/import_job'
 // 报表相关
 export * from './modules/report'
 
+// 菜品分析相关
+export * from './modules/product_analysis'
+
+// 同比环比分析相关
+export * from './modules/comparison'
+
+// 仪表盘相关
+export * from './modules/dashboard'
+
 // 保留旧的 api.ts 的导出以保持向后兼容
 // 未来可以逐步迁移到按模块导入

@@ -5,7 +5,32 @@
 支持连接池管理和事务处理。
 """
 
+import os
+import platform
+import sys
+from collections import namedtuple
+
 from typing import AsyncGenerator
+
+# Work around Windows WMI hang during platform detection in SQLAlchemy.
+if sys.platform == "win32":
+    _UnameResult = namedtuple(
+        "uname_result",
+        ["system", "node", "release", "version", "machine", "processor"],
+    )
+
+    def _safe_uname():
+        return _UnameResult(
+            "Windows",
+            os.environ.get("COMPUTERNAME", ""),
+            "",
+            "",
+            os.environ.get("PROCESSOR_ARCHITECTURE", ""),
+            os.environ.get("PROCESSOR_IDENTIFIER", ""),
+        )
+
+    platform.uname = _safe_uname
+    platform.machine = lambda: os.environ.get("PROCESSOR_ARCHITECTURE", "")
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
@@ -74,19 +99,3 @@ async def drop_tables():
     """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """
-    获取数据库会话
-    
-    用于依赖注入，自动管理数据库会话的创建和关闭。
-    
-    Yields:
-        AsyncSession: 异步数据库会话
-    """
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()

@@ -630,7 +630,7 @@ tail -f backend/logs/app.log
 
 | 模块 | 是否使用 index.ts | 用途 | 说明 |
 |------|------------------|------|------|
-| **api/** | ❌ 不使用 | - | 直接按模块导入（如 `@/api/auth`），无统一导出入口 |
+| **api/** | ✅ 使用 | 统一API导出 | 所有API模块通过 `@/api` 统一导出（如 `roleApi`, `permissionApi`） |
 | **types/** | ✅ 使用 | 统一类型导出 | 核心入口，所有类型从此导出 |
 | **stores/** | ✅ 使用 | setupStore + 导出stores | main.ts 需要 setupStore 函数 |
 | **directives/** | ✅ 使用 | 导出指令安装函数 | main.ts 需要 setupPermissionDirective |
@@ -647,13 +647,14 @@ import { setupPermissionDirective } from '@/directives'
 import { FilterBar } from '@/components'
 import { STORAGE_KEYS } from '@/config'
 
-// ✅ 推荐 - API 直接按模块导入
+// ✅ 推荐 - API 通过统一入口导入
+import { roleApi, permissionApi } from '@/api'
 import { login, logout } from '@/api/auth'
 import { getOrderList } from '@/api/order'
 import { getKPISummary } from '@/api/kpi'
 
-// ❌ 避免 - api 无统一导出
-// import { authApi } from '@/api'  // ❌ api/index.ts 已删除
+// ✅ 也可以直接按模块导入
+import { roleApi as roleApiModule } from '@/api/role'
 ```
 
 ## 参考资料

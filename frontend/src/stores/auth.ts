@@ -75,13 +75,16 @@ export const useAuthStore = defineStore(
 
     /**
      * 登出
+     * @param silent 静默登出（不跳转登录页，不调用后端接口）
      */
-    async function logout() {
+    async function logout(silent = false) {
       try {
-        // 调用后端登出接口（可选）
-        await logoutApi().catch(() => {
-          // 忽略登出接口错误
-        })
+        if (!silent) {
+          // 调用后端登出接口（可选）
+          await logoutApi().catch(() => {
+            // 忽略登出接口错误
+          })
+        }
       } finally {
         // 清除本地数据
         token.value = ''
@@ -89,8 +92,10 @@ export const useAuthStore = defineStore(
         permissions.value = []
         accessibleStores.value = null
 
-        // 跳转到登录页
-        router.push('/login')
+        // 跳转到登录页（静默模式下不跳转）
+        if (!silent) {
+          router.push('/login')
+        }
       }
     }
 

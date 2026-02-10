@@ -93,8 +93,13 @@ class AuditLog(Base, IDMixin, TimestampMixin):
         comment="错误信息（仅在失败时记录）"
     )
     
-    # 关联关系
-    user: Mapped["User"] = relationship("User", foreign_keys=[user_id], lazy="selectin")
+    # 关联关系（使用 viewonly=True 避免关系冲突警告）
+    user: Mapped["User | None"] = relationship(
+        "User",
+        foreign_keys=[user_id],
+        lazy="select",
+        viewonly=True
+    )
     
     def __repr__(self) -> str:
         return f"<AuditLog(id={self.id}, action={self.action}, username={self.username}, status={self.status})>"

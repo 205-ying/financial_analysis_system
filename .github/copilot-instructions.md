@@ -290,6 +290,8 @@ PaginatedResponse[List[StoreSchema]](
 - `/api/v1/reports/*` - 报表中心（日汇总、月汇总、门店绩效）
 - `/api/v1/import-jobs/*` - 数据导入任务（Excel/CSV导入）
 - `/api/v1/audit/*` - 审计日志查询
+- `/api/v1/roles/*` - 角色管理（CRUD、权限分配）
+- `/api/v1/permissions/*` - 权限查询（列表、资源类型）
 
 **新增API端点流程**:
 1. 在 [app/api/v1/](backend/app/api/v1/) 创建或修改路由文件

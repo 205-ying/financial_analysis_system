@@ -254,10 +254,11 @@ async def logout(
     # 记录审计日志
     await create_audit_log(
         db=db,
-        user_id=current_user.id,
+        user=current_user,
         action="logout",
-        resource_type="auth",
-        details={"ip": request.client.host if request.client else "unknown"},
+        resource="auth",
+        detail={"ip": request.client.host if request.client else "unknown"},
+        request=request,
     )
     
     return success(message="登出成功")

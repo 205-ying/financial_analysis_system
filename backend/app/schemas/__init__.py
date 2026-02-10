@@ -20,6 +20,29 @@ from app.schemas.report import (
     StorePerformanceRow,
     ExpenseBreakdownRow,
 )
+from app.schemas.product_analysis import (
+    ProductSalesRankingItem,
+    CategorySalesItem,
+    ProductProfitItem,
+    ProductABCItem,
+    ProductStoreCrossItem,
+)
+from app.schemas.comparison import (
+    ComparisonQuery,
+    MetricComparison,
+    PeriodComparisonResponse,
+    TrendComparisonItem,
+    TrendComparisonResponse,
+    StoreComparisonItem,
+)
+from app.schemas.dashboard import (
+    SummaryCard,
+    TrendDataPoint,
+    StoreRankItem,
+    ExpenseStructureItem,
+    ChannelDistribution,
+    DashboardOverview,
+)
 from app.schemas.kpi import (
     KpiRebuildRequest,
     KpiQueryParams,
@@ -63,6 +86,12 @@ __all__ = [
     "MonthlySummaryRow",
     "StorePerformanceRow",
     "ExpenseBreakdownRow",
+    # Product Analysis
+    "ProductSalesRankingItem",
+    "CategorySalesItem",
+    "ProductProfitItem",
+    "ProductABCItem",
+    "ProductStoreCrossItem",
     # KPI
     "KpiRebuildRequest",
     "KpiQueryParams",
@@ -76,4 +105,18 @@ __all__ = [
     "StoreRankingResponse",
     "KpiRebuildResponse",
     "KpiDailyStoreSchema",
+    # Comparison
+    "ComparisonQuery",
+    "MetricComparison",
+    "PeriodComparisonResponse",
+    "TrendComparisonItem",
+    "TrendComparisonResponse",
+    "StoreComparisonItem",
+    # Dashboard
+    "SummaryCard",
+    "TrendDataPoint",
+    "StoreRankItem",
+    "ExpenseStructureItem",
+    "ChannelDistribution",
+    "DashboardOverview",
 ]

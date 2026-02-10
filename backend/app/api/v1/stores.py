@@ -64,8 +64,6 @@ async def list_stores(
     conditions = []
     if query_params.name:
         conditions.append(Store.name.ilike(f"%{query_params.name}%"))
-    if query_params.status:
-        conditions.append(Store.status == query_params.status)
     if query_params.city:
         conditions.append(Store.city == query_params.city)
     if query_params.is_active is not None:

@@ -34,6 +34,9 @@ service.interceptors.request.use(
   }
 )
 
+// 标记是否正在处理401错误，避免重复处理
+let isRefreshing = false
+
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -58,17 +61,21 @@ service.interceptors.response.use(
       
       switch (status) {
         case 401:
-          // 未授权 - 自动跳转登录
-          ElMessage.error('登录已过期，请重新登录')
-          const authStore = useAuthStore()
-          authStore.logout()
-          router.push('/login')
+          // 未授权 - 静默清除token，让路由守卫统一处理跳转和提示
+          if (!isRefreshing) {
+            isRefreshing = true
+            const authStore = useAuthStore()
+            authStore.logout(true) // 静默登出：只清除数据，不跳转
+            // 延迟重置标记，避免并发请求重复处理
+            setTimeout(() => {
+              isRefreshing = false
+            }, 1000)
+          }
           break
           
         case 403:
-          // 无权限
-          ElMessage.error('无权限访问')
-          router.push('/403')
+          // 无权限 - 仅提示，不跳转页面
+          ElMessage.error('无权限执行此操作')
           break
           
         case 404:

@@ -53,6 +53,6 @@ export function getStoreRanking(params?: KPIQuery): Promise<ApiResponse<StoreRan
 export function rebuildKPI(params?: {
   start_date?: string
   end_date?: string
-}): Promise<ApiResponse<{ message: string; rows_affected: number }>> {
-  return request.post('/api/v1/kpi/rebuild', params)
+}): Promise<ApiResponse<{ message: string; total_records: number; affected_dates: number; affected_stores: number }>> {
+  return request.post('/kpi/rebuild', params)
 }

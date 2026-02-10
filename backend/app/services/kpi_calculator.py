@@ -38,7 +38,7 @@ class KpiCalculator:
             (affected_dates, affected_stores, total_records)
         """
         # 获取需要计算的门店列表
-        store_query = select(Store.id).where(Store.status == "active")
+        store_query = select(Store.id).where(Store.is_active == True)
         if store_id:
             store_query = store_query.where(Store.id == store_id)
         
@@ -103,10 +103,10 @@ class KpiCalculator:
         # 5. Upsert 操作
         if kpi_record:
             # 更新现有记录
-            kpi_record.revenue_total = order_stats["revenue_total"]
-            kpi_record.revenue_dine_in = order_stats["revenue_dine_in"]
-            kpi_record.revenue_takeout = order_stats["revenue_takeout"]
-            kpi_record.revenue_delivery = order_stats["revenue_delivery"]
+            kpi_record.revenue = order_stats["revenue_total"]
+            kpi_record.dine_in_revenue = order_stats["revenue_dine_in"]
+            kpi_record.takeout_revenue = order_stats["revenue_takeout"]
+            kpi_record.delivery_revenue = order_stats["revenue_delivery"]
             kpi_record.refund_amount = order_stats["refund_amount"]
             kpi_record.net_revenue = net_revenue
             kpi_record.order_count = order_stats["order_count"]
@@ -117,17 +117,17 @@ class KpiCalculator:
             kpi_record.cost_utilities = cost_stats["cost_utilities"]
             kpi_record.cost_other = cost_stats["cost_other"]
             kpi_record.cost_total = cost_total
-            kpi_record.profit_gross = profit_gross
-            kpi_record.profit_net = profit_net
+            kpi_record.gross_profit = profit_gross
+            kpi_record.operating_profit = profit_net
         else:
             # 插入新记录
             kpi_record = KpiDailyStore(
                 biz_date=biz_date,
                 store_id=store_id,
-                revenue_total=order_stats["revenue_total"],
-                revenue_dine_in=order_stats["revenue_dine_in"],
-                revenue_takeout=order_stats["revenue_takeout"],
-                revenue_delivery=order_stats["revenue_delivery"],
+                revenue=order_stats["revenue_total"],
+                dine_in_revenue=order_stats["revenue_dine_in"],
+                takeout_revenue=order_stats["revenue_takeout"],
+                delivery_revenue=order_stats["revenue_delivery"],
                 refund_amount=order_stats["refund_amount"],
                 net_revenue=net_revenue,
                 order_count=order_stats["order_count"],
@@ -138,8 +138,8 @@ class KpiCalculator:
                 cost_utilities=cost_stats["cost_utilities"],
                 cost_other=cost_stats["cost_other"],
                 cost_total=cost_total,
-                profit_gross=profit_gross,
-                profit_net=profit_net
+                gross_profit=profit_gross,
+                operating_profit=profit_net
             )
             self.db.add(kpi_record)
         
@@ -155,7 +155,7 @@ class KpiCalculator:
             func.coalesce(
                 func.sum(
                     case(
-                        (OrderHeader.status == "completed", OrderHeader.final_amount),
+                        (OrderHeader.status == "completed", OrderHeader.net_amount),
                         else_=Decimal("0")
                     )
                 ),
@@ -168,9 +168,9 @@ class KpiCalculator:
                         (
                             and_(
                                 OrderHeader.status == "completed",
-                                OrderHeader.channel == "dine-in"
+                                OrderHeader.channel == "dine_in"
                             ),
-                            OrderHeader.final_amount
+                            OrderHeader.net_amount
                         ),
                         else_=Decimal("0")
                     )
@@ -186,7 +186,7 @@ class KpiCalculator:
                                 OrderHeader.status == "completed",
                                 OrderHeader.channel == "takeout"
                             ),
-                            OrderHeader.final_amount
+                            OrderHeader.net_amount
                         ),
                         else_=Decimal("0")
                     )
@@ -202,16 +202,21 @@ class KpiCalculator:
                                 OrderHeader.status == "completed",
                                 OrderHeader.channel == "delivery"
                             ),
-                            OrderHeader.final_amount
+                            OrderHeader.net_amount
                         ),
                         else_=Decimal("0")
                     )
                 ),
                 Decimal("0")
             ).label("revenue_delivery"),
-            # 退款金额
+            # 退款金额（refunded状态的订单金额）
             func.coalesce(
-                func.sum(OrderHeader.refund_amount),
+                func.sum(
+                    case(
+                        (OrderHeader.status == "refunded", OrderHeader.net_amount),
+                        else_=Decimal("0")
+                    )
+                ),
                 Decimal("0")
             ).label("refund_amount"),
             # 订单数（已完成）
@@ -264,9 +269,9 @@ class KpiCalculator:
         使用 SQL 聚合费用数据（按科目映射分类）
         只统计已审批的费用
         """
-        # JOIN expense_record 和 expense_type，按 kpi_mapping 分组聚合
+        # JOIN expense_record 和 expense_type，按 type_code 分组聚合
         query = select(
-            ExpenseType.kpi_mapping,
+            ExpenseType.type_code,
             func.sum(ExpenseRecord.amount).label("total_amount")
         ).select_from(ExpenseRecord).join(
             ExpenseType,
@@ -277,7 +282,7 @@ class KpiCalculator:
                 ExpenseRecord.biz_date == biz_date,
                 ExpenseRecord.status == "approved"  # 只统计已审批的
             )
-        ).group_by(ExpenseType.kpi_mapping)
+        ).group_by(ExpenseType.type_code)
         
         result = await self.db.execute(query)
         rows = result.all()
@@ -291,14 +296,22 @@ class KpiCalculator:
             "cost_other": Decimal("0")
         }
         
-        # 按映射归类
+        # 按 type_code 前缀映射到 KPI 成本类别
         for row in rows:
-            mapping = row.kpi_mapping
+            type_code = row.type_code
             amount = row.total_amount or Decimal("0")
             
-            if mapping in costs:
-                costs[mapping] += amount
+            # 根据科目代码前缀映射到成本类别
+            if type_code.startswith("EXP_MATERIAL"):
+                costs["cost_material"] += amount
+            elif type_code.startswith("EXP_LABOR"):
+                costs["cost_labor"] += amount
+            elif type_code.startswith("EXP_RENT"):
+                costs["cost_rent"] += amount
+            elif type_code.startswith("EXP_UTILITIES"):
+                costs["cost_utilities"] += amount
             else:
+                # 其他费用（包括营销、杂项等）
                 costs["cost_other"] += amount
         
         return costs

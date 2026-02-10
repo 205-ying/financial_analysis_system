@@ -7,19 +7,23 @@ import {
   BarChart,
   LineChart,
   PieChart,
+  GaugeChart,
   type BarSeriesOption,
   type LineSeriesOption,
-  type PieSeriesOption
+  type PieSeriesOption,
+  type GaugeSeriesOption
 } from 'echarts/charts'
 import {
   TitleComponent,
   TooltipComponent,
   GridComponent,
   LegendComponent,
+  DataZoomComponent,
   type TitleComponentOption,
   type TooltipComponentOption,
   type GridComponentOption,
-  type LegendComponentOption
+  type LegendComponentOption,
+  type DataZoomComponentOption
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { ComposeOption } from 'echarts/core'
@@ -30,9 +34,11 @@ echarts.use([
   TooltipComponent,
   GridComponent,
   LegendComponent,
+  DataZoomComponent,
   BarChart,
   LineChart,
   PieChart,
+  GaugeChart,
   CanvasRenderer
 ])
 
@@ -40,10 +46,12 @@ export type ECOption = ComposeOption<
   | BarSeriesOption
   | LineSeriesOption
   | PieSeriesOption
+  | GaugeSeriesOption
   | TitleComponentOption
   | TooltipComponentOption
   | GridComponentOption
   | LegendComponentOption
+  | DataZoomComponentOption
 >
 
 /**

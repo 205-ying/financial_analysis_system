@@ -11,7 +11,9 @@ import {
   Money,
   TrendCharts,
   List,
-  Upload
+  Upload,
+  Setting,
+  Dish
 } from '@element-plus/icons-vue'
 
 export const usePermissionStore = defineStore('permission', () => {
@@ -27,12 +29,8 @@ export const usePermissionStore = defineStore('permission', () => {
     const authStore = useAuthStore()
     const permissions = authStore.permissions
 
-    // 定义所有动态路由
+    // 定义所有动态路由（不包括根路径重定向）
     const asyncRoutes: RouteRecordRaw[] = [
-      {
-        path: '/',
-        redirect: '/dashboard'
-      },
       {
         path: '/dashboard',
         name: 'Dashboard',
@@ -120,11 +118,61 @@ export const usePermissionStore = defineStore('permission', () => {
           requiresAuth: true,
           permissions: ['import_job:view']
         }
+      },
+      {
+        path: '/product-analysis',
+        name: 'ProductAnalysis',
+        component: () => import('@/views/product-analysis/index.vue'),
+        meta: {
+          title: '菜品分析',
+          icon: markRaw(Dish),
+          requiresAuth: true,
+          permissions: ['product_analysis:view']
+        }
+      },
+      {
+        path: '/comparison',
+        name: 'Comparison',
+        component: () => import('@/views/comparison/index.vue'),
+        meta: {
+          title: '同比环比分析',
+          icon: markRaw(TrendCharts),
+          requiresAuth: true,
+          permissions: ['kpi:view']
+        }
+      },
+      {
+        path: '/system/roles',
+        name: 'Roles',
+        component: () => import('@/views/system/roles/index.vue'),
+        meta: {
+          title: '角色管理',
+          icon: markRaw(Setting),
+          requiresAuth: true,
+          permissions: ['role:view']
+        }
       }
     ]
 
     // 过滤有权限访问的路由
     const accessedRoutes = filterAsyncRoutes(asyncRoutes, permissions)
+
+    // 动态添加首页重定向：重定向到用户有权限的第一个路由
+    if (accessedRoutes.length > 0) {
+      const firstRoute = accessedRoutes.find(route => !route.meta?.hidden && route.path !== '/')
+      if (firstRoute) {
+        accessedRoutes.unshift({
+          path: '/',
+          redirect: firstRoute.path
+        })
+      }
+    } else {
+      // 如果用户没有任何权限，重定向到一个提示页面或登录页
+      accessedRoutes.unshift({
+        path: '/',
+        redirect: '/login'
+      })
+    }
 
     dynamicRoutes.value = accessedRoutes
     routes.value = accessedRoutes

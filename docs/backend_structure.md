@@ -34,7 +34,9 @@ backend/
 │   │   ├── kpi.py        # KPI 请求/响应Schema（汇总、趋势、排名）⭐
 │   │   ├── audit_log.py  # 审计日志Schema
 │   │   ├── import_job.py # 数据导入Schema
-│   │   └── report.py     # 报表查询Schema
+│   │   ├── report.py     # 报表查询Schema
+│   │   ├── role.py       # 角色管理Schema
+│   │   └── permission.py # 权限管理Schema
 │   ├── services/         # 业务逻辑层
 │   │   ├── __init__.py
 │   │   ├── audit_log_service.py  # 审计日志服务
@@ -42,6 +44,8 @@ backend/
 │   │   ├── import_service.py     # 数据导入服务
 │   │   ├── report_service.py     # 报表生成服务
 │   │   ├── data_scope_service.py # 数据权限服务
+│   │   ├── role_service.py       # 角色管理服务
+│   │   ├── permission_service.py # 权限管理服务
 │   │   └── audit.py              # 审计服务（旧版兼容）
 │   ├── api/              # API 路由层
 │   │   ├── __init__.py
@@ -58,7 +62,9 @@ backend/
 │   │       ├── kpi.py           # KPI数据接口
 │   │       ├── audit.py         # 审计日志查询接口
 │   │       ├── import_jobs.py   # 数据导入接口
-│   │       └── reports.py       # 报表中心接口
+│   │       ├── reports.py       # 报表中心接口
+│   │       ├── roles.py         # 角色管理接口
+│   │       └── permissions.py   # 权限查询接口
 ├── alembic/              # 数据库迁移
 │   ├── versions/         # 迁移版本文件
 │   │   ├── 0001_initial.py          # 初始数据库结构
@@ -316,4 +322,4 @@ pytest tests/test_auth.py
 
 ---
 
-*最后更新: 2026年1月25日*
+*最后更新: 2026年2月8日*

@@ -7,7 +7,7 @@
 from typing import List
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, UploadFile, File, Query, Form
+from fastapi import APIRouter, Depends, UploadFile, File, Query, Form, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -189,6 +189,7 @@ async def list_import_job_errors(
 
 @router.get("/{job_id}/error-report")
 async def download_error_report(
+    request: Request,
     job_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -216,8 +217,9 @@ async def download_error_report(
     # 记录审计日志
     await log_audit(
         db=db,
-        user_id=current_user.id,
+        user=current_user,
         action="download_import_report",
+        request=request,
         resource_type="import_job",
         resource_id=job.id,
         detail={

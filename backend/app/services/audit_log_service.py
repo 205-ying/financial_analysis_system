@@ -280,13 +280,15 @@ class AuditLogService:
 async def log_audit(
     db: AsyncSession,
     action: str,
-    user: User,
-    request: Request,
+    user: Optional[User] = None,
+    request: Optional[Request] = None,
     resource_type: Optional[str] = None,
     resource_id: Optional[int] = None,
     detail: Optional[dict] = None,
     status: str = "success",
     error_message: Optional[str] = None,
+    user_id: Optional[int] = None,
+    ip_address: Optional[str] = None,
 ) -> AuditLog:
     """
     记录审计日志的便捷函数
@@ -307,15 +309,31 @@ async def log_audit(
     """
     service = AuditLogService(db)
 
+    resolved_user = user
+    resolved_user_id = user_id
+    resolved_username = "unknown"
+
+    if resolved_user is not None:
+        resolved_user_id = resolved_user.id
+        resolved_username = resolved_user.username
+    elif resolved_user_id is not None:
+        result = await db.execute(select(User).where(User.id == resolved_user_id))
+        resolved_user = result.scalar_one_or_none()
+        if resolved_user is not None:
+            resolved_username = resolved_user.username
+
+    resolved_ip = service.get_client_ip(request) if request else ip_address
+    resolved_agent = service.get_user_agent(request) if request else None
+
     return await service.create_log(
         action=action,
-        username=user.username,
-        user_id=user.id,
+        username=resolved_username,
+        user_id=resolved_user_id,
         resource_type=resource_type,
         resource_id=resource_id,
         detail=detail,
-        ip_address=service.get_client_ip(request),
-        user_agent=service.get_user_agent(request),
+        ip_address=resolved_ip,
+        user_agent=resolved_agent,
         status=status,
         error_message=error_message,
     )

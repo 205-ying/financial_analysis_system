@@ -92,6 +92,9 @@ async def seed_users_and_permissions(session: AsyncSession):
         
         # 用户门店权限管理
         Permission(code="user:assign-store", name="分配门店权限", resource="user", action="assign-store", description="为用户分配门店数据权限"),
+        
+        # 菜品销售分析
+        Permission(code="product_analysis:view", name="查看菜品分析", resource="product_analysis", action="view", description="查看菜品销售分析报表"),
     ]
     session.add_all(permissions)
     await session.flush()  # 确保权限 ID 生成
