@@ -179,7 +179,14 @@ python scripts/seed_data.py
 - **角色**: 3个预定义角色
 - **示例数据**: 门店、产品分类、产品、费用类型
 
-**批量测试数据生成**: `python scripts/generate_bulk_data.py` (生成大量订单和KPI用于性能测试)
+**批量测试数据生成**: `python scripts/generate_bulk_data.py`
+- **用途**: 生成大量真实、详细的中文测试数据，用于性能测试、功能验证和演示
+- **数据量**: 50,000+订单，72个真实菜品，7,000+费用记录，5,400+ KPI记录
+- **时间范围**: 完整365天（一整年数据）
+- **特点**: 真实的中餐菜品（川菜、粤菜、家常菜等），真实的时间分布（午晚餐高峰期），详细的供应商和费用描述
+- **测试账号**: cashier001~018 / manager001~009 / accountant001~003，密码：Test@123
+- **详细说明**: 参见 [backend/scripts/测试数据说明.md](backend/scripts/测试数据说明.md)
+- **清理数据**: `python scripts/clean_bulk_data.py` (保留admin和基础配置)
 
 ### 数据库迁移工作流 (Alembic)
 ```bash
@@ -954,8 +961,8 @@ for order in orders:
 
 **数据初始化**:
 - `seed_data.py`: 创建初始用户、角色、权限、示例门店
-- `generate_bulk_data.py`: 生成大量测试数据（订单、KPI）用于性能测试
-- `clean_bulk_data.py`: 清理测试数据
+- `generate_bulk_data.py`: 生成大量真实测试数据（50,000+订单，72个真实菜品，详细费用记录）
+- `clean_bulk_data.py`: 清理测试数据（保留admin和基础配置）
 
 **数据库维护** (scripts/maintenance/):
 - `backup_database.py`: PostgreSQL数据库备份

@@ -433,9 +433,28 @@ cp .env.example .env
 # 运行数据库迁移
 alembic upgrade head
 
+# 初始化基础数据（首次运行必需）
+python scripts/seed_data.py
+
+# [可选] 生成测试数据（用于开发、测试和演示）
+python scripts/generate_bulk_data.py
+# 这会生成：
+# - 30个用户（收银员、经理、会计）
+# - 15个门店（覆盖北京各大商圈）
+# - 72个真实菜品（川菜、粤菜、家常菜等）
+# - 50,000+订单（一年数据，真实时间分布）
+# - 7,000+费用记录（含详细描述和供应商）
+# - 5,400+KPI记录（自动计算）
+# 运行时间约3-5分钟，详见：backend/scripts/测试数据说明.md
+
 # 启动服务 (注意：使用 app.main:app 而不是 src.app.main:app)
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+**测试账号** (如果已运行generate_bulk_data.py):
+- 收银员：`cashier001~cashier018`，密码：`Test@123`
+- 经理：`manager001~manager009`，密码：`Test@123`
+- 会计：`accountant001~accountant003`，密码：`Test@123`
 
 #### 前端启动
 
