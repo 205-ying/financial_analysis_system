@@ -16,6 +16,7 @@ from app.models.order import OrderHeader, OrderItem
 from app.models.expense import ExpenseType, ExpenseRecord
 from app.models.kpi import KpiDailyStore
 from app.models.audit_log import AuditLog
+from app.models.budget import Budget
 from app.models.import_job import (
     DataImportJob,
     DataImportJobError,
@@ -49,6 +50,8 @@ __all__ = [
     # Expense models
     "ExpenseType",
     "ExpenseRecord",
+    # Budget models
+    "Budget",
     # KPI models
     "KpiDailyStore",
     "AuditLog",

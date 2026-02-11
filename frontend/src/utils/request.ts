@@ -3,7 +3,6 @@
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { envConfig, REQUEST_TIMEOUT } from '@/config'
 
@@ -91,10 +90,12 @@ service.interceptors.response.use(
           ElMessage.error('请求超时，请缩小查询范围或稍后重试')
           break
           
-        default:
+        default: {
           // 其他错误
           const message = (data as any)?.detail || (data as any)?.message || '请求失败'
           ElMessage.error(message)
+          break
+        }
       }
     } else if (error.code === 'ECONNABORTED') {
       // 请求超时

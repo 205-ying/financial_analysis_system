@@ -110,7 +110,7 @@
           </span>
         </div>
       </template>
-      <el-table :data="crossData" v-loading="crossLoading" stripe border empty-text="暂无数据">
+      <el-table v-loading="crossLoading" :data="crossData" stripe border empty-text="暂无数据">
         <el-table-column prop="store_name" label="门店名称" min-width="140" fixed />
         <el-table-column prop="product_name" label="菜品名称" min-width="140" />
         <el-table-column label="销量" width="120" align="right">
@@ -136,7 +136,7 @@
           </span>
         </div>
       </template>
-      <el-table :data="abcData" v-loading="abcLoading" stripe border empty-text="暂无数据">
+      <el-table v-loading="abcLoading" :data="abcData" stripe border empty-text="暂无数据">
         <el-table-column label="分类" width="80" align="center">
           <template #default="{ row }">
             <el-tag

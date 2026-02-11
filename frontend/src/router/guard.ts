@@ -97,7 +97,6 @@ export function setupRouterGuard(router: Router) {
   // 全局后置守卫
   router.afterEach((to) => {
     // 可以在这里添加页面访问统计等逻辑
-    console.log('导航完成：', to.path)
   })
 
   // 全局错误处理

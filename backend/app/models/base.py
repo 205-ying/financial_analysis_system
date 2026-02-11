@@ -64,11 +64,11 @@ class UserTrackingMixin:
     
     @declared_attr
     def created_by_id(cls):
-        return Column(Integer, ForeignKey("users.id"), nullable=True, comment="创建用户ID")
+        return Column(Integer, ForeignKey("user.id"), nullable=True, comment="创建用户ID")
     
     @declared_attr
     def updated_by_id(cls):
-        return Column(Integer, ForeignKey("users.id"), nullable=True, comment="更新用户ID")
+        return Column(Integer, ForeignKey("user.id"), nullable=True, comment="更新用户ID")
     
     @declared_attr
     def created_by(cls):

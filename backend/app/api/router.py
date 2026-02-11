@@ -9,6 +9,8 @@ from app.api.v1 import roles, permissions
 from app.api.v1 import product_analysis
 from app.api.v1 import comparison
 from app.api.v1 import dashboard
+from app.api.v1 import budgets
+from app.api.v1 import cvp
 
 api_router = APIRouter()
 
@@ -33,3 +35,5 @@ api_router.include_router(permissions.router, prefix="/permissions", tags=["权�
 api_router.include_router(product_analysis.router, prefix="/product-analysis", tags=["菜品分析"])
 api_router.include_router(comparison.router, prefix="/comparison", tags=["同比环比分析"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["管理驾驶舱"])
+api_router.include_router(budgets.router, prefix="/budgets", tags=["预算管理"])
+api_router.include_router(cvp.router, prefix="/cvp", tags=["本量利分析"])

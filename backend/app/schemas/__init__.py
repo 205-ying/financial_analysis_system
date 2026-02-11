@@ -43,6 +43,21 @@ from app.schemas.dashboard import (
     ChannelDistribution,
     DashboardOverview,
 )
+from app.schemas.budget import (
+    BudgetCreate,
+    BudgetBatchCreate,
+    BudgetItemCreate,
+    BudgetUpdate,
+    BudgetSchema,
+    BudgetAnalysisItem,
+    BudgetAnalysisResponse,
+)
+from app.schemas.cvp import (
+    CVPAnalysisResult,
+    CostBehaviorUpdate,
+    CVPSimulation,
+    CVPSimulationResult,
+)
 from app.schemas.kpi import (
     KpiRebuildRequest,
     KpiQueryParams,
@@ -119,4 +134,17 @@ __all__ = [
     "ExpenseStructureItem",
     "ChannelDistribution",
     "DashboardOverview",
+    # Budget
+    "BudgetCreate",
+    "BudgetBatchCreate",
+    "BudgetItemCreate",
+    "BudgetUpdate",
+    "BudgetSchema",
+    "BudgetAnalysisItem",
+    "BudgetAnalysisResponse",
+    # CVP
+    "CVPAnalysisResult",
+    "CostBehaviorUpdate",
+    "CVPSimulation",
+    "CVPSimulationResult",
 ]

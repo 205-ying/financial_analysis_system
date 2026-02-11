@@ -40,18 +40,18 @@
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
           <el-button
+            v-permission="'expense:create'"
             type="success"
             :icon="Plus"
-            v-permission="'expense:create'"
             @click="handleCreate"
           >
             新增费用
           </el-button>
           <el-button
+            v-permission="'expense:export'"
             type="warning"
             :icon="Download"
             :loading="exportLoading"
-            v-permission="'expense:export'"
             @click="handleExport"
           >
             导出
@@ -63,10 +63,10 @@
     <!-- 数据表格 -->
     <el-card shadow="never">
       <el-table
+        v-loading="loading"
         :data="tableData"
         stripe
         border
-        v-loading="loading"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
       >
         <el-table-column type="index" label="序号" width="60" align="center" />
@@ -98,21 +98,21 @@
               查看
             </el-button>
             <el-button
+              v-permission="'expense:update'"
               type="primary"
               size="small"
               link
               :icon="Edit"
-              v-permission="'expense:update'"
               @click="handleEdit(row)"
             >
               编辑
             </el-button>
             <el-button
+              v-permission="'expense:delete'"
               type="danger"
               size="small"
               link
               :icon="Delete"
-              v-permission="'expense:delete'"
               @click="handleDelete(row)"
             >
               删除

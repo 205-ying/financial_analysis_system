@@ -82,10 +82,10 @@
     <!-- 数据表格 -->
     <el-card shadow="never">
       <el-table
+        v-loading="loading"
         :data="tableData"
         stripe
         border
-        v-loading="loading"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
       >
         <el-table-column type="index" label="序号" width="60" align="center" />

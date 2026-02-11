@@ -64,6 +64,7 @@ class AuditLogService:
         action: str,
         username: str,
         user_id: Optional[int] = None,
+        resource: Optional[str] = None,
         resource_type: Optional[str] = None,
         resource_id: Optional[int] = None,
         detail: Optional[dict] = None,
@@ -79,6 +80,7 @@ class AuditLogService:
             action: 操作类型
             username: 操作用户名
             user_id: 操作用户ID
+            resource: 资源名称或操作对象
             resource_type: 资源类型
             resource_id: 资源ID
             detail: 操作详情（字典，会自动转为JSON）
@@ -94,10 +96,13 @@ class AuditLogService:
         if detail:
             detail = self._filter_sensitive_info(detail)
 
+        resolved_resource = resource or resource_type or action.lower()
+
         audit_log = AuditLog(
             user_id=user_id,
             username=username,
             action=action,
+            resource=resolved_resource,
             resource_type=resource_type,
             resource_id=resource_id,
             detail=json.dumps(detail, ensure_ascii=False) if detail else None,
@@ -282,6 +287,7 @@ async def log_audit(
     action: str,
     user: Optional[User] = None,
     request: Optional[Request] = None,
+    resource: Optional[str] = None,
     resource_type: Optional[str] = None,
     resource_id: Optional[int] = None,
     detail: Optional[dict] = None,
@@ -298,6 +304,7 @@ async def log_audit(
         action: 操作类型
         user: 当前用户对象
         request: FastAPI请求对象
+        resource: 资源名称或操作对象
         resource_type: 资源类型
         resource_id: 资源ID
         detail: 操作详情
@@ -329,6 +336,7 @@ async def log_audit(
         action=action,
         username=resolved_username,
         user_id=resolved_user_id,
+        resource=resource,
         resource_type=resource_type,
         resource_id=resource_id,
         detail=detail,

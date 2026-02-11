@@ -13,7 +13,7 @@
         v-for="child in item.children"
         :key="child.path"
         :item="child"
-        :base-path="resolvePath(child.path)"
+        :base-path="resolvePath(item.path)"
       />
     </el-sub-menu>
 

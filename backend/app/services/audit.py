@@ -122,12 +122,16 @@ async def create_audit_log(
         user_id=user.id if user else None,
         username=user.username if user else "匿名",
         action=action,
-        resource_type=resource,
-        resource_id=int(resource_id) if resource_id and resource_id.isdigit() else None,
+        resource=resource,  # 必填字段
+        resource_type=resource,  # 冗余存储，保持兼容
+        resource_id=int(resource_id) if resource_id and str(resource_id).isdigit() else None,
+        method=method,
+        path=path,
         detail=str(detail) if detail else None,
         ip_address=ip_address,
         user_agent=user_agent,
-        status="success" if status_code and 200 <= status_code < 300 else "failure",
+        status_code=status_code,
+        status="success" if not error_message else "error",
         error_message=error_message,
     )
 

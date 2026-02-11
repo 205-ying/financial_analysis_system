@@ -36,5 +36,11 @@ export * from './modules/comparison'
 // 仪表盘相关
 export * from './modules/dashboard'
 
+// 预算管理相关
+export * from './modules/budget'
+
+// 本量利分析相关
+export * from './modules/cvp'
+
 // 保留旧的 api.ts 的导出以保持向后兼容
 // 未来可以逐步迁移到按模块导入

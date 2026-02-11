@@ -46,7 +46,7 @@
       <el-tabs v-model="activeTab" @tab-change="handleTabChange">
         <!-- Tab1: 日报 -->
         <el-tab-pane label="日报" name="daily">
-          <el-row :gutter="20" v-loading="dailyLoading">
+          <el-row v-loading="dailyLoading" :gutter="20">
             <el-col :span="24">
               <div class="chart-title">营收与利润趋势</div>
               <LineChart
@@ -109,7 +109,7 @@
 
         <!-- Tab2: 月报 -->
         <el-tab-pane label="月报" name="monthly">
-          <el-row :gutter="20" v-loading="monthlyLoading">
+          <el-row v-loading="monthlyLoading" :gutter="20">
             <el-col :span="24">
               <div class="chart-title">月度营收对比</div>
               <BarChart
@@ -179,7 +179,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="20" v-loading="storeLoading">
+          <el-row v-loading="storeLoading" :gutter="20">
             <el-col :span="24">
               <div class="chart-title">门店营收排行</div>
               <BarChart
@@ -237,7 +237,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="20" v-loading="expenseLoading">
+          <el-row v-loading="expenseLoading" :gutter="20">
             <el-col :span="24">
               <div class="chart-title">费用结构分析</div>
               <PieChart

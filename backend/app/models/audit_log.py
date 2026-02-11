@@ -50,6 +50,11 @@ class AuditLog(Base, IDMixin, TimestampMixin):
     )
     
     # 资源信息
+    resource: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="资源名称或操作对象"
+    )
     resource_type: Mapped[str | None] = mapped_column(
         String(50),
         nullable=True,
@@ -59,6 +64,18 @@ class AuditLog(Base, IDMixin, TimestampMixin):
         Integer,
         nullable=True,
         comment="资源ID"
+    )
+    
+    # 请求信息
+    method: Mapped[str | None] = mapped_column(
+        String(10),
+        nullable=True,
+        comment="HTTP方法：GET/POST/PUT/DELETE等"
+    )
+    path: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="请求路径"
     )
     
     # 详细信息
@@ -81,6 +98,11 @@ class AuditLog(Base, IDMixin, TimestampMixin):
     )
     
     # 结果信息
+    status_code: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        comment="HTTP状态码"
+    )
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,

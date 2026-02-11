@@ -19,11 +19,14 @@ import {
   GridComponent,
   LegendComponent,
   DataZoomComponent,
+  GraphicComponent,
+  MarkPointComponent,
   type TitleComponentOption,
   type TooltipComponentOption,
   type GridComponentOption,
   type LegendComponentOption,
-  type DataZoomComponentOption
+  type DataZoomComponentOption,
+  type GraphicComponentOption
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { ComposeOption } from 'echarts/core'
@@ -35,6 +38,8 @@ echarts.use([
   GridComponent,
   LegendComponent,
   DataZoomComponent,
+  GraphicComponent,
+  MarkPointComponent,
   BarChart,
   LineChart,
   PieChart,
@@ -52,6 +57,7 @@ export type ECOption = ComposeOption<
   | GridComponentOption
   | LegendComponentOption
   | DataZoomComponentOption
+  | GraphicComponentOption
 >
 
 /**

@@ -9,6 +9,7 @@ export interface ExpenseTypeInfo {
   code: string
   category: string
   description?: string
+  cost_behavior?: 'fixed' | 'variable'
 }
 
 export interface ExpenseRecordInfo {

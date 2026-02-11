@@ -12,7 +12,7 @@
     :loading="storeStore.loading"
     @change="handleChange"
   >
-    <el-option label="全部门店" :value="undefined" />
+    <el-option label="全部门店" value="" />
     <el-option
       v-for="store in storeStore.accessibleStoreList"
       :key="store.id"
@@ -44,24 +44,24 @@ const emit = defineEmits<{
 }>()
 
 const storeStore = useStoreStore()
-const localValue = ref<number | undefined>(props.modelValue)
+const localValue = ref<string | number>(props.modelValue ?? '')
 
 // 监听 props 变化
 watch(
   () => props.modelValue,
   (newValue) => {
-    localValue.value = newValue
+    localValue.value = newValue ?? ''
   }
 )
 
 // 监听本地值变化
 watch(localValue, (newValue) => {
-  emit('update:modelValue', newValue)
+  emit('update:modelValue', newValue === '' ? undefined : Number(newValue))
 })
 
 // 处理选择变化
-const handleChange = (value: number | undefined) => {
-  emit('change', value)
+const handleChange = (value: string | number) => {
+  emit('change', value === '' ? undefined : Number(value))
 }
 
 // 组件挂载时加载门店列表

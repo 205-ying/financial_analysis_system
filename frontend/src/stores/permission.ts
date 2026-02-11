@@ -13,7 +13,8 @@ import {
   List,
   Upload,
   Setting,
-  Dish
+  Dish,
+  Wallet
 } from '@element-plus/icons-vue'
 
 export const usePermissionStore = defineStore('permission', () => {
@@ -63,6 +64,51 @@ export const usePermissionStore = defineStore('permission', () => {
           requiresAuth: true,
           permissions: ['expense:view']
         }
+      },
+      {
+        path: '/budget',
+        name: 'Budget',
+        component: () => import('@/views/budget/index.vue'),
+        meta: {
+          title: '预算管理',
+          icon: markRaw(Wallet),
+          requiresAuth: true,
+          permissions: ['budget:view', 'budget:manage']
+        }
+      },
+      {
+        path: '/decision/cvp',
+        name: 'CVP',
+        component: () => import('@/views/decision/cvp/index.vue'),
+        redirect: '/decision/cvp/dashboard',
+        meta: {
+          title: '本量利分析',
+          icon: markRaw(TrendCharts),
+          requiresAuth: true,
+          permissions: ['decision:cvp']
+        },
+        children: [
+          {
+            path: 'config',
+            name: 'CVPConfig',
+            component: () => import('@/views/decision/cvp/Config.vue'),
+            meta: {
+              title: '成本配置',
+              requiresAuth: true,
+              permissions: ['decision:cvp']
+            }
+          },
+          {
+            path: 'dashboard',
+            name: 'CVPDashboard',
+            component: () => import('@/views/decision/cvp/Dashboard.vue'),
+            meta: {
+              title: 'CVP分析',
+              requiresAuth: true,
+              permissions: ['decision:cvp']
+            }
+          }
+        ]
       },
       {
         path: '/kpi',

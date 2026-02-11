@@ -13,7 +13,7 @@ from typing import List
 from sqlalchemy import Boolean, CheckConstraint, Date, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base, IDMixin, TimestampMixin
+from app.models.base import Base, IDMixin, TimestampMixin, SoftDeleteMixin
 
 
 class ExpenseType(Base, IDMixin, TimestampMixin):
@@ -87,6 +87,14 @@ class ExpenseType(Base, IDMixin, TimestampMixin):
         comment="排序顺序"
     )
     
+    # CVP 分析相关
+    cost_behavior: Mapped[str] = mapped_column(
+        String(20),
+        default="variable",
+        nullable=False,
+        comment="成本习性（fixed=固定成本, variable=变动成本）"
+    )
+    
     # 关联关系
     parent: Mapped["ExpenseType | None"] = relationship(
         "ExpenseType",
@@ -109,7 +117,7 @@ class ExpenseType(Base, IDMixin, TimestampMixin):
         return f"<ExpenseType(id={self.id}, type_code='{self.type_code}', name='{self.name}')>"
 
 
-class ExpenseRecord(Base, IDMixin, TimestampMixin):
+class ExpenseRecord(Base, IDMixin, TimestampMixin, SoftDeleteMixin):
     """
     费用记录模型
     

@@ -1,7 +1,7 @@
 <template>
   <div class="kpi-container">
     <!-- 筛选条件 -->
-    <filter-bar @query="handleQuery" ref="filterBarRef" />
+    <filter-bar ref="filterBarRef" @query="handleQuery" />
 
     <el-row :gutter="20">
       <!-- 成本结构分析 -->

@@ -24,7 +24,7 @@
       :filter-node-method="filterNode"
       @check="handleCheckChange"
     >
-      <template #default="{ node, data }">
+      <template #default="{ data }">
         <span class="tree-node-label">
           <span>{{ data.name }}</span>
           <span v-if="data.description" class="node-description">

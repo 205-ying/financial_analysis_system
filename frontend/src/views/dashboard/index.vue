@@ -31,9 +31,9 @@
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="fetchData">查询</el-button>
           <el-button
+            v-permission="'kpi:rebuild'"
             type="success"
             :icon="RefreshRight"
-            v-permission="'kpi:rebuild'"
             :loading="rebuildLoading"
             @click="handleRebuildKPI"
           >
