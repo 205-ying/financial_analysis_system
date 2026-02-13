@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from datetime import datetime, date
-from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.api.deps import get_current_user
@@ -17,20 +16,13 @@ from app.models.store import Store
 from app.models.order import OrderHeader
 from app.models.expense import ExpenseRecord, ExpenseType
 from app.schemas.common import Response, success
+from app.schemas.kpi import KpiRebuildRequest
 from app.services.kpi_calculator import KpiCalculator
 from app.services.audit import create_audit_log
 from app.services.data_scope_service import filter_stores_by_access, assert_store_access
 from decimal import Decimal
 
 router = APIRouter()
-
-
-# Schemas
-class KpiRebuildRequest(BaseModel):
-    """KPI重建请求"""
-    start_date: date = Field(..., description="开始日期")
-    end_date: date = Field(..., description="结束日期")
-    store_id: int = Field(None, description="门店ID（可选，不填则重建所有门店）")
 
 
 @router.get(
@@ -329,7 +321,7 @@ async def get_expense_category(
         
         categories.append({
             "category_name": row.category_name,
-            "total_amount": amount,
+            "amount": amount,
             "record_count": row.record_count,
             "percentage": round(percentage, 2)
         })

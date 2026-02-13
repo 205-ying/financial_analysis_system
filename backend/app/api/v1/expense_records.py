@@ -3,47 +3,29 @@
 """
 
 from typing import List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select
 from datetime import date, datetime
-from pydantic import BaseModel, Field
-from decimal import Decimal
 import io
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from urllib.parse import quote
 
 from app.core.database import get_db
+from app.core.exceptions import NotFoundException
 from app.api.deps import get_current_user, check_permission
 from app.models.user import User
 from app.models.expense import ExpenseRecord, ExpenseType
 from app.models.store import Store
 from app.schemas.common import Response, success
+from app.schemas.expense_record import ExpenseRecordCreate, ExpenseRecordUpdate
 from app.services.audit import create_audit_log
-from app.services.data_scope_service import filter_stores_by_access, assert_store_access
+from app.services.data_scope_service import assert_store_access
+from app.services.expense_record_service import get_expense_record_list, get_expense_record_export_rows
 
 router = APIRouter()
-
-
-# Schemas
-class ExpenseRecordCreate(BaseModel):
-    """创建费用记录请求"""
-    store_id: int = Field(..., description="门店ID")
-    expense_type_id: int = Field(..., description="费用类型ID")
-    biz_date: date = Field(..., description="业务日期")
-    amount: Decimal = Field(..., description="金额")
-    remark: str = Field("", description="备注")
-
-
-class ExpenseRecordUpdate(BaseModel):
-    """更新费用记录请求"""
-    store_id: int = Field(None, description="门店ID")
-    expense_type_id: int = Field(None, description="费用类型ID")
-    biz_date: date = Field(None, description="业务日期")
-    amount: Decimal = Field(None, description="金额")
-    remark: str = Field(None, description="备注")
 
 
 @router.get(
@@ -63,68 +45,23 @@ async def list_expense_records(
     db: AsyncSession = Depends(get_db)
 ):
     """获取费用记录列表"""
-    # 数据权限过滤：获取可访问的门店ID列表
-    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
-    
-    # 构建查询，联查门店和费用类型
-    query = select(
-        ExpenseRecord,
-        Store.name.label('store_name'),
-        ExpenseType.name.label('expense_type_name')
-    ).join(
-        Store, ExpenseRecord.store_id == Store.id, isouter=True
-    ).join(
-        ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True
+    result = await get_expense_record_list(
+        db=db,
+        current_user=current_user,
+        store_id=store_id,
+        expense_type_id=expense_type_id,
+        start_date=start_date,
+        end_date=end_date,
+        page=page,
+        page_size=page_size,
     )
-    
-    # 应用数据权限过滤
-    conditions = []
-    if accessible_store_ids is not None:
-        conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
-    
-    # 应用筛选条件
-    if expense_type_id:
-        conditions.append(ExpenseRecord.expense_type_id == expense_type_id)
-    if start_date:
-        conditions.append(ExpenseRecord.biz_date >= start_date)
-    if end_date:
-        conditions.append(ExpenseRecord.biz_date <= end_date)
-    
-    if conditions:
-        query = query.where(and_(*conditions))
-    
-    # 获取总数
-    count_query = select(func.count()).select_from(ExpenseRecord)
-    if conditions:
-        count_query = count_query.where(and_(*conditions))
-    total_result = await db.execute(count_query)
-    total = total_result.scalar() or 0
-    
-    # 应用分页
-    offset = (page - 1) * page_size
-    query = query.order_by(ExpenseRecord.biz_date.desc()).offset(offset).limit(page_size)
-    
-    result = await db.execute(query)
-    rows = result.all()
-    
-    items = [{
-        "id": row.ExpenseRecord.id,
-        "store_id": row.ExpenseRecord.store_id,
-        "store_name": row.store_name or '未知门店',
-        "expense_type_id": row.ExpenseRecord.expense_type_id,
-        "expense_type_name": row.expense_type_name or '未知类型',
-        "expense_date": row.ExpenseRecord.biz_date.isoformat(),
-        "amount": float(row.ExpenseRecord.amount or 0),
-        "remark": row.ExpenseRecord.remark or '',
-        "created_at": row.ExpenseRecord.created_at.isoformat() if row.ExpenseRecord.created_at else ''
-    } for row in rows]
     
     return success(
         data={
-            "items": items,
-            "total": total,
-            "page": page,
-            "page_size": page_size
+            "items": result["items"],
+            "total": result["total"],
+            "page": result["page"],
+            "page_size": result["page_size"]
         }
     )
 
@@ -146,43 +83,14 @@ async def export_expense_records(
     """导出费用记录列表"""
     # 权限检查
     await check_permission(current_user, "expense:export", db)
-    
-    # 数据权限过滤
-    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
-    
-    # 构建查询
-    query = select(
-        ExpenseRecord,
-        Store.name.label('store_name'),
-        ExpenseType.name.label('expense_type_name'),
-        ExpenseType.category.label('expense_type_category')
-    ).join(
-        Store, ExpenseRecord.store_id == Store.id, isouter=True
-    ).join(
-        ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True
+    rows = await get_expense_record_export_rows(
+        db=db,
+        current_user=current_user,
+        store_id=store_id,
+        expense_type_id=expense_type_id,
+        start_date=start_date,
+        end_date=end_date,
     )
-    
-    # 应用数据权限过滤
-    conditions = []
-    if accessible_store_ids is not None:
-        conditions.append(ExpenseRecord.store_id.in_(accessible_store_ids))
-    
-    # 应用筛选条件
-    if expense_type_id:
-        conditions.append(ExpenseRecord.expense_type_id == expense_type_id)
-    if start_date:
-        conditions.append(ExpenseRecord.biz_date >= start_date)
-    if end_date:
-        conditions.append(ExpenseRecord.biz_date <= end_date)
-    
-    if conditions:
-        query = query.where(and_(*conditions))
-    
-    # 排序并限制数量（导出最多10000条）
-    query = query.order_by(ExpenseRecord.biz_date.desc()).limit(10000)
-    
-    result = await db.execute(query)
-    rows = result.all()
     
     # 创建Excel工作簿
     wb = openpyxl.Workbook()
@@ -273,10 +181,7 @@ async def get_expense_record(
     record = result.scalar_one_or_none()
     
     if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="费用记录不存在"
-        )
+        raise NotFoundException("费用记录不存在")
     
     # 数据权限校验：检查是否有权访问该门店的数据
     await assert_store_access(db, current_user, record.store_id)
@@ -316,18 +221,12 @@ async def create_expense_record(
     # 验证门店存在
     store_result = await db.execute(select(Store).where(Store.id == data.store_id))
     if not store_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="门店不存在"
-        )
+        raise NotFoundException("门店不存在")
     
     # 验证费用类型存在
     type_result = await db.execute(select(ExpenseType).where(ExpenseType.id == data.expense_type_id))
     if not type_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="费用类型不存在"
-        )
+        raise NotFoundException("费用类型不存在")
     
     # 创建费用记录
     record = ExpenseRecord(
@@ -392,10 +291,7 @@ async def update_expense_record(
     record = result.scalar_one_or_none()
     
     if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="费用记录不存在"
-        )
+        raise NotFoundException("费用记录不存在")
     
     # 数据权限校验：检查是否有权访问原门店
     await assert_store_access(db, current_user, record.store_id)
@@ -418,20 +314,14 @@ async def update_expense_record(
         # 验证门店存在
         store_result = await db.execute(select(Store).where(Store.id == data.store_id))
         if not store_result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="门店不存在"
-            )
+            raise NotFoundException("门店不存在")
         record.store_id = data.store_id
     
     if data.expense_type_id is not None:
         # 验证费用类型存在
         type_result = await db.execute(select(ExpenseType).where(ExpenseType.id == data.expense_type_id))
         if not type_result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="费用类型不存在"
-            )
+            raise NotFoundException("费用类型不存在")
         record.expense_type_id = data.expense_type_id
     
     if data.biz_date is not None:
@@ -501,10 +391,7 @@ async def delete_expense_record(
     record = result.scalar_one_or_none()
     
     if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="费用记录不存在"
-        )
+        raise NotFoundException("费用记录不存在")
     
     # 数据权限校验：检查是否有权访问该门店
     await assert_store_access(db, current_user, record.store_id)

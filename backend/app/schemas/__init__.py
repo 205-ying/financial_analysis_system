@@ -7,6 +7,9 @@ Schema 模块
 from app.schemas.common import Response, success, error, PaginatedResponse
 from app.schemas.auth import LoginRequest, TokenResponse, UserInfo
 from app.schemas.store import StoreCreate, StoreUpdate, StoreInDB
+from app.schemas.order import OrderCreate
+from app.schemas.expense_record import ExpenseRecordCreate, ExpenseRecordUpdate
+from app.schemas.user_store import UserStoreAssignRequest
 from app.schemas.audit_log import AuditLogListRequest, AuditLogListResponse, AuditLogResponse
 from app.schemas.import_job import (
     ImportJobCreate,
@@ -87,6 +90,13 @@ __all__ = [
     "StoreCreate",
     "StoreUpdate",
     "StoreInDB",
+    # Order
+    "OrderCreate",
+    # Expense Record
+    "ExpenseRecordCreate",
+    "ExpenseRecordUpdate",
+    # User Store
+    "UserStoreAssignRequest",
     # Audit Log
     "AuditLogListRequest",
     "AuditLogListResponse",

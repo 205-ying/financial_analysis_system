@@ -75,7 +75,9 @@ const categoryLabels: Record<string, string> = {
   operating: '运营成本',
   marketing: '营销费用',
   administrative: '管理费用',
-  other: '其他'
+  other: '其他',
+  cost: '成本',
+  expense: '费用'
 }
 
 function getCategoryLabel(category: string) {
@@ -99,7 +101,6 @@ async function fetchData() {
       })
     }
   } catch (error) {
-    console.error(error)
     ElMessage.error('加载数据失败')
   } finally {
     loading.value = false
@@ -136,7 +137,6 @@ async function handleSave() {
     ElMessage.success(`成功更新 ${changedItems.length} 个科目的成本习性`)
     await fetchData() // 重新加载
   } catch (error) {
-    console.error(error)
     ElMessage.error('保存失败')
   } finally {
     saving.value = false

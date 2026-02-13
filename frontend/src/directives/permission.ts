@@ -14,7 +14,6 @@ const permissionDirective: Directive = {
     if (!value) return
 
     const authStore = useAuthStore()
-    const permissions = authStore.permissions
 
     let hasPermission = false
 

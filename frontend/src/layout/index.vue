@@ -19,16 +19,16 @@
           router
         >
           <sidebar-item
-            v-for="route in permissionRoutes"
-            :key="route.path"
-            :item="route"
-            :base-path="route.path"
+            v-for="menuRoute in permissionRoutes"
+            :key="menuRoute.path"
+            :item="menuRoute"
+            :base-path="menuRoute.path"
           />
         </el-menu>
       </el-aside>
 
       <!-- 主内容区 -->
-      <el-container>
+      <el-container class="layout-content">
         <!-- 顶部栏 -->
         <el-header class="layout-header">
           <div class="header-left">
@@ -59,8 +59,7 @@
               </div>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-                  <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -153,9 +152,6 @@ const handleCommand = async (command: string) => {
       .catch(() => {
         // 用户取消
       })
-  } else if (command === 'profile') {
-    // 跳转到个人中心
-    console.log('跳转到个人中心')
   }
 }
 </script>
@@ -163,9 +159,17 @@ const handleCommand = async (command: string) => {
 <style scoped lang="scss">
 .layout-container {
   height: 100vh;
+  overflow: hidden;
+
+  :deep(.el-container) {
+    height: 100%;
+  }
 }
 
 .layout-aside {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #304156;
   transition: width 0.3s;
 
@@ -185,8 +189,17 @@ const handleCommand = async (command: string) => {
   }
 
   :deep(.el-menu) {
+    flex: 1;
     border-right: none;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
+}
+
+.layout-content {
+  height: 100vh;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .layout-header {
@@ -240,8 +253,10 @@ const handleCommand = async (command: string) => {
 }
 
 .layout-main {
+  min-height: 0;
   background-color: #f0f2f5;
   padding: 20px;
+  overflow-y: auto;
 }
 
 // 过渡动画

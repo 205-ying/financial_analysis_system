@@ -9,8 +9,7 @@ import type {
   ImportJobDetail,
   ImportJobError,
   ImportJobQuery,
-  ImportJobErrorQuery,
-  ImportTargetType
+  ImportJobErrorQuery
 } from '@/types'
 
 /**
@@ -59,27 +58,22 @@ export function getImportJobErrors(
  * 下载错误报告
  */
 export async function downloadErrorReport(id: number, filename: string): Promise<void> {
-  try {
-    const response = await request.get(`/import-jobs/${id}/error-report`, {
-      responseType: 'blob'
-    })
+  const response = (await request.get(`/import-jobs/${id}/error-report`, {
+    responseType: 'blob'
+  })) as Blob
 
-    // 创建 Blob URL
-    const blob = new Blob([response], { type: 'text/csv;charset=utf-8' })
-    const url = window.URL.createObjectURL(blob)
+  // 创建 Blob URL
+  const blob = new Blob([response], { type: 'text/csv;charset=utf-8' })
+  const url = window.URL.createObjectURL(blob)
 
-    // 创建下载链接并触发下载
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename || `error_report_${id}.csv`
-    document.body.appendChild(link)
-    link.click()
+  // 创建下载链接并触发下载
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename || `error_report_${id}.csv`
+  document.body.appendChild(link)
+  link.click()
 
-    // 清理
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('下载错误报告失败：', error)
-    throw error
-  }
+  // 清理
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
 }

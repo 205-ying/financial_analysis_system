@@ -11,7 +11,7 @@
             style="width: 150px"
           >
             <el-option
-              v-for="(label, value) in ImportTargetTypeMap"
+              v-for="(label, value) in ImportTargetTypeCreateMap"
               :key="value"
               :label="label"
               :value="value"
@@ -61,7 +61,7 @@
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
           <el-button
-            v-permission="'import_job:create'"
+            v-permission="PERMISSIONS.IMPORT_JOB_CREATE"
             type="success"
             :icon="Upload"
             @click="handleCreate"
@@ -79,14 +79,14 @@
         <el-table-column prop="filename" label="文件名" min-width="200" show-overflow-tooltip />
         <el-table-column prop="target_type" label="导入类型" width="120">
           <template #default="{ row }">
-            {{ ImportTargetTypeMap[row.target_type] }}
+            {{ getTargetTypeLabel(row.target_type) }}
           </template>
         </el-table-column>
         <el-table-column prop="store_name" label="门店" width="150" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="ImportJobStatusMap[row.status].type">
-              {{ ImportJobStatusMap[row.status].text }}
+            <el-tag :type="getStatusMeta(row.status).type">
+              {{ getStatusMeta(row.status).text }}
             </el-tag>
           </template>
         </el-table-column>
@@ -114,7 +114,7 @@
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <el-button
-              v-permission="'import_job:view'"
+              v-permission="PERMISSIONS.IMPORT_JOB_VIEW"
               link
               type="primary"
               size="small"
@@ -124,7 +124,7 @@
             </el-button>
             <el-button
               v-if="row.status === ImportJobStatus.PENDING || row.status === ImportJobStatus.FAIL"
-              v-permission="'import_job:run'"
+              v-permission="PERMISSIONS.IMPORT_JOB_RUN"
               link
               type="success"
               size="small"
@@ -134,7 +134,7 @@
             </el-button>
             <el-button
               v-if="row.fail_rows > 0"
-              v-permission="'import_job:download'"
+              v-permission="PERMISSIONS.IMPORT_JOB_DOWNLOAD"
               link
               type="warning"
               size="small"
@@ -223,7 +223,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type UploadInstance } from 'element-plus'
 import { Search, Refresh, Upload, UploadFilled } from '@element-plus/icons-vue'
@@ -236,12 +236,14 @@ import {
 import StoreSelect from '@/components/StoreSelect.vue'
 import {
   ImportTargetTypeMap,
+  ImportTargetTypeCreateMap,
   ImportJobStatusMap,
   ImportJobStatus,
   ImportTargetType,
   type ImportJob,
   type ImportJobQuery
 } from '@/types'
+import { PERMISSIONS } from '@/config'
 
 const router = useRouter()
 
@@ -283,6 +285,14 @@ const formatDateTime = (dateStr: string) => {
   return new Date(dateStr).toLocaleString('zh-CN')
 }
 
+const getTargetTypeLabel = (targetType: ImportJob['target_type']) => {
+  return ImportTargetTypeMap[targetType] ?? String(targetType)
+}
+
+const getStatusMeta = (status: ImportJob['status']) => {
+  return ImportJobStatusMap[status]
+}
+
 // 查询数据
 const handleQuery = async () => {
   loading.value = true
@@ -302,7 +312,6 @@ const handleQuery = async () => {
     tableData.value = data.items || []
     total.value = data.total || 0
   } catch (error) {
-    console.error('查询失败：', error)
     ElMessage.error('查询失败')
   } finally {
     loading.value = false
@@ -325,8 +334,9 @@ const handleCreate = async () => {
 }
 
 // 文件变化
-const handleFileChange = (uploadFile: any) => {
-  createForm.file = uploadFile.raw
+const handleFileChange = (uploadFile: unknown) => {
+  const raw = (uploadFile as { raw?: unknown } | null | undefined)?.raw
+  createForm.file = raw instanceof File ? raw : null
 }
 
 // 文件超出限制
@@ -359,7 +369,6 @@ const handleSubmit = async () => {
       // 跳转到详情页
       router.push(`/system/import-jobs/${response.data.id}`)
     } catch (error) {
-      console.error('创建失败：', error)
       ElMessage.error('创建失败')
     } finally {
       uploading.value = false
@@ -392,7 +401,6 @@ const handleRun = async (row: ImportJob) => {
     handleQuery()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('运行失败：', error)
       ElMessage.error('运行失败')
     }
   } finally {
@@ -406,7 +414,6 @@ const handleDownload = async (row: ImportJob) => {
     await downloadErrorReport(row.id, `error_report_${row.id}.csv`)
     ElMessage.success('下载成功')
   } catch (error) {
-    console.error('下载失败：', error)
     ElMessage.error('下载失败')
   }
 }

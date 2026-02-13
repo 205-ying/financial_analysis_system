@@ -288,16 +288,15 @@ const handleQuery = async () => {
     queryForm.page_size = pagination.page_size
     
     const res = await getAuditLogs(queryForm)
-    
-    // 从响应中提取数据（res.data 包含实际数据）
-    const data = res.data || res
+    const data = res.data
     tableData.value = data.items || []
     pagination.total = data.total || 0
     pagination.total_pages = data.total_pages || 0
     pagination.page = data.page || 1
     pagination.page_size = data.page_size || 20
-  } catch (error: any) {
-    ElMessage.error(error.message || '查询失败')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '查询失败'
+    ElMessage.error(message)
   } finally {
     loading.value = false
   }
@@ -328,27 +327,47 @@ const handleViewDetail = (row: AuditLog) => {
  * 获取操作类型标签
  */
 const getActionLabel = (action: string): string => {
+  const lowerAction = action.toLowerCase()
   const labels: Record<string, string> = {
     'login': '登录',
     'logout': '登出',
     'login_failed': '登录失败',
-    'CREATE_EXPENSE': '创建费用',
-    'UPDATE_EXPENSE': '更新费用',
-    'DELETE_EXPENSE': '删除费用',
-    'REBUILD_KPI': '重建KPI',
+    'create_expense': '创建费用',
+    'update_expense': '更新费用',
+    'delete_expense': '删除费用',
+    'rebuild_kpi': '重建KPI',
     'create_order': '创建订单',
     'update_order': '更新订单',
-    'delete_order': '删除订单'
+    'delete_order': '删除订单',
+    'view_daily_summary': '查看日报',
+    'view_monthly_summary': '查看月报',
+    'view_store_performance': '查看门店绩效',
+    'view_expense_breakdown': '查看费用明细',
+    'export_report': '导出报表',
+    'view': '查看',
+    'create': '创建',
+    'update': '更新',
+    'delete': '删除',
+    'view_abc_classification': '查看ABC分析',
+    'view_product_store_cross': '查看交叉分析',
+    'view_profit_contribution': '查看利润贡献',
+    'view_category_distribution': '查看品类分布'
   }
-  return labels[action] || action
+  return labels[lowerAction] || action
 }
 
 /**
  * 获取操作类型标签类型
  */
 const getActionTagType = (action: string): 'success' | 'info' | 'warning' | 'danger' => {
-  if (action.includes('delete') || action.includes('DELETE')) return 'danger'
-  if (action.includes('create') || action.includes('CREATE')) return 'success'
+  const lowerAction = action.toLowerCase()
+  if (lowerAction.includes('delete')) return 'danger'
+  if (lowerAction.includes('create')) return 'success'
+  if (lowerAction.includes('update')) return 'warning'
+  if (lowerAction.includes('login') && !lowerAction.includes('failed')) return 'success'
+  if (lowerAction.includes('failed')) return 'danger'
+  return 'info'
+}
   if (action.includes('update') || action.includes('UPDATE')) return 'warning'
   if (action === 'login') return 'success'
   if (action.includes('failed') || action.includes('FAILED')) return 'danger'
@@ -427,10 +446,10 @@ const loadOptions = async () => {
       getAuditActions(),
       getResourceTypes()
     ])
-    actionList.value = actions
-    resourceTypeList.value = resourceTypes
-  } catch (error: any) {
-    console.error('加载选项失败:', error)
+    actionList.value = actions.data || []
+    resourceTypeList.value = resourceTypes.data || []
+  } catch {
+    // 静默失败：避免在控制台输出
   }
 }
 

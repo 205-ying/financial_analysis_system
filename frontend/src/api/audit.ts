@@ -3,6 +3,7 @@
  */
 
 import request from '@/utils/request'
+import type { ApiResponse } from '@/types'
 
 /**
  * 审计日志列表查询参数
@@ -55,7 +56,7 @@ export interface AuditLogListResponse {
  * 获取审计日志列表
  */
 export function getAuditLogs(params: AuditLogQuery) {
-  return request<AuditLogListResponse>({
+  return request<ApiResponse<AuditLogListResponse>>({
     url: '/audit/logs',
     method: 'get',
     params
@@ -66,7 +67,7 @@ export function getAuditLogs(params: AuditLogQuery) {
  * 获取审计日志详情
  */
 export function getAuditLogDetail(id: number) {
-  return request<AuditLog>({
+  return request<ApiResponse<AuditLog>>({
     url: `/audit/logs/${id}`,
     method: 'get'
   })
@@ -76,7 +77,7 @@ export function getAuditLogDetail(id: number) {
  * 获取所有操作类型
  */
 export function getAuditActions() {
-  return request<string[]>({
+  return request<ApiResponse<string[]>>({
     url: '/audit/actions',
     method: 'get'
   })
@@ -86,7 +87,7 @@ export function getAuditActions() {
  * 获取所有资源类型
  */
 export function getResourceTypes() {
-  return request<string[]>({
+  return request<ApiResponse<string[]>>({
     url: '/audit/resource-types',
     method: 'get'
   })

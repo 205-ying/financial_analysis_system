@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, markRaw } from 'vue'
+import { computed } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
 interface Props {

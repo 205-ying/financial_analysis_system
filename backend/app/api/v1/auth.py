@@ -46,9 +46,6 @@ async def login(
     - **expires_in**: 令牌过期时间（秒）
     - **user_info**: 用户信息（包含角色和权限）
     """
-    # DEBUG: 打印接收到的登录信息
-    print(f"[DEBUG] 登录请求 - 用户名: {login_data.username}, 密码长度: {len(login_data.password)}")
-    
     # 查询用户（预加载 roles 和 permissions）
     stmt = (
         select(User)
@@ -59,17 +56,11 @@ async def login(
     )
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
-    
-    # DEBUG: 打印查询结果
-    print(f"[DEBUG] 数据库查询结果 - 用户存在: {user is not None}")
-    if user:
-        print(f"[DEBUG] 用户信息 - ID: {user.id}, 用户名: {user.username}, 激活状态: {user.is_active}")
-        print(f"[DEBUG] 密码哈希: {user.password_hash[:50]}...")
-        password_valid = verify_password(login_data.password, user.password_hash)
-        print(f"[DEBUG] 密码验证结果: {password_valid}")
-    
+
+    password_valid = bool(user) and verify_password(login_data.password, user.password_hash)
+
     # 验证用户存在性和密码
-    if not user or not verify_password(login_data.password, user.password_hash):
+    if not password_valid:
         # 记录失败的登录尝试
         await create_audit_log(
             db=db,

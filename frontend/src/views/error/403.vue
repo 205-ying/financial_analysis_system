@@ -23,7 +23,6 @@ const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 
 const handleGoBack = () => {
-  console.log('点击返回上一页')
   // 如果有历史记录就返回，否则跳转首页
   if (window.history.length > 1) {
     router.back()
@@ -33,8 +32,6 @@ const handleGoBack = () => {
 }
 
 const handleGoHome = async () => {
-  console.log('点击返回首页')
-  
   try {
     // 检查是否已登录
     if (!authStore.isLoggedIn) {
@@ -60,8 +57,7 @@ const handleGoHome = async () => {
       // 已有路由，直接跳转首页
       router.push('/')
     }
-  } catch (error) {
-    console.error('跳转失败:', error)
+  } catch {
     // 出错时跳转到登录页
     router.push('/login')
   }

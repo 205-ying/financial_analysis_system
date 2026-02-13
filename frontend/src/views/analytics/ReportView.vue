@@ -29,7 +29,7 @@
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
           <el-button
-            v-permission="'report:export'"
+            v-permission="PERMISSIONS.REPORT_EXPORT"
             type="success"
             :icon="Download"
             :loading="exportLoading"
@@ -283,7 +283,6 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { Search, Refresh, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '@/stores/auth'
 import StoreSelect from '@/components/StoreSelect.vue'
 import {
   getDailySummary,
@@ -302,10 +301,8 @@ import type {
   StorePerformanceRow,
   ExpenseBreakdownRow
 } from '@/types'
+import { PERMISSIONS } from '@/config'
 import dayjs from 'dayjs'
-
-// Store
-const authStore = useAuthStore()
 
 // 筛选表单
 const queryForm = reactive<ReportQuery>({
@@ -470,8 +467,8 @@ const formatNumber = (value: number | null | undefined) => {
 }
 
 // 日期变化
-const handleDateChange = (value: any) => {
-  if (value && value.length === 2) {
+const handleDateChange = (value: unknown) => {
+  if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'string' && typeof value[1] === 'string') {
     queryForm.start_date = value[0]
     queryForm.end_date = value[1]
   } else {
@@ -516,12 +513,12 @@ const handleReset = () => {
 }
 
 // Tab切换
-const handleTabChange = (tabName: string) => {
+const handleTabChange = (_tabName: string) => {
   handleQuery()
 }
 
 // 转换数字字段（处理后端Decimal序列化为字符串的情况）
-const convertToNumber = (value: any): number => {
+const convertToNumber = (value: unknown): number => {
   if (value === null || value === undefined) return 0
   if (typeof value === 'number') return value
   if (typeof value === 'string') {
@@ -531,24 +528,33 @@ const convertToNumber = (value: any): number => {
   return 0
 }
 
+const convertToInt = (value: unknown): number => {
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.trunc(value) : 0
+  if (typeof value === 'string') {
+    const num = parseInt(value, 10)
+    return Number.isFinite(num) ? num : 0
+  }
+  return 0
+}
+
 // 转换日汇总数据
-const convertDailySummaryData = (data: any[]): DailySummaryRow[] => {
-  return data.map(item => ({
-    ...item,
-    revenue: convertToNumber(item.revenue),
-    net_revenue: convertToNumber(item.net_revenue),
-    cost_total: convertToNumber(item.cost_total),
-    cost_material: convertToNumber(item.cost_material),
-    cost_labor: convertToNumber(item.cost_labor),
-    expense_total: convertToNumber(item.expense_total),
-    gross_profit: convertToNumber(item.gross_profit),
-    operating_profit: convertToNumber(item.operating_profit),
-    gross_profit_rate: item.gross_profit_rate !== null ? convertToNumber(item.gross_profit_rate) : null,
-    operating_profit_rate: item.operating_profit_rate !== null ? convertToNumber(item.operating_profit_rate) : null,
-    discount_amount: convertToNumber(item.discount_amount),
-    refund_amount: convertToNumber(item.refund_amount),
-    order_count: parseInt(item.order_count) || 0
-  }))
+const convertDailySummaryData = (data: Array<Record<string, unknown>>): DailySummaryRow[] => {
+  return data.map((item) => ({
+    ...(item as Record<string, unknown>),
+    revenue: convertToNumber(item['revenue']),
+    net_revenue: convertToNumber(item['net_revenue']),
+    cost_total: convertToNumber(item['cost_total']),
+    cost_material: convertToNumber(item['cost_material']),
+    cost_labor: convertToNumber(item['cost_labor']),
+    expense_total: convertToNumber(item['expense_total']),
+    gross_profit: convertToNumber(item['gross_profit']),
+    operating_profit: convertToNumber(item['operating_profit']),
+    gross_profit_rate: item['gross_profit_rate'] !== null ? convertToNumber(item['gross_profit_rate']) : null,
+    operating_profit_rate: item['operating_profit_rate'] !== null ? convertToNumber(item['operating_profit_rate']) : null,
+    discount_amount: convertToNumber(item['discount_amount']),
+    refund_amount: convertToNumber(item['refund_amount']),
+    order_count: convertToInt(item['order_count'])
+  })) as unknown as DailySummaryRow[]
 }
 
 // 加载日汇总
@@ -562,9 +568,8 @@ const loadDailySummary = async () => {
     }
     const response = await getDailySummary(params)
     // 转换数据类型
-    dailySummaryData.value = convertDailySummaryData(response.data || [])
-  } catch (error: any) {
-    console.error('[日报] 加载失败:', error.message || error)
+    dailySummaryData.value = convertDailySummaryData((response.data || []) as unknown as Array<Record<string, unknown>>)
+  } catch {
     ElMessage.error('加载日汇总失败，请稍后重试')
     dailySummaryData.value = []
   } finally {
@@ -573,24 +578,24 @@ const loadDailySummary = async () => {
 }
 
 // 转换月汇总数据
-const convertMonthlySummaryData = (data: any[]): MonthlySummaryRow[] => {
-  return data.map(item => ({
-    ...item,
-    revenue: convertToNumber(item.revenue),
-    net_revenue: convertToNumber(item.net_revenue),
-    cost_total: convertToNumber(item.cost_total),
-    expense_total: convertToNumber(item.expense_total),
-    gross_profit: convertToNumber(item.gross_profit),
-    operating_profit: convertToNumber(item.operating_profit),
-    gross_profit_rate: item.gross_profit_rate !== null ? convertToNumber(item.gross_profit_rate) : null,
-    operating_profit_rate: item.operating_profit_rate !== null ? convertToNumber(item.operating_profit_rate) : null,
-    discount_amount: convertToNumber(item.discount_amount),
-    refund_amount: convertToNumber(item.refund_amount),
-    avg_daily_revenue: convertToNumber(item.avg_daily_revenue),
-    avg_daily_order_count: convertToNumber(item.avg_daily_order_count),
-    order_count: parseInt(item.order_count) || 0,
-    day_count: parseInt(item.day_count) || 0
-  }))
+const convertMonthlySummaryData = (data: Array<Record<string, unknown>>): MonthlySummaryRow[] => {
+  return data.map((item) => ({
+    ...(item as Record<string, unknown>),
+    revenue: convertToNumber(item['revenue']),
+    net_revenue: convertToNumber(item['net_revenue']),
+    cost_total: convertToNumber(item['cost_total']),
+    expense_total: convertToNumber(item['expense_total']),
+    gross_profit: convertToNumber(item['gross_profit']),
+    operating_profit: convertToNumber(item['operating_profit']),
+    gross_profit_rate: item['gross_profit_rate'] !== null ? convertToNumber(item['gross_profit_rate']) : null,
+    operating_profit_rate: item['operating_profit_rate'] !== null ? convertToNumber(item['operating_profit_rate']) : null,
+    discount_amount: convertToNumber(item['discount_amount']),
+    refund_amount: convertToNumber(item['refund_amount']),
+    avg_daily_revenue: convertToNumber(item['avg_daily_revenue']),
+    avg_daily_order_count: convertToNumber(item['avg_daily_order_count']),
+    order_count: convertToInt(item['order_count']),
+    day_count: convertToInt(item['day_count'])
+  })) as unknown as MonthlySummaryRow[]
 }
 
 // 加载月汇总
@@ -603,29 +608,29 @@ const loadMonthlySummary = async () => {
       store_id: queryForm.store_id
     }
     const response = await getMonthlySummary(params)
-    monthlySummaryData.value = convertMonthlySummaryData(response.data || [])
-  } catch (error: any) {
-    ElMessage.error(error.message || '加载月汇总失败')
+    monthlySummaryData.value = convertMonthlySummaryData((response.data || []) as unknown as Array<Record<string, unknown>>)
+  } catch {
+    ElMessage.error('加载月汇总失败')
   } finally {
     monthlyLoading.value = false
   }
 }
 
 // 转换门店绩效数据
-const convertStorePerformanceData = (data: any[]): StorePerformanceRow[] => {
-  return data.map(item => ({
-    ...item,
-    revenue: convertToNumber(item.revenue),
-    net_revenue: convertToNumber(item.net_revenue),
-    gross_profit: convertToNumber(item.gross_profit),
-    operating_profit: convertToNumber(item.operating_profit),
-    gross_profit_rate: item.gross_profit_rate !== null ? convertToNumber(item.gross_profit_rate) : null,
-    operating_profit_rate: item.operating_profit_rate !== null ? convertToNumber(item.operating_profit_rate) : null,
-    avg_order_amount: convertToNumber(item.avg_order_amount),
-    order_count: parseInt(item.order_count) || 0,
-    revenue_rank: parseInt(item.revenue_rank) || 0,
-    profit_rank: parseInt(item.profit_rank) || 0
-  }))
+const convertStorePerformanceData = (data: Array<Record<string, unknown>>): StorePerformanceRow[] => {
+  return data.map((item) => ({
+    ...(item as Record<string, unknown>),
+    revenue: convertToNumber(item['revenue']),
+    net_revenue: convertToNumber(item['net_revenue']),
+    gross_profit: convertToNumber(item['gross_profit']),
+    operating_profit: convertToNumber(item['operating_profit']),
+    gross_profit_rate: item['gross_profit_rate'] !== null ? convertToNumber(item['gross_profit_rate']) : null,
+    operating_profit_rate: item['operating_profit_rate'] !== null ? convertToNumber(item['operating_profit_rate']) : null,
+    avg_order_amount: convertToNumber(item['avg_order_amount']),
+    order_count: convertToInt(item['order_count']),
+    revenue_rank: convertToInt(item['revenue_rank']),
+    profit_rank: convertToInt(item['profit_rank'])
+  })) as unknown as StorePerformanceRow[]
 }
 
 // 加载门店绩效
@@ -639,23 +644,23 @@ const loadStorePerformance = async () => {
       top_n: topN.value
     }
     const response = await getStorePerformance(params)
-    storePerformanceData.value = convertStorePerformanceData(response.data || [])
-  } catch (error: any) {
-    ElMessage.error(error.message || '加载门店绩效失败')
+    storePerformanceData.value = convertStorePerformanceData((response.data || []) as unknown as Array<Record<string, unknown>>)
+  } catch {
+    ElMessage.error('加载门店绩效失败')
   } finally {
     storeLoading.value = false
   }
 }
 
 // 转换费用明细数据
-const convertExpenseBreakdownData = (data: any[]): ExpenseBreakdownRow[] => {
-  return data.map(item => ({
-    ...item,
-    total_amount: convertToNumber(item.total_amount),
-    avg_amount: convertToNumber(item.avg_amount),
-    percentage: convertToNumber(item.percentage),
-    record_count: parseInt(item.record_count) || 0
-  }))
+const convertExpenseBreakdownData = (data: Array<Record<string, unknown>>): ExpenseBreakdownRow[] => {
+  return data.map((item) => ({
+    ...(item as Record<string, unknown>),
+    total_amount: convertToNumber(item['total_amount']),
+    avg_amount: convertToNumber(item['avg_amount']),
+    percentage: convertToNumber(item['percentage']),
+    record_count: convertToInt(item['record_count'])
+  })) as unknown as ExpenseBreakdownRow[]
 }
 
 // 加载费用明细
@@ -669,9 +674,9 @@ const loadExpenseBreakdown = async () => {
       top_n: expenseTopN.value
     }
     const response = await getExpenseBreakdown(params)
-    expenseBreakdownData.value = convertExpenseBreakdownData(response.data || [])
-  } catch (error: any) {
-    ElMessage.error(error.message || '加载费用明细失败')
+    expenseBreakdownData.value = convertExpenseBreakdownData((response.data || []) as unknown as Array<Record<string, unknown>>)
+  } catch {
+    ElMessage.error('加载费用明细失败')
   } finally {
     expenseLoading.value = false
   }
@@ -704,8 +709,9 @@ const handleExport = async () => {
     window.URL.revokeObjectURL(url)
 
     ElMessage.success('导出成功')
-  } catch (error: any) {
-    ElMessage.error(error.message || '导出失败')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '导出失败'
+    ElMessage.error(message)
   } finally {
     exportLoading.value = false
   }

@@ -126,7 +126,7 @@ JWT_SECRET_KEY=your-secret-key-change-in-production
 ```bash
 # 方法1: 使用统一脚本 (推荐)
 dev.bat dev-backend      # 启动后端 (http://localhost:8000)
-dev.bat dev-frontend     # 启动前端 (http://localhost:5173)
+dev.bat dev-frontend     # 启动前端 (http://localhost:3000)
 
 # 方法2: 使用Python CLI脚本
 cd backend
@@ -140,7 +140,7 @@ uvicorn app.main:app --reload
 
 # 启动前端
 cd frontend
-npm run dev              # Vite 开发服务器在 http://localhost:5173
+npm run dev              # Vite 开发服务器在 http://localhost:3000
 ```
 
 **首次启动必须**:
@@ -969,10 +969,11 @@ for order in orders:
 - `clean_old_audit_logs.py`: 清理过期审计日志
 - `verify_data_integrity.py`: 数据完整性检查
 
-**验证脚本** (scripts/testing/):
-- `verify_import_feature.py`: 测试导入功能端到端
-- `verify_reports.py`: 验证报表计算准确性
-- `test_import_e2e.py`: 完整导入流程集成测试
+**验证脚本** (`qa_scripts/verifications/`):
+- `verify_backend_import_feature.py`: 测试导入功能端到端
+- `verify_backend_import_e2e.py`: 完整导入流程集成测试
+- `verify_backend_reports.py`: 验证报表计算准确性
+- `verify_system_integrity.py`: 系统级完整性检查
 
 **使用方式**:
 ```bash

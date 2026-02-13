@@ -265,7 +265,7 @@ const formatCurrency = (val: number): string => {
 }
 
 /** 安全转数字 */
-const toNum = (val: any): number => {
+const toNum = (val: unknown): number => {
   if (val === null || val === undefined) return 0
   const n = Number(val)
   return isNaN(n) ? 0 : n
@@ -304,7 +304,7 @@ const loadSalesRanking = async () => {
     salesRankingData.value = items
     renderSalesRankingChart(items)
   } catch (error) {
-    console.error('加载销量排行失败:', error)
+    void error
   } finally {
     hideSalesLoading()
   }
@@ -322,8 +322,11 @@ const renderSalesRankingChart = (data: ProductSalesRankingItem[]) => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: (params: any) => {
-        const item = reversed[params[0].dataIndex]
+      formatter: (params: unknown) => {
+        const list = Array.isArray(params) ? params : []
+        const first = list[0] as { dataIndex?: unknown } | undefined
+        const dataIndex = typeof first?.dataIndex === 'number' ? first.dataIndex : -1
+        const item = reversed[dataIndex]
         if (!item) return ''
         return `
           <div style="font-weight:bold;margin-bottom:5px">${item.product_name}</div>
@@ -356,11 +359,13 @@ const renderSalesRankingChart = (data: ProductSalesRankingItem[]) => {
       label: {
         show: true,
         position: 'right',
-        formatter: (p: any) => {
+        formatter: (p: unknown) => {
+          const rawValue = (p as { value?: unknown } | undefined)?.value
+          const value = typeof rawValue === 'number' ? rawValue : toNum(rawValue)
           if (currentQuery.value.sort_by === 'revenue') {
-            return '¥' + formatCurrency(p.value)
+            return '¥' + formatCurrency(value)
           }
-          return formatNumber(p.value)
+          return formatNumber(value)
         },
         fontSize: 11
       },
@@ -390,7 +395,7 @@ const loadCategoryDistribution = async () => {
     categoryData.value = items
     renderCategoryChart(items)
   } catch (error) {
-    console.error('加载品类分布失败:', error)
+    void error
   } finally {
     hideCategoryLoading()
   }
@@ -406,8 +411,12 @@ const renderCategoryChart = (data: CategorySalesItem[]) => {
   const option: ECOption = {
     tooltip: {
       trigger: 'item',
-      formatter: (params: any) => {
-        return `${params.name}<br/>销售额: ¥${formatCurrency(params.value)}<br/>占比: ${params.percent}%`
+      formatter: (params: unknown) => {
+        const p = params as { name?: unknown; value?: unknown; percent?: unknown }
+        const name = typeof p.name === 'string' ? p.name : ''
+        const value = typeof p.value === 'number' ? p.value : toNum(p.value)
+        const percent = typeof p.percent === 'number' ? p.percent : toNum(p.percent)
+        return `${name}<br/>销售额: ¥${formatCurrency(value)}<br/>占比: ${percent}%`
       }
     },
     legend: { top: 'bottom', left: 'center' },
@@ -445,7 +454,7 @@ const loadProfitContribution = async () => {
     profitData.value = items
     renderProfitChart(items)
   } catch (error) {
-    console.error('加载毛利贡献失败:', error)
+    void error
   } finally {
     hideProfitLoading()
   }
@@ -462,8 +471,11 @@ const renderProfitChart = (data: ProductProfitItem[]) => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: (params: any) => {
-        const item = reversed[params[0].dataIndex]
+      formatter: (params: unknown) => {
+        const list = Array.isArray(params) ? params : []
+        const first = list[0] as { dataIndex?: unknown } | undefined
+        const dataIndex = typeof first?.dataIndex === 'number' ? first.dataIndex : -1
+        const item = reversed[dataIndex]
         if (!item) return ''
         return `
           <div style="font-weight:bold;margin-bottom:5px">${item.product_name}</div>
@@ -523,7 +535,7 @@ const loadABCClassification = async () => {
     abcData.value = items
     renderAbcChart(items)
   } catch (error) {
-    console.error('加载ABC分类失败:', error)
+    void error
   } finally {
     abcLoading.value = false
     hideAbcLoading()
@@ -553,8 +565,12 @@ const renderAbcChart = (data: ProductABCItem[]) => {
   const option: ECOption = {
     tooltip: {
       trigger: 'item',
-      formatter: (params: any) => {
-        return `${params.name}<br/>销售额: ¥${formatCurrency(params.value)}<br/>占比: ${params.percent}%`
+      formatter: (params: unknown) => {
+        const p = params as { name?: unknown; value?: unknown; percent?: unknown }
+        const name = typeof p.name === 'string' ? p.name : ''
+        const value = typeof p.value === 'number' ? p.value : toNum(p.value)
+        const percent = typeof p.percent === 'number' ? p.percent : toNum(p.percent)
+        return `${name}<br/>销售额: ¥${formatCurrency(value)}<br/>占比: ${percent}%`
       }
     },
     legend: { top: 'bottom', left: 'center' },
@@ -590,7 +606,7 @@ const loadProductStoreCross = async () => {
     const { data } = await getProductStoreCross(currentQuery.value)
     crossData.value = Array.isArray(data) ? data : []
   } catch (error) {
-    console.error('加载门店交叉分析失败:', error)
+    void error
   } finally {
     crossLoading.value = false
   }

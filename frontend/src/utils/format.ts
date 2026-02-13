@@ -35,6 +35,20 @@ export function formatNumber(num: number | string): string {
 }
 
 /**
+ * 格式化金额（千分位 + 固定小数位）
+ * @param amount 金额
+ * @param precision 精度，默认2位小数
+ */
+export function formatAmount(amount: number | string, precision = 2): string {
+  const value = typeof amount === 'string' ? parseFloat(amount) : amount
+  if (isNaN(value)) return (0).toFixed(precision)
+  return value.toLocaleString('zh-CN', {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision
+  })
+}
+
+/**
  * 格式化日期
  * @param date 日期
  * @param format 格式，默认 'YYYY-MM-DD'

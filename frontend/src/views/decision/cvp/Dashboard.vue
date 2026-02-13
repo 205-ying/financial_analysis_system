@@ -231,7 +231,6 @@ async function handleQuery() {
       simulation.variable_cost_change_rate = 0
     }
   } catch (error) {
-    console.error(error)
     ElMessage.error('查询失败')
   } finally {
     loading.value = false
@@ -257,7 +256,6 @@ async function handleSimulate() {
       ElMessage.success('模拟完成')
     }
   } catch (error) {
-    console.error(error)
     ElMessage.error('模拟失败')
   } finally {
     simulating.value = false
@@ -291,11 +289,19 @@ function renderCVPChart() {
     setOption({
       tooltip: {
         trigger: 'axis',
-        formatter: (params: any) => {
-          const sales = params[0].value
-          let html = `<div style="font-weight:bold">销售额: ¥${formatAmount(sales)}</div>`
-          params.forEach((p: any) => {
-            html += `<div>${p.marker}${p.seriesName}: ¥${formatAmount(p.data)}</div>`
+        formatter: (params: unknown) => {
+          const list = Array.isArray(params) ? params : []
+          const salesValue = (list[0] as { value?: unknown } | undefined)?.value
+          const sales = typeof salesValue === 'number' ? salesValue : Number(salesValue)
+          const safeSales = Number.isFinite(sales) ? sales : 0
+          let html = `<div style="font-weight:bold">销售额: ¥${formatAmount(safeSales)}</div>`
+          list.forEach((raw) => {
+            const p = raw as { marker?: unknown; seriesName?: unknown; data?: unknown }
+            const marker = typeof p.marker === 'string' ? p.marker : ''
+            const seriesName = typeof p.seriesName === 'string' ? p.seriesName : ''
+            const dataValue = typeof p.data === 'number' ? p.data : Number(p.data)
+            const safeData = Number.isFinite(dataValue) ? dataValue : 0
+            html += `<div>${marker}${seriesName}: ¥${formatAmount(safeData)}</div>`
           })
           return html
         }

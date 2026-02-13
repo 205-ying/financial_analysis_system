@@ -65,9 +65,16 @@ import { roleApi } from '@/api'
 import type { RoleCreateParams, RoleUpdateParams } from '@/api/role'
 import type { Permission } from '@/api/permission'
 
+type RoleData = {
+  id: number
+  name: string
+  description?: string
+  is_active: boolean
+}
+
 interface Props {
   visible: boolean
-  roleData?: any
+  roleData?: RoleData
   permissions?: Permission[]
 }
 
@@ -153,7 +160,7 @@ watch(
 const handleCheckChange = () => {
   // 获取选中的叶子节点（实际权限ID）
   const checkedKeys = treeRef.value.getCheckedKeys()
-  formData.permission_ids = checkedKeys.filter((key: any) => typeof key === 'number')
+  formData.permission_ids = checkedKeys.filter((key: unknown): key is number => typeof key === 'number')
 }
 
 const handleClose = () => {
@@ -175,7 +182,7 @@ const handleSubmit = async () => {
           description: formData.description,
           is_active: formData.is_active
         }
-        await roleApi.roleApi.update(props.roleData.id, updateData)
+        await roleApi.roleApi.update(props.roleData!.id, updateData)
         ElMessage.success('更新成功')
       } else {
         // 创建角色
@@ -185,8 +192,9 @@ const handleSubmit = async () => {
       
       emit('success')
       handleClose()
-    } catch (error: any) {
-      ElMessage.error(error.message || '操作失败')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '操作失败'
+      ElMessage.error(message)
     } finally {
       loading.value = false
     }

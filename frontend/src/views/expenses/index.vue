@@ -40,7 +40,7 @@
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
           <el-button
-            v-permission="'expense:create'"
+            v-permission="PERMISSIONS.EXPENSE_CREATE"
             type="success"
             :icon="Plus"
             @click="handleCreate"
@@ -48,7 +48,7 @@
             新增费用
           </el-button>
           <el-button
-            v-permission="'expense:export'"
+            v-permission="PERMISSIONS.EXPENSE_EXPORT"
             type="warning"
             :icon="Download"
             :loading="exportLoading"
@@ -98,7 +98,7 @@
               查看
             </el-button>
             <el-button
-              v-permission="'expense:update'"
+              v-permission="PERMISSIONS.EXPENSE_UPDATE"
               type="primary"
               size="small"
               link
@@ -108,7 +108,7 @@
               编辑
             </el-button>
             <el-button
-              v-permission="'expense:delete'"
+              v-permission="PERMISSIONS.EXPENSE_DELETE"
               type="danger"
               size="small"
               link
@@ -147,16 +147,14 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import StoreSelect from '@/components/StoreSelect.vue'
 import CreateExpenseDialog from '@/components/dialogs/CreateExpenseDialog.vue'
 import { getExpenseTypeList, getExpenseRecordList, exportExpenseRecords } from '@/api/expense'
+import { useListPage } from '@/composables'
+import { PERMISSIONS } from '@/config'
 import type { ExpenseTypeInfo, ExpenseRecordInfo, ExpenseRecordQuery } from '@/types'
+import { formatAmount, formatDateTime } from '@/utils'
 import dayjs from 'dayjs'
 
 // 费用类型列表
 const expenseTypeList = ref<ExpenseTypeInfo[]>([])
-
-// 表格数据
-const tableData = ref<ExpenseRecordInfo[]>([])
-const loading = ref(false)
-const total = ref(0)
 
 // 查询表单
 const queryForm = reactive<ExpenseRecordQuery>({
@@ -177,21 +175,12 @@ const createDialogVisible = ref(false)
 // 导出状态
 const exportLoading = ref(false)
 
-/**
- * 格式化数字
- */
-const formatNumber = (value: number): string => {
-  if (value === 0) return '0.00'
-  if (!value) return '0.00'
-  return value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+const { tableData, loading, total, loadTableData, handleQuery: queryList, handleReset: resetList } = useListPage<
+  ExpenseRecordInfo,
+  ExpenseRecordQuery
+>(queryForm, getExpenseRecordList)
 
-/**
- * 格式化日期时间
- */
-const formatDateTime = (value: string): string => {
-  return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
-}
+const formatNumber = (value: number): string => formatAmount(value)
 
 /**
  * 加载费用类型列表
@@ -200,24 +189,8 @@ const loadExpenseTypes = async () => {
   try {
     const { data } = await getExpenseTypeList()
     expenseTypeList.value = data
-  } catch (error) {
-    console.error('加载费用类型列表失败:', error)
-  }
-}
-
-/**
- * 加载表格数据
- */
-const loadTableData = async () => {
-  try {
-    loading.value = true
-    const { data } = await getExpenseRecordList(queryForm)
-    tableData.value = data.items
-    total.value = data.total
-  } catch (error) {
-    console.error('加载费用记录列表失败:', error)
-  } finally {
-    loading.value = false
+  } catch {
+    // 静默失败：避免在控制台输出
   }
 }
 
@@ -225,29 +198,24 @@ const loadTableData = async () => {
  * 处理查询
  */
 const handleQuery = () => {
-  if (dateRange.value) {
-    queryForm.start_date = dateRange.value[0]
-    queryForm.end_date = dateRange.value[1]
-  } else {
-    queryForm.start_date = undefined
-    queryForm.end_date = undefined
-  }
-  queryForm.page = 1
-  loadTableData()
+  queryList(dateRange.value)
 }
 
 /**
  * 处理重置
  */
 const handleReset = () => {
-  queryForm.store_id = undefined
-  queryForm.expense_type_id = undefined
-  queryForm.start_date = undefined
-  queryForm.end_date = undefined
-  queryForm.page = 1
-  queryForm.page_size = 20
-  dateRange.value = undefined
-  loadTableData()
+  resetList(
+    () => {
+      queryForm.store_id = undefined
+      queryForm.expense_type_id = undefined
+      queryForm.start_date = undefined
+      queryForm.end_date = undefined
+    },
+    () => {
+      dateRange.value = undefined
+    }
+  )
 }
 
 /**
@@ -276,7 +244,9 @@ const handleExport = async () => {
       store_id: queryForm.store_id,
       expense_type_id: queryForm.expense_type_id,
       start_date: queryForm.start_date,
-      end_date: queryForm.end_date
+      end_date: queryForm.end_date,
+      page: queryForm.page,
+      page_size: queryForm.page_size
     }
     
     // 调用导出API
@@ -294,7 +264,6 @@ const handleExport = async () => {
     
     ElMessage.success('导出成功')
   } catch (error) {
-    console.error('导出失败:', error)
     ElMessage.error('导出失败，请重试')
   } finally {
     exportLoading.value = false
@@ -327,9 +296,9 @@ const handleDelete = async (row: ExpenseRecordInfo) => {
     })
     ElMessage.success('删除成功')
     loadTableData()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+      void error
     }
   }
 }

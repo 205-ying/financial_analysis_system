@@ -91,6 +91,11 @@ jobs:
         run: |
           cd frontend
           npm ci
+
+      - name: 校验OpenAPI类型同步
+        run: |
+          cd frontend
+          npm run openapi:check
       
       - name: 运行ESLint
         run: |

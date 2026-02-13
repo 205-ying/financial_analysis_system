@@ -20,6 +20,16 @@ export const constantRoutes: RouteRecordRaw[] = [
     }
   },
   {
+    // 根布局路由：确保 '/' 始终可匹配，动态路由只需要注入 children
+    path: '/',
+    name: 'Layout',
+    component: Layout,
+    meta: {
+      hidden: true
+    },
+    children: []
+  },
+  {
     path: '/403',
     name: '403',
     component: () => import('@/views/error/403.vue'),

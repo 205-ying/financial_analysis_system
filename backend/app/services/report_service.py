@@ -218,10 +218,11 @@ async def get_monthly_summary(
         )
     )
     
-    if filters.store_id:
-        query = query.where(KpiDailyStore.store_id == filters.store_id)
+    # 数据权限过滤
+    accessible_store_ids = await filter_stores_by_access(db, current_user, filters.store_id)
+    if accessible_store_ids is not None:
+        query = query.where(KpiDailyStore.store_id.in_(accessible_store_ids))
     
-    # 分组
     if filters.store_id:
         # 单门店：只按年月分组
         query = query.group_by(

@@ -6,7 +6,6 @@ from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
-from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.api.deps import get_current_user, check_permission
@@ -14,16 +13,10 @@ from app.models.user import User
 from app.models.user_store import UserStorePermission
 from app.models.store import Store
 from app.schemas.common import Response, success
+from app.schemas.user_store import UserStoreAssignRequest
 from app.services.audit import create_audit_log
 
 router = APIRouter()
-
-
-# Schemas
-class UserStoreAssignRequest(BaseModel):
-    """分配门店权限请求"""
-    user_id: int = Field(..., description="用户ID")
-    store_ids: List[int] = Field(..., description="门店ID列表")
 
 
 @router.get(

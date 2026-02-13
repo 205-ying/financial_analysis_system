@@ -96,22 +96,12 @@ const permissionTree = computed(() => {
   }))
 })
 
-// 过滤后的树
-const filteredPermissionTree = computed(() => {
-  if (!searchText.value) return permissionTree.value
-  
-  return permissionTree.value.map(resource => ({
-    ...resource,
-    children: resource.children.filter(perm =>
-      perm.name.toLowerCase().includes(searchText.value.toLowerCase())
-    )
-  })).filter(resource => resource.children.length > 0)
-})
-
 // 树节点过滤方法
-const filterNode = (value: string, data: any) => {
+const filterNode = (value: string, data: unknown) => {
   if (!value) return true
-  return data.name.toLowerCase().includes(value.toLowerCase())
+  const name = (data as { name?: unknown } | null | undefined)?.name
+  if (typeof name !== 'string') return false
+  return name.toLowerCase().includes(value.toLowerCase())
 }
 
 // 监听搜索框变化，触发树的过滤
@@ -141,8 +131,6 @@ watch(
         
         // 设置当前角色已有的权限为选中状态
         const rolePermissionIds = props.role.permissions?.map(p => p.id) || []
-        console.log('初始化角色权限:', rolePermissionIds)
-        console.log('可用权限总数:', props.permissions.length)
         
         if (rolePermissionIds.length > 0) {
           treeRef.value.setCheckedKeys(rolePermissionIds, true)
@@ -151,10 +139,9 @@ watch(
         // 验证设置是否成功
         await nextTick()
         const actualChecked = treeRef.value.getCheckedKeys(true)
-        console.log('实际选中的权限:', actualChecked)
         
         // 初始化 selectedPermissionIds 为当前选中的实际值
-        selectedPermissionIds.value = [...actualChecked.filter((key: any) => typeof key === 'number')]
+        selectedPermissionIds.value = [...actualChecked.filter((key: unknown): key is number => typeof key === 'number')]
       }
     }
   },
@@ -169,9 +156,7 @@ const handleCheckChange = () => {
   const checkedKeys = treeRef.value.getCheckedKeys(true)
   
   // 只保留数字类型的ID（实际权限ID，过滤掉字符串类型的资源分组ID）
-  selectedPermissionIds.value = checkedKeys.filter((key: any) => typeof key === 'number')
-  
-  console.log('权限发生变化:', selectedPermissionIds.value)
+  selectedPermissionIds.value = checkedKeys.filter((key: unknown): key is number => typeof key === 'number')
 }
 
 const handleClose = () => {
@@ -194,12 +179,7 @@ const handleSubmit = async () => {
     // 从树组件直接获取当前所有选中的叶子节点权限ID
     // 参数 true 表示只返回叶子节点（实际权限），不包括父节点（资源分组）
     const checkedKeys = treeRef.value.getCheckedKeys(true)
-    const permissionIds = checkedKeys.filter((key: any) => typeof key === 'number')
-    
-    console.log('=== 提交权限 ===')
-    console.log('树返回的选中节点:', checkedKeys)
-    console.log('过滤后的权限ID:', permissionIds)
-    console.log('角色原有权限:', props.role.permissions?.map(p => p.id))
+    const permissionIds = checkedKeys.filter((key: unknown): key is number => typeof key === 'number')
     
     await roleApi.roleApi.assignPermissions(props.role.id, {
       permission_ids: permissionIds
@@ -208,8 +188,9 @@ const handleSubmit = async () => {
     ElMessage.success('分配权限成功')
     emit('success')
     handleClose()
-  } catch (error: any) {
-    ElMessage.error(error.message || '操作失败')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败'
+    ElMessage.error(message)
   } finally {
     loading.value = false
   }

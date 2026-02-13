@@ -100,8 +100,8 @@ const visible = ref(props.modelValue)
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
-const form = reactive<OrderCreate>({
-  store_id: undefined as any,
+const form = reactive<Partial<OrderCreate>>({
+  store_id: undefined,
   channel: '',
   order_no: '',
   net_amount: 0,
@@ -130,14 +130,23 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     loading.value = true
 
-    await createOrder(form)
+    const payload: OrderCreate = {
+      store_id: form.store_id!,
+      channel: form.channel!,
+      order_no: form.order_no!,
+      net_amount: form.net_amount ?? 0,
+      order_time: form.order_time!,
+      remark: form.remark ?? ''
+    }
+
+    await createOrder(payload)
     ElMessage.success('订单创建成功')
     emit('success')
     handleCancel()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== false) {
-      console.error('创建订单失败:', error)
-      ElMessage.error(error.response?.data?.message || '创建订单失败')
+      const message = error instanceof Error ? error.message : '创建订单失败'
+      ElMessage.error(message)
     }
   } finally {
     loading.value = false

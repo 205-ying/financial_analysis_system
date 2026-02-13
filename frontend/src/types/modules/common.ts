@@ -3,10 +3,21 @@
  */
 
 // 统一响应格式
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   code: number
   message: string
   data: T
+}
+
+export interface Response<T = unknown> extends ApiResponse<T> {}
+
+export interface PaginatedResponse<T = unknown> {
+  code: number
+  message: string
+  data: T
+  total: number
+  page: number
+  page_size: number
 }
 
 // 分页参数

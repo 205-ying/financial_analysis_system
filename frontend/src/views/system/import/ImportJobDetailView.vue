@@ -16,7 +16,7 @@
           <div class="action-section">
             <el-button
               v-if="jobDetail.status === ImportJobStatus.PENDING || jobDetail.status === ImportJobStatus.FAIL"
-              v-permission="'import_job:run'"
+              v-permission="PERMISSIONS.IMPORT_JOB_RUN"
               type="primary"
               :icon="VideoPlay"
               :loading="running"
@@ -26,7 +26,7 @@
             </el-button>
             <el-button
               v-if="jobDetail.fail_rows > 0"
-              v-permission="'import_job:download'"
+              v-permission="PERMISSIONS.IMPORT_JOB_DOWNLOAD"
               type="warning"
               :icon="Download"
               @click="handleDownload"
@@ -189,6 +189,7 @@ import {
   type ImportJobError,
   type ImportJobErrorQuery
 } from '@/types'
+import { PERMISSIONS } from '@/config'
 
 const route = useRoute()
 const router = useRouter()
@@ -229,8 +230,7 @@ const loadDetail = async () => {
     if (jobDetail.value.fail_rows > 0) {
       await loadErrors()
     }
-  } catch (error) {
-    console.error('加载详情失败：', error)
+  } catch {
     ElMessage.error('加载详情失败')
   } finally {
     loading.value = false
@@ -244,8 +244,7 @@ const loadErrors = async () => {
     const response = await getImportJobErrors(jobId.value, errorQuery)
     errorList.value = response.data.items
     errorTotal.value = response.data.total
-  } catch (error) {
-    console.error('加载错误列表失败：', error)
+  } catch {
     ElMessage.error('加载错误列表失败')
   } finally {
     errorLoading.value = false
@@ -269,7 +268,6 @@ const handleRun = async () => {
     }, 1000)
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('运行失败：', error)
       ElMessage.error('运行失败')
     }
   } finally {
@@ -283,7 +281,6 @@ const handleDownload = async () => {
     await downloadErrorReport(jobId.value, `error_report_${jobId.value}.csv`)
     ElMessage.success('下载成功')
   } catch (error) {
-    console.error('下载失败：', error)
     ElMessage.error('下载失败')
   }
 }

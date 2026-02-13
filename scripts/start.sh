@@ -58,7 +58,7 @@ uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload &
 cd ..
 
 echo "=========================================="
-echo "启动前端服务 (端口: 5173)..."
+echo "启动前端服务 (端口: 3000)..."
 echo "=========================================="
 cd frontend
 
@@ -82,7 +82,7 @@ cd ..
 echo "=========================================="
 echo "服务启动完成！"
 echo "=========================================="
-echo "前端地址: http://localhost:5173"
+echo "前端地址: http://localhost:3000"
 echo "后端地址: http://localhost:8000"
 echo "API 文档: http://localhost:8000/docs"
 echo ""

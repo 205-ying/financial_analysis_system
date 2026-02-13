@@ -51,7 +51,7 @@
             <div class="card-header">
               <span>预算设置</span>
               <el-button
-                v-permission="'budget:manage'"
+                v-permission="PERMISSIONS.BUDGET_MANAGE"
                 type="primary"
                 :icon="Plus"
                 size="small"
@@ -224,8 +224,9 @@ import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import StoreSelect from '@/components/StoreSelect.vue'
 import { budgetApi } from '@/api'
 import { getExpenseTypeList } from '@/api/expense'
-import type { ExpenseType } from '@/types'
+import type { ExpenseTypeInfo } from '@/types'
 import type { BudgetAnalysisResponse, BudgetItemInput } from '@/types/modules/budget'
+import { PERMISSIONS } from '@/config'
 
 // 状态
 const activeTab = ref('setting')
@@ -241,7 +242,7 @@ const queryForm = reactive({
 })
 
 // 费用科目列表
-const expenseTypeList = ref<ExpenseType[]>([])
+const expenseTypeList = ref<ExpenseTypeInfo[]>([])
 
 // 预算表格数据
 interface BudgetTableRow {
@@ -281,14 +282,13 @@ const loadExpenseTypes = async () => {
     expenseTypeList.value = res.data
     
     // 初始化预算表格数据
-    budgetTableData.value = expenseTypeList.value.map(type => ({
+    budgetTableData.value = expenseTypeList.value.map((type: ExpenseTypeInfo) => ({
       id: type.id,
       name: type.name,
       description: type.description || '',
       amount: 0
     }))
   } catch (error) {
-    console.error('加载费用科目失败:', error)
     ElMessage.error('加载费用科目失败')
   }
 }
@@ -366,10 +366,9 @@ const handleSaveBudgets = async () => {
     })
 
     ElMessage.success('预算保存成功')
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
-      console.error('保存预算失败:', error)
-      ElMessage.error(error.message || '保存预算失败')
+      ElMessage.error(error instanceof Error ? error.message : '保存预算失败')
     }
   } finally {
     saveLoading.value = false
@@ -395,8 +394,7 @@ const handleAnalysis = async () => {
       month: queryForm.month
     })
     analysisData.value = res.data
-  } catch (error) {
-    console.error('获取预算分析失败:', error)
+  } catch {
     ElMessage.error('获取预算分析失败')
   } finally {
     analysisLoading.value = false

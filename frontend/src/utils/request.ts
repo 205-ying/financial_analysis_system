@@ -1,7 +1,8 @@
 /**
  * Axios 封装 - 请求/响应拦截器
  */
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { envConfig, REQUEST_TIMEOUT } from '@/config'
@@ -17,7 +18,7 @@ const service: AxiosInstance = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore()
     
     // 自动添加 Authorization header
@@ -28,7 +29,6 @@ service.interceptors.request.use(
     return config
   },
   (error: AxiosError) => {
-    console.error('请求错误：', error)
     return Promise.reject(error)
   }
 )
@@ -53,8 +53,6 @@ service.interceptors.response.use(
     return res
   },
   (error: AxiosError) => {
-    console.error('响应错误：', error.message || error)
-    
     if (error.response) {
       const { status, data } = error.response
       
@@ -92,7 +90,11 @@ service.interceptors.response.use(
           
         default: {
           // 其他错误
-          const message = (data as any)?.detail || (data as any)?.message || '请求失败'
+          const maybeObj = data as unknown as { detail?: unknown; message?: unknown }
+          const message =
+            (typeof maybeObj?.detail === 'string' && maybeObj.detail) ||
+            (typeof maybeObj?.message === 'string' && maybeObj.message) ||
+            '请求失败'
           ElMessage.error(message)
           break
         }

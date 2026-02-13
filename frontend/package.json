@@ -12,7 +12,9 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "lint:style": "stylelint \"src/**/*.{vue,css,scss}\" --fix",
     "format": "prettier --write src/",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "openapi:gen": "node ./scripts/generate-openapi-types.mjs",
+    "openapi:check": "openapi-typescript ../backend/openapi.json --check -o ./src/types/generated/openapi.ts"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -39,12 +41,13 @@
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.18.1",
+    "openapi-typescript": "^7.7.3",
     "prettier": "^3.1.0",
     "sass": "^1.69.5",
     "stylelint": "^15.11.0",
     "stylelint-config-recommended-scss": "^13.1.0",
     "stylelint-config-standard-vue": "^1.0.0",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.16.7",
     "unplugin-vue-components": "^0.25.2",
     "vite": "^5.0.0",

@@ -3,39 +3,29 @@
 """
 
 from typing import List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select
 from datetime import date, datetime
-from pydantic import BaseModel, Field
-from decimal import Decimal
 import io
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from urllib.parse import quote
 
 from app.core.database import get_db
+from app.core.exceptions import BusinessException, NotFoundException
 from app.api.deps import get_current_user, check_permission
 from app.models.user import User
 from app.models.order import OrderHeader
 from app.models.store import Store
 from app.schemas.common import Response, success
-from app.services.data_scope_service import filter_stores_by_access, assert_store_access
+from app.schemas.order import OrderCreate
+from app.services.data_scope_service import assert_store_access
 from app.services.audit import create_audit_log
+from app.services.order_service import get_order_list, get_order_export_rows
 
 router = APIRouter()
-
-
-# Schemas
-class OrderCreate(BaseModel):
-    """创建订单请求"""
-    store_id: int = Field(..., description="门店ID")
-    channel: str = Field(..., description="渠道")
-    order_no: str = Field(..., description="订单号")
-    net_amount: Decimal = Field(..., description="订单金额")
-    order_time: datetime = Field(..., description="订单时间")
-    remark: str = Field("", description="备注")
 
 
 @router.get(
@@ -56,64 +46,24 @@ async def list_orders(
     db: AsyncSession = Depends(get_db)
 ):
     """获取订单列表"""
-    # 数据权限过滤：获取可访问的门店ID列表
-    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
-    
-    # 构建查询
-    query = select(OrderHeader, Store.name.label('store_name')).join(
-        Store, OrderHeader.store_id == Store.id, isouter=True
+    result = await get_order_list(
+        db=db,
+        current_user=current_user,
+        store_id=store_id,
+        channel=channel,
+        order_no=order_no,
+        start_date=start_date,
+        end_date=end_date,
+        page=page,
+        page_size=page_size,
     )
-    
-    # 应用数据权限过滤
-    conditions = []
-    if accessible_store_ids is not None:
-        conditions.append(OrderHeader.store_id.in_(accessible_store_ids))
-    
-    # 应用筛选条件
-    if channel:
-        conditions.append(OrderHeader.channel == channel)
-    if order_no:
-        conditions.append(OrderHeader.order_no.ilike(f'%{order_no}%'))
-    if start_date:
-        conditions.append(func.date(OrderHeader.order_time) >= start_date)
-    if end_date:
-        conditions.append(func.date(OrderHeader.order_time) <= end_date)
-    
-    if conditions:
-        query = query.where(and_(*conditions))
-    
-    # 获取总数
-    count_query = select(func.count()).select_from(OrderHeader)
-    if conditions:
-        count_query = count_query.where(and_(*conditions))
-    total_result = await db.execute(count_query)
-    total = total_result.scalar() or 0
-    
-    # 应用分页
-    offset = (page - 1) * page_size
-    query = query.order_by(OrderHeader.order_time.desc()).offset(offset).limit(page_size)
-    
-    result = await db.execute(query)
-    rows = result.all()
-    
-    items = [{
-        "id": row.OrderHeader.id,
-        "order_no": row.OrderHeader.order_no,
-        "store_id": row.OrderHeader.store_id,
-        "store_name": row.store_name or '未知门店',
-        "channel": row.OrderHeader.channel or '未知',
-        "amount": float(row.OrderHeader.net_amount or 0),
-        "order_time": row.OrderHeader.order_time.isoformat() if row.OrderHeader.order_time else '',
-        "remark": row.OrderHeader.remark or '',
-        "status": row.OrderHeader.status or 'completed'
-    } for row in rows]
     
     return success(
         data={
-            "items": items,
-            "total": total,
-            "page": page,
-            "page_size": page_size
+            "items": result["items"],
+            "total": result["total"],
+            "page": result["page"],
+            "page_size": result["page_size"]
         }
     )
 
@@ -135,31 +85,15 @@ async def export_orders(
 ):
     """导出订单列表"""
     await check_permission(current_user, "order:export", db)
-
-    accessible_store_ids = await filter_stores_by_access(db, current_user, store_id)
-
-    query = select(OrderHeader, Store.name.label("store_name")).join(
-        Store, OrderHeader.store_id == Store.id, isouter=True
+    rows = await get_order_export_rows(
+        db=db,
+        current_user=current_user,
+        store_id=store_id,
+        channel=channel,
+        order_no=order_no,
+        start_date=start_date,
+        end_date=end_date,
     )
-
-    conditions = []
-    if accessible_store_ids is not None:
-        conditions.append(OrderHeader.store_id.in_(accessible_store_ids))
-    if channel:
-        conditions.append(OrderHeader.channel == channel)
-    if order_no:
-        conditions.append(OrderHeader.order_no.ilike(f"%{order_no}%"))
-    if start_date:
-        conditions.append(func.date(OrderHeader.order_time) >= start_date)
-    if end_date:
-        conditions.append(func.date(OrderHeader.order_time) <= end_date)
-
-    if conditions:
-        query = query.where(and_(*conditions))
-
-    query = query.order_by(OrderHeader.order_time.desc()).limit(10000)
-    result = await db.execute(query)
-    rows = result.all()
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -249,10 +183,7 @@ async def get_order(
     order = result.scalar_one_or_none()
     
     if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="订单不存在"
-        )
+        raise NotFoundException("订单不存在")
     
     # 数据权限校验：检查是否有权访问该门店的订单
     await assert_store_access(db, current_user, order.store_id)
@@ -287,20 +218,14 @@ async def create_order(
     # 验证门店存在
     store_result = await db.execute(select(Store).where(Store.id == data.store_id))
     if not store_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="门店不存在"
-        )
+        raise NotFoundException("门店不存在")
     
     # 检查订单号是否已存在
     existing_order = await db.execute(
         select(OrderHeader).where(OrderHeader.order_no == data.order_no)
     )
     if existing_order.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="订单号已存在"
-        )
+        raise BusinessException("订单号已存在")
     
     # 创建订单
     order = OrderHeader(

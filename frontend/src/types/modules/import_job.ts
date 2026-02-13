@@ -48,7 +48,7 @@ export interface ImportJob {
 export interface ImportJobDetail extends ImportJob {
   file_path: string
   error_report_path?: string
-  config?: Record<string, any>
+  config?: Record<string, unknown>
   created_by?: {
     id: number
     username: string
@@ -63,7 +63,7 @@ export interface ImportJobError {
   row_number: number
   error_type: string
   error_message: string
-  raw_data?: Record<string, any>
+  raw_data?: Record<string, unknown>
   created_at: string
 }
 
@@ -106,6 +106,12 @@ export const ImportTargetTypeMap = {
   [ImportTargetType.EXPENSE_RECORDS]: '费用记录',
   [ImportTargetType.STORES]: '门店信息',
   [ImportTargetType.EXPENSE_TYPES]: '费用科目'
+}
+
+// 创建任务时可选的导入类型（仅包含后端已实现）
+export const ImportTargetTypeCreateMap = {
+  [ImportTargetType.ORDERS]: '订单数据',
+  [ImportTargetType.EXPENSE_RECORDS]: '费用记录'
 }
 
 // 来源类型显示映射

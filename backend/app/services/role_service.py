@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import NotFoundException, ConflictException, ValidationException
+from app.core.security import hash_password
 from app.models.user import Role, Permission, role_permission, User, user_role
 from app.schemas.role import RoleCreate, RoleUpdate
 
@@ -285,3 +286,162 @@ class RoleService:
             "user_count": user_count,
             "permission_count": permission_count
         }
+
+    @staticmethod
+    async def get_user_list(
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        search: Optional[str] = None,
+        is_active: Optional[bool] = None,
+    ) -> tuple[List[User], int]:
+        """获取用户列表（含角色）"""
+        query = select(User).options(selectinload(User.roles))
+
+        if search:
+            query = query.where(
+                (User.username.contains(search))
+                | (User.full_name.contains(search))
+                | (User.phone.contains(search))
+            )
+
+        if is_active is not None:
+            query = query.where(User.is_active == is_active)
+
+        count_query = select(func.count()).select_from(query.subquery())
+        total_result = await db.execute(count_query)
+        total = total_result.scalar_one()
+
+        query = query.order_by(User.created_at.desc()).offset(skip).limit(limit)
+        result = await db.execute(query)
+        users = result.scalars().all()
+
+        return list(users), total
+
+    @staticmethod
+    async def get_user_with_roles(db: AsyncSession, user_id: int) -> User:
+        """按ID获取用户及其角色"""
+        result = await db.execute(
+            select(User)
+            .options(selectinload(User.roles))
+            .where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise NotFoundException(f"用户 {user_id} 不存在")
+
+        return user
+
+    @staticmethod
+    async def assign_roles_to_user(
+        db: AsyncSession,
+        user_id: int,
+        role_ids: List[int],
+    ) -> User:
+        """为用户分配角色（覆盖式保存）"""
+        user = await RoleService.get_user_with_roles(db, user_id)
+
+        deduplicated_role_ids = list(dict.fromkeys(role_ids))
+
+        if deduplicated_role_ids:
+            roles_result = await db.execute(
+                select(Role).where(Role.id.in_(deduplicated_role_ids))
+            )
+            roles = list(roles_result.scalars().all())
+
+            found_role_ids = {role.id for role in roles}
+            missing_role_ids = [role_id for role_id in deduplicated_role_ids if role_id not in found_role_ids]
+            if missing_role_ids:
+                raise NotFoundException(f"角色不存在: {', '.join(map(str, missing_role_ids))}")
+        else:
+            roles = []
+
+        user.roles = roles
+        await db.commit()
+
+        return await RoleService.get_user_with_roles(db, user_id)
+
+    @staticmethod
+    async def create_user(
+        db: AsyncSession,
+        username: str,
+        email: str,
+        password: str,
+        full_name: Optional[str] = None,
+        phone: Optional[str] = None,
+        is_active: bool = True,
+    ) -> User:
+        """创建用户"""
+        username_clean = username.strip()
+        email_clean = email.strip().lower()
+
+        existing_username = await db.execute(
+            select(User).where(User.username == username_clean)
+        )
+        if existing_username.scalar_one_or_none() is not None:
+            raise ConflictException(f"用户名 {username_clean} 已存在")
+
+        existing_email = await db.execute(
+            select(User).where(User.email == email_clean)
+        )
+        if existing_email.scalar_one_or_none() is not None:
+            raise ConflictException(f"邮箱 {email_clean} 已存在")
+
+        user = User(
+            username=username_clean,
+            email=email_clean,
+            password_hash=hash_password(password),
+            full_name=full_name.strip() if full_name else None,
+            phone=phone.strip() if phone else None,
+            is_active=is_active,
+            is_superuser=False,
+        )
+
+        db.add(user)
+        await db.commit()
+
+        return await RoleService.get_user_with_roles(db, user.id)
+
+    @staticmethod
+    async def update_user_basic_info(
+        db: AsyncSession,
+        user_id: int,
+        email: Optional[str] = None,
+        full_name: Optional[str] = None,
+        phone: Optional[str] = None,
+    ) -> User:
+        """更新用户基础信息（不含角色、密码）"""
+        user = await RoleService.get_user_with_roles(db, user_id)
+
+        if email is not None:
+            email_clean = email.strip().lower()
+            existing_email = await db.execute(
+                select(User).where(User.email == email_clean, User.id != user_id)
+            )
+            if existing_email.scalar_one_or_none() is not None:
+                raise ConflictException(f"邮箱 {email_clean} 已存在")
+            user.email = email_clean
+
+        if full_name is not None:
+            user.full_name = full_name.strip() or None
+
+        if phone is not None:
+            user.phone = phone.strip() or None
+
+        await db.commit()
+
+        return await RoleService.get_user_with_roles(db, user_id)
+
+    @staticmethod
+    async def update_user_status(
+        db: AsyncSession,
+        user_id: int,
+        is_active: bool,
+    ) -> User:
+        """更新用户启用状态"""
+        user = await RoleService.get_user_with_roles(db, user_id)
+        user.is_active = is_active
+        await db.commit()
+
+        return await RoleService.get_user_with_roles(db, user_id)

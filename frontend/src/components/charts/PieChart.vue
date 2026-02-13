@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
 import type { ECharts } from 'echarts'
 
@@ -29,7 +29,8 @@ const props = withDefaults(defineProps<Props>(), {
   chartId: () => `pie-chart-${Math.random().toString(36).slice(2)}`,
   height: '400px',
   isDonut: false,
-  showLabel: true
+  showLabel: true,
+  title: ''
 })
 
 let chartInstance: ECharts | null = null

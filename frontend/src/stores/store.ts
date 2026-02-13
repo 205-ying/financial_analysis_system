@@ -64,10 +64,9 @@ export const useStoreStore = defineStore('store', () => {
       
       // 如果返回500条，可能还有更多数据
       if (allStores.value.length === 500) {
-        console.warn('门店数量达到500上限，可能存在未加载的门店')
+        // 达到上限时不再额外提示，避免在控制台输出
       }
     } catch (error) {
-      console.error('获取门店列表失败：', error)
       allStores.value = []
       throw error
     } finally {

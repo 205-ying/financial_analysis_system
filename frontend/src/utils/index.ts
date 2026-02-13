@@ -3,5 +3,4 @@
  */
 
 export * from './format'
-export * from './validate'
 export { default as request } from './request'

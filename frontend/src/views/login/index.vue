@@ -49,9 +49,10 @@
       </el-form>
 
       <div class="login-tips">
-        <p>默认账号：</p>
+        <p>测试账号：</p>
         <p>超级管理员：admin / Admin@123</p>
-        <p>普通用户：manager / Manager@123</p>
+        <p>门店经理：manager / Manager@123</p>
+        <p>收银员：cashier / Cashier@123</p>
       </div>
     </div>
   </div>
@@ -106,11 +107,10 @@ const handleLogin = async () => {
         ElMessage.success('登录成功')
 
         // 获取重定向路径
-        const redirect = (route.query.redirect as string) || '/'
-        router.push(redirect)
+        const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
+        await router.push(redirect || '/')
       } catch (error) {
-        console.error('登录失败：', error)
-        // 错误提示已在 axios 拦截器中处理
+        ElMessage.error('登录失败，请检查账号密码或稍后重试')
       } finally {
         loading.value = false
       }

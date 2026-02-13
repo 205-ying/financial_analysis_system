@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { createExpenseRecord, getExpenseTypeList } from '@/api/expense'
 import StoreSelect from '@/components/StoreSelect.vue'
@@ -101,9 +101,9 @@ const formRef = ref<FormInstance>()
 const loading = ref(false)
 const expenseTypeList = ref<ExpenseTypeInfo[]>([])
 
-const form = reactive<ExpenseRecordCreate>({
-  store_id: undefined as any,
-  expense_type_id: undefined as any,
+const form = reactive<Partial<ExpenseRecordCreate>>({
+  store_id: undefined,
+  expense_type_id: undefined,
   biz_date: '',
   amount: 0,
   remark: ''
@@ -124,8 +124,8 @@ const loadExpenseTypes = async () => {
   try {
     const { data } = await getExpenseTypeList()
     expenseTypeList.value = data
-  } catch (error) {
-    console.error('加载费用类型失败:', error)
+  } catch {
+    // 静默失败：避免在控制台输出
   }
 }
 
@@ -136,14 +136,22 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     loading.value = true
 
-    await createExpenseRecord(form)
+    const payload: ExpenseRecordCreate = {
+      store_id: form.store_id!,
+      expense_type_id: form.expense_type_id!,
+      biz_date: form.biz_date!,
+      amount: form.amount ?? 0,
+      remark: form.remark ?? ''
+    }
+
+    await createExpenseRecord(payload)
     ElMessage.success('费用创建成功')
     emit('success')
     handleCancel()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== false) {
-      console.error('创建费用失败:', error)
-      ElMessage.error(error.response?.data?.message || '创建费用失败')
+      const message = error instanceof Error ? error.message : '创建费用失败'
+      ElMessage.error(message)
     }
   } finally {
     loading.value = false

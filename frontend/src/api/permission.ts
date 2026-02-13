@@ -3,7 +3,7 @@
  */
 
 import request from '@/utils/request'
-import type { PaginatedResponse, Response } from '@/types/common'
+import type { PaginatedResponse, Response } from '@/types'
 
 // 权限类型定义
 export interface Permission {

@@ -6,7 +6,7 @@ import { ref, computed } from 'vue'
 import { login as loginApi, getCurrentUser, logout as logoutApi } from '@/api/auth'
 import type { LoginRequest, UserInfo } from '@/types'
 import router from '@/router'
-import { STORAGE_KEYS } from '@/config'
+import { STORAGE_KEYS, PERMISSIONS } from '@/config'
 
 export const useAuthStore = defineStore(
   'auth',
@@ -37,40 +37,31 @@ export const useAuthStore = defineStore(
      * 登录
      */
     async function login(loginData: LoginRequest) {
-      try {
-        const response = await loginApi(loginData)
-        const data = response.data
+      const response = await loginApi(loginData)
+      const data = response.data
 
-        // 保存 token 和用户信息
-        token.value = data.access_token
-        userInfo.value = data.user_info
-        permissions.value = data.user_info.permissions
+      // 保存 token 和用户信息
+      token.value = data.access_token
+      userInfo.value = data.user_info
+      permissions.value = data.user_info.permissions
 
-        return data
-      } catch (error) {
-        console.error('登录失败：', error)
-        throw error
-      }
+      return data
     }
 
     /**
      * 获取用户信息
      */
     async function getUserInfo() {
-      try {
-        const response = await getCurrentUser()
-        userInfo.value = response.data
-        permissions.value = response.data.permissions
-        
-        // 缓存可访问门店列表
-        // accessible_stores: null=全部, []=无权限, [id1,id2]=限定门店
-        accessibleStores.value = (response.data as any).accessible_stores ?? null
-        
-        return response.data
-      } catch (error) {
-        console.error('获取用户信息失败：', error)
-        throw error
-      }
+      const response = await getCurrentUser()
+      userInfo.value = response.data
+      permissions.value = response.data.permissions
+
+      // 缓存可访问门店列表
+      // accessible_stores: null=全部, []=无权限, [id1,id2]=限定门店
+      const withStores = response.data as UserInfo & { accessible_stores?: number[] | null }
+      accessibleStores.value = withStores.accessible_stores ?? null
+
+      return response.data
     }
 
     /**
@@ -108,7 +99,7 @@ export const useAuthStore = defineStore(
       }
 
       // 超级管理员拥有所有权限
-      if (permissions.value.includes('*:*:*')) {
+      if (permissions.value.includes(PERMISSIONS.SUPER_ADMIN)) {
         return true
       }
 
@@ -154,7 +145,7 @@ export const useAuthStore = defineStore(
     persist: {
       key: STORAGE_KEYS.AUTH,
       storage: localStorage,
-      paths: ['token', 'userInfo', 'permissions', 'accessibleStores']
+      pick: ['token', 'userInfo', 'permissions', 'accessibleStores']
     }
   }
 )

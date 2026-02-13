@@ -31,7 +31,7 @@
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="fetchData">查询</el-button>
           <el-button
-            v-permission="'kpi:rebuild'"
+            v-permission="PERMISSIONS.KPI_REBUILD"
             type="success"
             :icon="RefreshRight"
             :loading="rebuildLoading"
@@ -56,11 +56,11 @@
           <div v-if="card.label !== '门店数'" class="card-growth">
             <span class="growth-item">
               <span class="growth-label">同比</span>
-              <growth-tag :value="card.yoy_growth" :is-point="card.unit === '%'" />
+              <growth-tag :value="card.yoy_growth ?? undefined" :is-point="card.unit === '%'" />
             </span>
             <span class="growth-item">
               <span class="growth-label">环比</span>
-              <growth-tag :value="card.mom_growth" :is-point="card.unit === '%'" />
+              <growth-tag :value="card.mom_growth ?? undefined" :is-point="card.unit === '%'" />
             </span>
           </div>
           <div v-else class="card-growth">
@@ -165,6 +165,7 @@ import StoreSelect from '@/components/StoreSelect.vue'
 import { useECharts, type ECOption } from '@/composables/useECharts'
 import { getDashboardOverview } from '@/api/dashboard'
 import { rebuildKPI } from '@/api/kpi'
+import { PERMISSIONS } from '@/config'
 import type {
   SummaryCard,
   TrendDataPoint,
@@ -300,10 +301,17 @@ function renderTrendChart(data: TrendDataPoint[]) {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'cross' },
-      formatter: (params: any) => {
-        let html = `<div style="font-weight:bold;margin-bottom:5px">${params[0].axisValue}</div>`
-        params.forEach((p: any) => {
-          html += `<div style="display:flex;justify-content:space-between;gap:20px"><span>${p.marker}${p.seriesName}</span><b>¥${p.value.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</b></div>`
+      formatter: (params: unknown) => {
+        const list = Array.isArray(params) ? params : []
+        const axisValue = (list[0] as { axisValue?: unknown } | undefined)?.axisValue
+        const title = typeof axisValue === 'string' ? axisValue : ''
+        let html = `<div style="font-weight:bold;margin-bottom:5px">${title}</div>`
+        list.forEach((raw) => {
+          const p = raw as { marker?: unknown; seriesName?: unknown; value?: unknown }
+          const marker = typeof p.marker === 'string' ? p.marker : ''
+          const seriesName = typeof p.seriesName === 'string' ? p.seriesName : ''
+          const value = typeof p.value === 'number' ? p.value : 0
+          html += `<div style="display:flex;justify-content:space-between;gap:20px"><span>${marker}${seriesName}</span><b>¥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</b></div>`
         })
         return html
       }
@@ -364,9 +372,12 @@ function renderStoreRankChart(data: StoreRankItem[]) {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: (params: any) => {
-        const p = params[0]
-        const item = reversed[p.dataIndex]
+      formatter: (params: unknown) => {
+        const first = Array.isArray(params) ? params[0] : undefined
+        const dataIndex = (first as { dataIndex?: unknown } | undefined)?.dataIndex
+        if (typeof dataIndex !== 'number') return ''
+        const item = reversed[dataIndex]
+        if (!item) return ''
         return `<b>${item.store_name}</b><br/>营收: ¥${item.revenue.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>利润: ¥${item.profit.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}`
       }
     },
@@ -391,7 +402,12 @@ function renderStoreRankChart(data: StoreRankItem[]) {
       label: {
         show: true,
         position: 'right',
-        formatter: (p: any) => '¥' + p.value.toLocaleString('zh-CN', { minimumFractionDigits: 0 }),
+        formatter: (p: unknown) => {
+          const value = (p as { value?: unknown } | undefined)?.value
+          const num = typeof value === 'number' ? value : Number(value)
+          const safe = Number.isFinite(num) ? num : 0
+          return '¥' + safe.toLocaleString('zh-CN', { minimumFractionDigits: 0 })
+        },
         fontSize: 11,
         color: '#606266'
       }
@@ -412,7 +428,15 @@ function renderExpenseChart(data: ExpenseStructureItem[]) {
   const option: ECOption = {
     tooltip: {
       trigger: 'item',
-      formatter: (p: any) => `${p.name}<br/>¥${p.value.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>占比 ${p.percent}%`
+      formatter: (p: unknown) => {
+        const pp = p as { name?: unknown; value?: unknown; percent?: unknown }
+        const name = typeof pp.name === 'string' ? pp.name : ''
+        const value = typeof pp.value === 'number' ? pp.value : Number(pp.value)
+        const safeValue = Number.isFinite(value) ? value : 0
+        const percent = typeof pp.percent === 'number' ? pp.percent : Number(pp.percent)
+        const safePercent = Number.isFinite(percent) ? percent : 0
+        return `${name}<br/>¥${safeValue.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>占比 ${safePercent}%`
+      }
     },
     legend: { bottom: 0, type: 'scroll' },
     series: [{
@@ -435,8 +459,7 @@ function renderExpenseChart(data: ExpenseStructureItem[]) {
         text: '¥' + formatAmount(total),
         fontSize: 16,
         fontWeight: 'bold',
-        fill: '#303133',
-        textAlign: 'center'
+        fill: '#303133'
       }
     }, {
       type: 'text',
@@ -445,8 +468,7 @@ function renderExpenseChart(data: ExpenseStructureItem[]) {
       style: {
         text: '总费用',
         fontSize: 12,
-        fill: '#909399',
-        textAlign: 'center'
+        fill: '#909399'
       }
     }]
   }
@@ -471,7 +493,15 @@ function renderChannelChart(data: ChannelDistribution) {
   const option: ECOption = {
     tooltip: {
       trigger: 'item',
-      formatter: (p: any) => `${p.name}<br/>¥${p.value.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>占比 ${p.percent}%`
+      formatter: (p: unknown) => {
+        const pp = p as { name?: unknown; value?: unknown; percent?: unknown }
+        const name = typeof pp.name === 'string' ? pp.name : ''
+        const value = typeof pp.value === 'number' ? pp.value : Number(pp.value)
+        const safeValue = Number.isFinite(value) ? value : 0
+        const percent = typeof pp.percent === 'number' ? pp.percent : Number(pp.percent)
+        const safePercent = Number.isFinite(percent) ? percent : 0
+        return `${name}<br/>¥${safeValue.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>占比 ${safePercent}%`
+      }
     },
     legend: { bottom: 0, type: 'scroll' },
     series: [{
@@ -495,8 +525,7 @@ function renderChannelChart(data: ChannelDistribution) {
         text: '¥' + formatAmount(total),
         fontSize: 16,
         fontWeight: 'bold',
-        fill: '#303133',
-        textAlign: 'center'
+        fill: '#303133'
       }
     }, {
       type: 'text',
@@ -505,8 +534,7 @@ function renderChannelChart(data: ChannelDistribution) {
       style: {
         text: '总收入',
         fontSize: 12,
-        fill: '#909399',
-        textAlign: 'center'
+        fill: '#909399'
       }
     }]
   }
@@ -583,9 +611,9 @@ async function handleRebuildKPI() {
     const { data } = await rebuildKPI(range)
     ElMessage.success(`重建成功！影响 ${data.total_records} 条记录（${data.affected_stores} 个门店，${data.affected_dates} 天）`)
     await fetchData()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
-      console.error('重建 KPI 失败:', error)
+      ElMessage.error('重建 KPI 失败')
     }
   } finally {
     rebuildLoading.value = false

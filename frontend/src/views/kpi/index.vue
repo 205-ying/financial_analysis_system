@@ -23,7 +23,7 @@
               class="legend-item"
             >
               <span class="legend-label">{{ item.category_name }}:</span>
-              <span class="legend-value">￥{{ formatNumber(item.total_amount || item.amount || 0) }}</span>
+              <span class="legend-value">￥{{ formatNumber(item.amount || 0) }}</span>
               <span class="legend-percent">({{ (item.percentage || 0).toFixed(2) }}%)</span>
             </div>
           </div>
@@ -167,6 +167,23 @@ const handleTopNChange = () => {
   loadStoreRanking()
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
+
+const getArrayField = <T>(value: unknown, key: string): T[] | null => {
+  if (!isRecord(value)) return null
+  const field = value[key]
+  return Array.isArray(field) ? (field as T[]) : null
+}
+
+const toNumber = (value: unknown): number => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+  if (typeof value === 'string') {
+    const num = Number(value)
+    return Number.isFinite(num) ? num : 0
+  }
+  return 0
+}
+
 /**
  * 加载费用分类数据
  */
@@ -174,12 +191,14 @@ const loadExpenseCategory = async () => {
   try {
     showCategoryLoading()
     const { data } = await getExpenseCategory(currentQuery.value)
-    // 后端返回 {categories: [...], total_amount: xxx}，提取 categories
-    const categories = (data as any).categories || data
+    // 后端可能返回 {categories: [...]} 或直接返回数组
+    const raw: unknown = data
+    const extracted = getArrayField<ExpenseCategoryItem>(raw, 'categories')
+    const categories = extracted ?? (Array.isArray(raw) ? (raw as ExpenseCategoryItem[]) : [])
     expenseCategoryData.value = categories
     renderCategoryChart(categories)
   } catch (error) {
-    console.error('加载费用分类数据失败:', error)
+    void error
   } finally {
     hideCategoryLoading()
   }
@@ -191,7 +210,7 @@ const loadExpenseCategory = async () => {
 const renderCategoryChart = (data: ExpenseCategoryItem[]) => {
   const chartData = data.map(item => ({
     name: item.category_name,
-    value: item.total_amount || item.amount  // 兼容两种字段名
+    value: item.amount
   }))
 
   const option: ECOption = {
@@ -241,12 +260,14 @@ const loadStoreRanking = async () => {
   try {
     showRankingLoading()
     const { data } = await getStoreRanking(currentQuery.value)
-    // 后端返回 {stores: [...], total_stores: xxx}，提取 stores
-    const stores = (data as any).stores || data
+    // 后端可能返回 {stores: [...]} 或直接返回数组
+    const raw: unknown = data
+    const extracted = getArrayField<StoreRankingItem>(raw, 'stores')
+    const stores = extracted ?? (Array.isArray(raw) ? (raw as StoreRankingItem[]) : [])
     storeRankingData.value = stores
-    renderRankingChart(stores)
+    renderRankingChart(stores as unknown as Array<Record<string, unknown>>)
   } catch (error) {
-    console.error('加载门店排名数据失败:', error)
+    void error
   } finally {
     hideRankingLoading()
   }
@@ -255,11 +276,17 @@ const loadStoreRanking = async () => {
 /**
  * 渲染门店排名图表（柱状图）
  */
-const renderRankingChart = (data: any[]) => {
-  const storeNames = data.map(item => item.store_name)
-  // 后端返回 profit 和 profit_margin，前端可能用 total_profit 和 profit_rate
-  const profits = data.map(item => item.profit || item.total_profit || 0)
-  const profitRates = data.map(item => (item.profit_margin !== undefined ? item.profit_margin : (item.profit_rate || 0) * 100))
+const renderRankingChart = (data: Array<Record<string, unknown>>) => {
+  const storeNames = data.map((item) => String(item['store_name'] ?? ''))
+  // 兼容不同字段名：profit/total_profit
+  const profits = data.map((item) => toNumber(item['profit'] ?? item['total_profit'] ?? 0))
+  // 兼容不同字段名：profit_margin(可能已是百分比) / profit_rate(小数)
+  const profitRates = data.map((item) => {
+    if (item['profit_margin'] !== undefined && item['profit_margin'] !== null) {
+      return toNumber(item['profit_margin'])
+    }
+    return toNumber(item['profit_rate']) * 100
+  })
 
   const option: ECOption = {
     tooltip: {
@@ -267,16 +294,24 @@ const renderRankingChart = (data: any[]) => {
       axisPointer: {
         type: 'shadow'
       },
-      formatter: (params: any) => {
-        let result = `<div style="font-weight: bold; margin-bottom: 5px;">${params[0].axisValue}</div>`
-        params.forEach((item: any) => {
-          if (item.seriesName === '利润') {
-            result += `<div>${item.marker}${item.seriesName}: ¥${item.value.toLocaleString('zh-CN', {
+      formatter: (params: unknown) => {
+        const list = Array.isArray(params) ? params : []
+        const axisValue = (list[0] as { axisValue?: unknown } | undefined)?.axisValue
+        const title = typeof axisValue === 'string' ? axisValue : ''
+        let result = `<div style="font-weight: bold; margin-bottom: 5px;">${title}</div>`
+        list.forEach((raw) => {
+          const item = raw as { seriesName?: unknown; marker?: unknown; value?: unknown }
+          const seriesName = typeof item.seriesName === 'string' ? item.seriesName : ''
+          const marker = typeof item.marker === 'string' ? item.marker : ''
+          const valueNum = typeof item.value === 'number' ? item.value : Number(item.value)
+          const safeValue = Number.isFinite(valueNum) ? valueNum : 0
+          if (seriesName === '利润') {
+            result += `<div>${marker}${seriesName}: ¥${safeValue.toLocaleString('zh-CN', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
             })}</div>`
           } else {
-            result += `<div>${item.marker}${item.seriesName}: ${item.value.toFixed(2)}%</div>`
+            result += `<div>${marker}${seriesName}: ${safeValue.toFixed(2)}%</div>`
           }
         })
         return result

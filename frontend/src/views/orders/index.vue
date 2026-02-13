@@ -47,7 +47,7 @@
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
           <el-button
-            v-permission="'order:create'"
+            v-permission="PERMISSIONS.ORDER_CREATE"
             type="success"
             :icon="Plus"
             @click="handleCreate"
@@ -55,7 +55,7 @@
             新增订单
           </el-button>
           <el-button
-            v-permission="'order:export'"
+            v-permission="PERMISSIONS.ORDER_EXPORT"
             type="warning"
             :icon="Download"
             :loading="exportLoading"
@@ -114,7 +114,7 @@
         <el-table-column prop="channel" label="渠道" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="getChannelType(row.channel)">
-              {{ row.channel }}
+              {{ getChannelLabel(row.channel) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -143,7 +143,7 @@
               查看
             </el-button>
             <el-button
-              v-permission="'order:update'"
+              v-permission="PERMISSIONS.ORDER_UPDATE"
               type="primary"
               size="small"
               link
@@ -153,7 +153,7 @@
               编辑
             </el-button>
             <el-button
-              v-permission="'order:delete'"
+              v-permission="PERMISSIONS.ORDER_DELETE"
               type="danger"
               size="small"
               link
@@ -192,13 +192,11 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderList, exportOrders } from '@/api/order'
 import StoreSelect from '@/components/StoreSelect.vue'
 import CreateOrderDialog from '@/components/dialogs/CreateOrderDialog.vue'
+import { useListPage } from '@/composables'
+import { PERMISSIONS } from '@/config'
 import type { OrderInfo, OrderQuery } from '@/types'
+import { formatAmount, formatDateTime } from '@/utils'
 import dayjs from 'dayjs'
-
-// 表格数据
-const tableData = ref<OrderInfo[]>([])
-const loading = ref(false)
-const total = ref(0)
 
 // 查询表单
 const queryForm = reactive<OrderQuery>({
@@ -219,6 +217,11 @@ const createDialogVisible = ref(false)
 
 // 导出状态
 const exportLoading = ref(false)
+
+const { tableData, loading, total, loadTableData, handleQuery: queryList, handleReset: resetList } = useListPage(
+  queryForm,
+  getOrderList
+)
 
 // 统计数据
 const stats = computed(() => {
@@ -241,74 +244,49 @@ const stats = computed(() => {
  */
 const getChannelType = (channel: string) => {
   const typeMap: Record<string, string> = {
-    堂食: '',
-    外卖: 'success',
-    外带: 'warning',
-    团购: 'danger'
+    dine_in: '',
+    delivery: 'success',
+    pickup: 'warning',
+    group_buy: 'danger'
   }
   return typeMap[channel] || ''
 }
 
-/**
- * 格式化数字
- */
-const formatNumber = (value: number): string => {
-  if (value === 0) return '0.00'
-  if (!value) return '0.00'
-  return value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-/**
- * 格式化日期时间
- */
-const formatDateTime = (value: string): string => {
-  return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
-}
-
-/**
- * 加载表格数据
- */
-const loadTableData = async () => {
-  try {
-    loading.value = true
-    const { data } = await getOrderList(queryForm)
-    tableData.value = data.items
-    total.value = data.total
-  } catch (error) {
-    console.error('加载订单列表失败:', error)
-  } finally {
-    loading.value = false
+const getChannelLabel = (channel: string) => {
+  const labelMap: Record<string, string> = {
+    dine_in: '堂食',
+    delivery: '外卖',
+    pickup: '外带',
+    group_buy: '团购'
   }
+  return labelMap[channel] || channel
 }
+
+const formatNumber = (value: number): string => formatAmount(value)
 
 /**
  * 处理查询
  */
 const handleQuery = () => {
-  if (dateRange.value) {
-    queryForm.start_date = dateRange.value[0]
-    queryForm.end_date = dateRange.value[1]
-  } else {
-    queryForm.start_date = undefined
-    queryForm.end_date = undefined
-  }
-  queryForm.page = 1
-  loadTableData()
+  queryList(dateRange.value)
 }
 
 /**
  * 处理重置
  */
 const handleReset = () => {
-  queryForm.store_id = undefined
-  queryForm.channel = undefined
-  queryForm.order_no = undefined
-  queryForm.start_date = undefined
-  queryForm.end_date = undefined
-  queryForm.page = 1
-  queryForm.page_size = 20
-  dateRange.value = undefined
-  loadTableData()
+  resetList(
+    () => {
+      queryForm.store_id = undefined
+      queryForm.channel = undefined
+      queryForm.order_no = undefined
+      queryForm.start_date = undefined
+      queryForm.end_date = undefined
+    },
+    () => {
+      dateRange.value = undefined
+    }
+  )
 }
 
 /**
@@ -338,7 +316,9 @@ const handleExport = async () => {
       channel: queryForm.channel,
       order_no: queryForm.order_no,
       start_date: queryForm.start_date,
-      end_date: queryForm.end_date
+      end_date: queryForm.end_date,
+      page: queryForm.page,
+      page_size: queryForm.page_size
     }
     
     // 调用导出API
@@ -356,7 +336,6 @@ const handleExport = async () => {
     
     ElMessage.success('导出成功')
   } catch (error) {
-    console.error('导出失败:', error)
     ElMessage.error('导出失败，请重试')
   } finally {
     exportLoading.value = false
@@ -389,9 +368,9 @@ const handleDelete = async (row: OrderInfo) => {
     })
     ElMessage.success('删除成功')
     loadTableData()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+      void error
     }
   }
 }

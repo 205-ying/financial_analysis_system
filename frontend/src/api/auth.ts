@@ -7,7 +7,7 @@ import type { LoginRequest, TokenResponse, UserInfo, ApiResponse } from '@/types
 /**
  * 登录
  */
-export function login(data: LoginRequest) {
+export function login(data: LoginRequest): Promise<ApiResponse<TokenResponse>> {
   return request<ApiResponse<TokenResponse>>({
     url: '/auth/login',
     method: 'post',
@@ -18,7 +18,7 @@ export function login(data: LoginRequest) {
 /**
  * 获取当前用户信息（含权限）
  */
-export function getCurrentUser() {
+export function getCurrentUser(): Promise<ApiResponse<UserInfo>> {
   return request<ApiResponse<UserInfo>>({
     url: '/auth/me',
     method: 'get'
@@ -28,7 +28,7 @@ export function getCurrentUser() {
 /**
  * 登出
  */
-export function logout() {
+export function logout(): Promise<ApiResponse<void>> {
   return request<ApiResponse<void>>({
     url: '/auth/logout',
     method: 'post'

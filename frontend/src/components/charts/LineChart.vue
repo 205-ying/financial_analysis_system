@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
 import type { ECharts } from 'echarts'
 
@@ -26,7 +26,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   chartId: () => `line-chart-${Math.random().toString(36).slice(2)}`,
-  height: '400px'
+  height: '400px',
+  title: '',
+  yAxisName: ''
 })
 
 let chartInstance: ECharts | null = null

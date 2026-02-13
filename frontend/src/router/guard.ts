@@ -17,7 +17,7 @@ export function setupRouterGuard(router: Router) {
   let isHandlingAuthError = false
 
   // 全局前置守卫
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore()
     const permissionStore = usePermissionStore()
 
@@ -38,19 +38,33 @@ export function setupRouterGuard(router: Router) {
           next()
         } else {
           try {
-            // 获取用户信息和权限
-            await authStore.getUserInfo()
+            // 获取用户信息和权限（登录接口已返回 user_info 时可跳过一次 /me）
+            if (!authStore.userInfo || !authStore.permissions || authStore.permissions.length === 0) {
+              await authStore.getUserInfo()
+            }
 
             // 根据权限生成动态路由
             const accessRoutes = permissionStore.generateRoutes()
 
-            // 动态添加路由
-            const layoutRoute = {
-              path: '/',
-              component: () => import('@/layout/index.vue'),
-              children: accessRoutes
-            }
-            router.addRoute(layoutRoute)
+            // 处理根路径（/）重定向：挂载到 Layout 的默认子路由（path: ''）
+            // 避免在动态路由列表中直接注入 path:'/' 导致重复/无法匹配的问题
+            const firstRoute = accessRoutes.find(route => !route.meta?.hidden && route.path && route.path !== '/')
+            const rootRedirect = firstRoute?.path || '/login'
+
+            const layoutChildren = [
+              {
+                path: '',
+                redirect: rootRedirect,
+                meta: { hidden: true }
+              },
+              ...accessRoutes
+            ]
+
+            // 动态添加路由：挂载到静态 Layout 路由下
+            // 注意：Layout 路由已在 router/index.ts 中注册（name: 'Layout'）
+            layoutChildren.forEach((child) => {
+              router.addRoute('Layout', child)
+            })
 
             // 添加 404 路由（必须在最后）
             router.addRoute({
@@ -62,8 +76,6 @@ export function setupRouterGuard(router: Router) {
             // 重新导航到目标路由
             next({ ...to, replace: true })
           } catch (error) {
-            console.error('获取用户信息失败：', error)
-            
             // 避免重复显示错误提示
             if (!isHandlingAuthError) {
               isHandlingAuthError = true
@@ -95,13 +107,12 @@ export function setupRouterGuard(router: Router) {
   })
 
   // 全局后置守卫
-  router.afterEach((to) => {
+  router.afterEach(() => {
     // 可以在这里添加页面访问统计等逻辑
   })
 
   // 全局错误处理
-  router.onError((error) => {
-    console.error('路由错误：', error)
+  router.onError((_error) => {
     ElMessage.error('页面加载失败')
   })
 }
