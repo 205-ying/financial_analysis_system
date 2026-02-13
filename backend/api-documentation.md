@@ -1,5 +1,9 @@
 # 餐饮企业财务分析系统
 
+> ⚠️ 本文件由导出脚本自动生成，用于阅读与检索；请勿手工维护端点明细。
+> 
+> 如需更新：执行 `python qa_scripts/tools/backend/archive/export_api_docs.py --format both` 重新生成。
+
 > 版本: 1.0.0
 > 生成时间: 2026-01-31 20:28:49
 
