@@ -8,29 +8,19 @@ import type { LoginRequest, TokenResponse, UserInfo, ApiResponse } from '@/types
  * 登录
  */
 export function login(data: LoginRequest): Promise<ApiResponse<TokenResponse>> {
-  return request<ApiResponse<TokenResponse>>({
-    url: '/auth/login',
-    method: 'post',
-    data
-  })
+  return request.post('/auth/login', data)
 }
 
 /**
  * 获取当前用户信息（含权限）
  */
 export function getCurrentUser(): Promise<ApiResponse<UserInfo>> {
-  return request<ApiResponse<UserInfo>>({
-    url: '/auth/me',
-    method: 'get'
-  })
+  return request.get('/auth/me')
 }
 
 /**
  * 登出
  */
 export function logout(): Promise<ApiResponse<void>> {
-  return request<ApiResponse<void>>({
-    url: '/auth/logout',
-    method: 'post'
-  })
+  return request.post('/auth/logout')
 }

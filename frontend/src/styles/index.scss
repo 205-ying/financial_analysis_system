@@ -1,0 +1,694 @@
+// ============================================================================
+// 财务分析系统 - 样式主入口
+// ============================================================================
+
+// 注意：@use 规则必须在文件最开始
+// Element Plus 样式通过 main.ts 导入，不在这里导入
+
+// 导入设计变量
+@use 'variables/colors';
+@use 'variables/typography';
+@use 'variables/spacing';
+@use 'variables/shadows';
+@use 'variables/borders';
+@use 'variables/animations';
+
+// 导入混入
+@use 'mixins/glassmorphism';
+@use 'mixins/responsive';
+@use 'mixins/utilities';
+@use 'mixins/charts';
+
+// 导入基础样式
+@use 'base/reset';
+@use 'base/typography' as base-typography;
+@use 'base/global';
+
+// 导入组件样式
+@use 'components/buttons';
+@use 'components/cards';
+@use 'components/forms';
+@use 'components/tables';
+
+// 导入布局样式
+@use 'layouts/sidebar';
+@use 'layouts/header';
+@use 'layouts/main';
+
+// 导入主题样式
+@use 'themes/element-theme';
+@use 'themes/dark-theme';
+
+// 导入工具类
+@use 'utilities/utilities' as utils;
+
+// ============================================================================
+// 全局自定义属性（CSS 变量）
+// ============================================================================
+// 注意：所有 CSS 变量已经在各自的变量文件中通过 SCSS 和 CSS 变量定义
+// 主题切换通过修改各个变量文件实现
+
+// 全局数字类型字体强制使用 Inter
+.font-number, .num-font, .number-font {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+
+// ============================================================================
+// 第三方库样式集成
+// ============================================================================
+
+// Element Plus 样式已经在文件开头导入
+// 这里可以添加对 Element Plus 样式的额外定制
+
+// ECharts 主题配置
+.echarts-theme-financial {
+  // 使用设计系统的颜色变量
+  --echarts-color-primary: var(--color-primary);
+  --echarts-color-success: var(--color-success);
+  --echarts-color-warning: var(--color-warning);
+  --echarts-color-danger: var(--color-danger);
+  --echarts-color-info: var(--color-info);
+
+  // 图表色板
+  --echarts-color-category-1: var(--color-chart-category-1);
+  --echarts-color-category-2: var(--color-chart-category-2);
+  --echarts-color-category-3: var(--color-chart-category-3);
+  --echarts-color-category-4: var(--color-chart-category-4);
+  --echarts-color-category-5: var(--color-chart-category-5);
+  --echarts-color-category-6: var(--color-chart-category-6);
+  --echarts-color-category-7: var(--color-chart-category-7);
+  --echarts-color-category-8: var(--color-chart-category-8);
+
+  // 语义色板
+  --echarts-color-semantic-bad: var(--color-chart-semantic-bad);
+  --echarts-color-semantic-warning: var(--color-chart-semantic-warning);
+  --echarts-color-semantic-good: var(--color-chart-semantic-good);
+}
+
+// ============================================================================
+// 自定义组件样式
+// ============================================================================
+
+// 财务指标卡片
+.financial-metric-card {
+  @extend .el-card;
+  @include cards.metric-card;
+  @include utilities.transition-all;
+
+  &:hover {
+    @include shadows.shadow-lg;
+    transform: translateY(-2px);
+  }
+
+  .metric-value {
+    @include typography.text-3xl;
+    font-weight: typography.$font-weight-bold;
+    color: colors.$color-primary;
+    margin: spacing.$spacing-2 0;
+  }
+
+  .metric-label {
+    @include typography.text-sm;
+    color: colors.$color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: typography.$letter-spacing-wide;
+  }
+
+  .metric-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: spacing.$spacing-1;
+    padding: spacing.$spacing-1 spacing.$spacing-2;
+    border-radius: borders.$border-radius-full;
+    font-size: typography.$font-size-xs;
+    font-weight: typography.$font-weight-medium;
+
+    &.trend-up {
+      background-color: rgba(colors.$color-success, 0.1);
+      color: colors.$color-success;
+    }
+
+    &.trend-down {
+      background-color: rgba(colors.$color-danger, 0.1);
+      color: colors.$color-danger;
+    }
+
+    &.trend-neutral {
+      background-color: rgba(colors.$color-gray-400, 0.1);
+      color: colors.$color-text-tertiary;
+    }
+  }
+}
+
+// 数据可视化卡片
+.chart-card {
+  @extend .el-card;
+  @include charts.chart-container;
+
+  .chart-header {
+    @include charts.chart-title;
+    border-bottom: 1px solid colors.$color-border-light;
+    padding-bottom: spacing.$spacing-4;
+    margin-bottom: spacing.$spacing-4;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    min-height: 300px;
+
+    @include responsive.media-sm-down {
+      height: 250px;
+      min-height: 250px;
+    }
+
+    @include responsive.media-xs-down {
+      height: 200px;
+      min-height: 200px;
+    }
+  }
+
+  .chart-footer {
+    @include charts.chart-toolbar;
+    border-top: 1px solid colors.$color-border-light;
+    margin-top: spacing.$spacing-4;
+  }
+}
+
+// 财务表格
+.financial-table {
+  @extend .el-table;
+  @include tables.financial-table;
+
+  .positive-change {
+    color: colors.$color-success;
+    font-weight: typography.$font-weight-medium;
+
+    &::before {
+      content: '↑ ';
+    }
+  }
+
+  .negative-change {
+    color: colors.$color-danger;
+    font-weight: typography.$font-weight-medium;
+
+    &::before {
+      content: '↓ ';
+    }
+  }
+
+  .highlight-row {
+    background-color: rgba(colors.$color-primary, 0.05) !important;
+    border-left: 3px solid colors.$color-primary;
+  }
+}
+
+// 筛选栏
+.filter-bar {
+  @include utilities.flex-between;
+  background-color: colors.$color-white;
+  border-radius: borders.$border-radius-md;
+  padding: spacing.$spacing-4;
+  margin-bottom: spacing.$spacing-6;
+  box-shadow: shadows.$shadow-sm;
+  border: 1px solid colors.$color-border-light;
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-4;
+    flex-wrap: wrap;
+
+    @include responsive.media-sm-down {
+      width: 100%;
+      margin-bottom: spacing.$spacing-3;
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-2;
+
+    @include responsive.media-sm-down {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
+
+// 数据概览网格
+.metrics-grid {
+  @include responsive.grid-responsive(1, 2, 2, 4, spacing.$spacing-4);
+  margin-bottom: spacing.$spacing-6;
+}
+
+// 页面标题区
+.page-header {
+  margin-bottom: spacing.$spacing-6;
+
+  .page-title {
+    @include typography.text-3xl;
+    font-weight: typography.$font-weight-bold;
+    color: colors.$color-text-primary;
+    margin-bottom: spacing.$spacing-2;
+  }
+
+  .page-subtitle {
+    @include typography.text-base;
+    color: colors.$color-text-secondary;
+    line-height: typography.$line-height-relaxed;
+  }
+
+  .page-actions {
+    margin-top: spacing.$spacing-4;
+    display: flex;
+    gap: spacing.$spacing-3;
+    flex-wrap: wrap;
+  }
+}
+
+// 空状态
+.empty-state {
+  @include utilities.flex-center;
+  @include utilities.flex-column;
+  text-align: center;
+  padding: spacing.$spacing-8 spacing.$spacing-4;
+  color: colors.$color-text-tertiary;
+
+  .empty-icon {
+    font-size: 48px;
+    color: colors.$color-gray-300;
+    margin-bottom: spacing.$spacing-4;
+  }
+
+  .empty-title {
+    @include typography.text-xl;
+    font-weight: typography.$font-weight-medium;
+    color: colors.$color-text-secondary;
+    margin-bottom: spacing.$spacing-2;
+  }
+
+  .empty-description {
+    @include typography.text-base;
+    color: colors.$color-text-tertiary;
+    max-width: 400px;
+    margin-bottom: spacing.$spacing-4;
+  }
+}
+
+// 加载状态
+.loading-state {
+  @include utilities.flex-center;
+  padding: spacing.$spacing-8 spacing.$spacing-4;
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid colors.$color-gray-200;
+    border-top-color: colors.$color-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-text {
+    margin-top: spacing.$spacing-4;
+    color: colors.$color-text-tertiary;
+  }
+}
+
+// ============================================================================
+// 工具类导出（供 JavaScript 使用）
+// ============================================================================
+
+// 注意：这些类已经在 utilities 模块中定义
+// 这里作为集中导出点
+
+// ============================================================================
+// 响应式调整
+// ============================================================================
+
+// 移动端优化
+@media (max-width: spacing.$breakpoint-sm) {
+  .page-header {
+    .page-title {
+      @include typography.text-2xl;
+    }
+
+    .page-actions {
+      flex-direction: column;
+      align-items: stretch;
+
+      .el-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .filter-group {
+      flex-direction: column;
+      align-items: stretch;
+
+      .el-select,
+      .el-input,
+      .el-date-editor {
+        width: 100%;
+      }
+    }
+
+    .filter-actions {
+      justify-content: stretch;
+
+      .el-button {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  }
+
+  .financial-table {
+    .el-table__cell {
+      padding: 8px 4px;
+    }
+  }
+}
+
+// 平板优化
+@media (max-width: spacing.$breakpoint-md) and (min-width: spacing.$breakpoint-sm) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// 打印优化
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .financial-table {
+    border: 1px solid colors.$color-gray-300;
+
+    .el-table__cell {
+      border: 1px solid colors.$color-gray-300;
+      padding: 4px;
+    }
+  }
+}
+
+// ============================================================================
+// 暗色主题支持
+// ============================================================================
+
+// 暗色主题样式已经在 dark-theme.scss 中定义
+// 这里添加额外的暗色模式优化
+
+[data-theme="dark"],
+.dark-mode {
+  .financial-metric-card {
+    background: linear-gradient(135deg, var(--color-gray-800), var(--color-gray-700));
+    border-color: var(--color-gray-600);
+
+    .metric-value {
+      color: var(--color-primary);
+    }
+
+    .metric-trend {
+      &.trend-up {
+        background-color: rgba(var(--color-success), 0.2);
+        color: var(--color-success);
+      }
+
+      &.trend-down {
+        background-color: rgba(var(--color-danger), 0.2);
+        color: var(--color-danger);
+      }
+    }
+  }
+
+  .chart-card {
+    background-color: var(--color-gray-800);
+    border-color: var(--color-gray-700);
+
+    .chart-header {
+      border-bottom-color: var(--color-gray-700);
+    }
+
+    .chart-footer {
+      border-top-color: var(--color-gray-700);
+      background-color: var(--color-gray-700);
+    }
+  }
+
+  .filter-bar {
+    background-color: var(--color-gray-800);
+    border-color: var(--color-gray-700);
+    box-shadow: var(--shadow-md);
+  }
+
+  .empty-state {
+    color: var(--color-text-tertiary);
+
+    .empty-icon {
+      color: var(--color-gray-600);
+    }
+
+    .empty-title {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+// ============================================================================
+// 高对比度模式支持
+// ============================================================================
+
+@media (prefers-contrast: high) {
+  .financial-metric-card {
+    border: 2px solid colors.$color-text-primary;
+  }
+
+  .chart-card {
+    border: 2px solid colors.$color-text-primary;
+  }
+
+  .filter-bar {
+    border: 2px solid colors.$color-text-primary;
+  }
+
+  .el-button {
+    border: 2px solid currentColor;
+  }
+
+  .el-input__wrapper {
+    border: 2px solid colors.$color-text-primary;
+  }
+}
+
+// ============================================================================
+// 减少动画模式支持
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .financial-metric-card,
+  .chart-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+// ============================================================================
+// Element Plus 组件修复
+// ============================================================================
+
+// 修复 el-statistic 数字显示被截断 + 标题文字竖排的问题
+.el-statistic {
+  // 关键：撑满父容器，防止组件宽度跟随数值收缩导致标题逐字换行
+  width: 100%;
+  display: block;
+
+  .el-statistic__head {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    overflow: visible !important;
+    white-space: normal;  // 允许标题正常换行（而非受宽度压迫变成逐字换行）
+    word-break: keep-all; // 中文词组不拆开
+  }
+
+  .el-statistic__content {
+    display: flex;
+    align-items: baseline;
+    overflow: visible !important;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    min-height: 32px;
+  }
+
+  .el-statistic__number {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-primary);
+    overflow: visible !important;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .el-statistic__prefix,
+  .el-statistic__suffix {
+    font-size: 16px;
+    color: var(--color-text-tertiary);
+    margin: 0 4px;
+    overflow: visible !important;
+    white-space: nowrap;
+  }
+}
+
+// 统计卡片容器
+.stats-cards {
+  margin: 16px 0;
+
+  .el-card {
+    overflow: visible !important;
+
+    .el-card__body {
+      overflow: visible !important;
+    }
+  }
+}
+
+// 修复图表容器显示（全局防止被 overflow:hidden 裁切）
+.chart-container {
+  width: 100%;
+  min-height: 300px;
+  overflow: visible !important;
+  position: relative;
+
+  canvas {
+    display: block !important;
+  }
+}
+
+.chart-card {
+  overflow: visible !important;
+
+  .el-card__body {
+    overflow: visible !important;
+  }
+}
+
+// ============================================================================
+// Element Plus Component Global V2 Purify (Tables & Tags)
+// ============================================================================
+
+// 表格全面净化
+.el-table, .financial-table {
+  --el-table-border-color: #E2E8F0;
+  --el-table-border: none;
+  --el-table-text-color: #64748B;
+  --el-table-header-text-color: #0F172A;
+  --el-table-row-hover-bg-color: #F8FAFC;
+  
+  background-color: transparent !important;
+  border: none !important; // 去除外部边框
+  
+  &::before, &::after { display: none !important; }
+  
+  .el-table__inner-wrapper {
+    &::before, &::after { display: none !important; }
+  }
+
+  // 表头设计
+  th.el-table__cell, .el-table__header-wrapper th {
+    background-color: #ffffff !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important; // 去除表头灰色背景、纵向边框
+    border-bottom: 1px solid #E2E8F0 !important; // 极淡底部分割线
+    font-weight: 600;
+    color: #64748B;
+    
+    &.is-leaf { border-bottom: 1px solid #E2E8F0 !important; }
+  }
+  
+  // 表主体行
+  td.el-table__cell, .el-table__body-wrapper td {
+    border-left: none !important;
+    border-right: none !important; // 去除纵向边框线
+    border-bottom: 1px solid #F1F5F9 !important; // 极其细腻的水平线
+    padding: 12px 16px; // 留白呼吸感
+  }
+
+  // 去除高对比斑马纹
+  .el-table__row--striped td.el-table__cell {
+    background-color: transparent !important;
+  }
+
+  // Hover 行极浅灰起伏反馈
+  .el-table__body tr:hover > td.el-table__cell {
+    background-color: #F8FAFC !important;
+  }
+  
+  // Fixed列遮罩问题修复
+  .el-table__fixed::before, .el-table__fixed-right::before {
+    display: none !important;
+  }
+}
+
+// 标签（Tag/Status）封装替代为 TintTag 风格
+.el-tag, .tint-tag {
+  border: none !important;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0 10px;
+  
+  &, &.el-tag--primary {
+    background-color: rgba(67, 56, 202, 0.08) !important;
+    color: #4338CA !important;
+  }
+  &.el-tag--success {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    color: #10B981 !important; // 翠绿字
+  }
+  &.el-tag--warning {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #D97706 !important;
+  }
+  &.el-tag--danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #DC2626 !important;
+  }
+  &.el-tag--info {
+    background-color: #F1F5F9 !important;
+    color: #64748B !important;
+  }
+  
+  .el-tag__close {
+    color: inherit;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.06);
+      color: inherit;
+    }
+  }
+}

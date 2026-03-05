@@ -53,15 +53,16 @@ export const useAuthStore = defineStore(
      */
     async function getUserInfo() {
       const response = await getCurrentUser()
-      userInfo.value = response.data
-      permissions.value = response.data.permissions
+      const data = response.data
+      userInfo.value = data
+      permissions.value = data.permissions
 
       // 缓存可访问门店列表
       // accessible_stores: null=全部, []=无权限, [id1,id2]=限定门店
-      const withStores = response.data as UserInfo & { accessible_stores?: number[] | null }
+      const withStores = data as UserInfo & { accessible_stores?: number[] | null }
       accessibleStores.value = withStores.accessible_stores ?? null
 
-      return response.data
+      return data
     }
 
     /**

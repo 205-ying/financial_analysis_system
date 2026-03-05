@@ -15,7 +15,7 @@
         </el-col>
         <el-col :span="8">
           <span class="control-label">显示数量：</span>
-          <el-select v-model="topN" size="small" style="width: 120px" @change="handleControlChange">
+          <el-select v-model="topN" size="small" class="product-select" @change="handleControlChange">
             <el-option label="Top 5" :value="5" />
             <el-option label="Top 10" :value="10" />
             <el-option label="Top 20" :value="20" />
@@ -120,7 +120,7 @@
         </el-table-column>
         <el-table-column label="销售额" width="140" align="right">
           <template #default="{ row }">
-            <span style="color: #409eff; font-weight: 600">¥{{ formatCurrency(row.revenue) }}</span>
+            <span style="color: var(--color-primary); font-weight: 600">¥{{ formatCurrency(row.revenue) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -161,7 +161,7 @@
         </el-table-column>
         <el-table-column label="累计占比" width="120" align="right">
           <template #default="{ row }">
-            <span :style="{ color: row.cumulative_percentage <= 70 ? '#67c23a' : row.cumulative_percentage <= 90 ? '#e6a23c' : '#f56c6c' }">
+            <span :style="{ color: row.cumulative_percentage <= 70 ? 'var(--color-success)' : row.cumulative_percentage <= 90 ? 'var(--color-warning)' : 'var(--color-danger)' }">
               {{ row.cumulative_percentage.toFixed(2) }}%
             </span>
           </template>
@@ -190,6 +190,7 @@ import {
   getProductABCClassification,
   getProductStoreCross
 } from '@/api/product_analysis'
+import { COLORS, CHART_PALETTE } from '@/utils/colors'
 import type {
   ProductAnalysisQuery,
   ProductSalesRankingItem,
@@ -329,7 +330,7 @@ const renderSalesRankingChart = (data: ProductSalesRankingItem[]) => {
         const item = reversed[dataIndex]
         if (!item) return ''
         return `
-          <div style="font-weight:bold;margin-bottom:5px">${item.product_name}</div>
+          <div style="font-weight:bold;margin-bottom:var(--spacing-1)">${item.product_name}</div>
           <div>销量: ${formatNumber(toNum(item.total_quantity))}</div>
           <div>销售额: ¥${formatCurrency(toNum(item.total_revenue))}</div>
           <div>订单数: ${item.order_count}</div>
@@ -374,8 +375,8 @@ const renderSalesRankingChart = (data: ProductSalesRankingItem[]) => {
           type: 'linear',
           x: 0, y: 0, x2: 1, y2: 0,
           colorStops: [
-            { offset: 0, color: '#409eff' },
-            { offset: 1, color: '#79bbff' }
+            { offset: 0, color: COLORS.PRIMARY },
+            { offset: 1, color: COLORS.PRIMARY_LIGHT }
           ]
         },
         borderRadius: [0, 4, 4, 0]
@@ -427,7 +428,7 @@ const renderCategoryChart = (data: CategorySalesItem[]) => {
       avoidLabelOverlap: false,
       itemStyle: {
         borderRadius: 10,
-        borderColor: '#fff',
+        borderColor: COLORS.WHITE,
         borderWidth: 2
       },
       label: {
@@ -439,7 +440,7 @@ const renderCategoryChart = (data: CategorySalesItem[]) => {
       },
       data: chartData
     }],
-    color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4']
+    color: CHART_PALETTE.CATEGORY
   }
 
   setCategoryOption(option, true)
@@ -478,7 +479,7 @@ const renderProfitChart = (data: ProductProfitItem[]) => {
         const item = reversed[dataIndex]
         if (!item) return ''
         return `
-          <div style="font-weight:bold;margin-bottom:5px">${item.product_name}</div>
+          <div style="font-weight:bold;margin-bottom:var(--spacing-1)">${item.product_name}</div>
           <div>销售额: ¥${formatCurrency(toNum(item.total_revenue))}</div>
           <div>成本: ¥${formatCurrency(toNum(item.total_cost))}</div>
           <div>毛利: ¥${formatCurrency(toNum(item.gross_profit))}</div>
@@ -505,7 +506,7 @@ const renderProfitChart = (data: ProductProfitItem[]) => {
         type: 'bar',
         stack: 'total',
         data: costs,
-        itemStyle: { color: '#fac858' },
+        itemStyle: { color: COLORS.WARNING },
         barWidth: '60%'
       },
       {
@@ -513,7 +514,7 @@ const renderProfitChart = (data: ProductProfitItem[]) => {
         type: 'bar',
         stack: 'total',
         data: profits,
-        itemStyle: { color: '#91cc75' },
+        itemStyle: { color: COLORS.SUCCESS },
         barWidth: '60%'
       }
     ]
@@ -580,7 +581,7 @@ const renderAbcChart = (data: ProductABCItem[]) => {
       radius: ['35%', '65%'],
       itemStyle: {
         borderRadius: 8,
-        borderColor: '#fff',
+        borderColor: COLORS.WHITE,
         borderWidth: 2
       },
       label: {
@@ -593,7 +594,7 @@ const renderAbcChart = (data: ProductABCItem[]) => {
       },
       data: chartData
     }],
-    color: ['#67c23a', '#e6a23c', '#f56c6c']
+    color: [COLORS.SUCCESS, COLORS.WARNING, COLORS.DANGER]
   }
 
   setAbcOption(option, true)
@@ -619,22 +620,22 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .product-analysis-container {
-  padding: 0;
+  padding: var(--spacing-0);
 }
 
 .control-card {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
 
   .control-label {
-    font-size: 14px;
-    color: #606266;
-    margin-right: 8px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-right: var(--spacing-2);
   }
 }
 
 .chart-card,
 .table-card {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
 
   .card-header {
     display: flex;
@@ -644,26 +645,30 @@ onMounted(() => {
     .title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 16px;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-base);
       font-weight: 600;
     }
   }
 
   .chart-container {
     width: 100%;
-    height: 400px;
+    height: calc(var(--spacing-6) * 12.5);
   }
 }
 
 .abc-summary {
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-3);
 
   .abc-tag-group {
     display: flex;
-    gap: 12px;
+    gap: var(--spacing-3);
     justify-content: center;
     flex-wrap: wrap;
   }
+}
+
+.product-select {
+  width: calc(var(--spacing-6) * 3.75); // 120px
 }
 </style>

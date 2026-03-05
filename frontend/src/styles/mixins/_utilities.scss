@@ -1,0 +1,480 @@
+// ============================================================================
+// 工具类混入
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+@use '../variables/shadows' as shadows;
+@use '../variables/borders' as borders;
+@use '../variables/animations' as animations;
+
+// 布局工具
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-around {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+@mixin grid-center {
+  display: grid;
+  place-items: center;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin fixed-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: spacing.$z-index-sticky;
+}
+
+@mixin sticky-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: spacing.$z-index-sticky;
+}
+
+// 尺寸工具
+@mixin size($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
+@mixin square($size) {
+  @include size($size);
+}
+
+@mixin circle($size) {
+  @include size($size);
+  border-radius: 50%;
+}
+
+@mixin min-size($width, $height: $width) {
+  min-width: $width;
+  min-height: $height;
+}
+
+@mixin max-size($width, $height: $width) {
+  max-width: $width;
+  max-height: $height;
+}
+
+@mixin full-width {
+  width: 100%;
+}
+
+@mixin full-height {
+  height: 100%;
+}
+
+@mixin full-size {
+  width: 100%;
+  height: 100%;
+}
+
+@mixin viewport-width {
+  width: 100vw;
+}
+
+@mixin viewport-height {
+  height: 100vh;
+}
+
+@mixin viewport-size {
+  width: 100vw;
+  height: 100vh;
+}
+
+// 间距工具
+@mixin padding-all($size) {
+  padding: $size;
+}
+
+@mixin padding-x($size) {
+  padding-left: $size;
+  padding-right: $size;
+}
+
+@mixin padding-y($size) {
+  padding-top: $size;
+  padding-bottom: $size;
+}
+
+@mixin margin-all($size) {
+  margin: $size;
+}
+
+@mixin margin-x($size) {
+  margin-left: $size;
+  margin-right: $size;
+}
+
+@mixin margin-y($size) {
+  margin-top: $size;
+  margin-bottom: $size;
+}
+
+@mixin gap-all($size) {
+  gap: $size;
+}
+
+@mixin gap-x($size) {
+  column-gap: $size;
+}
+
+@mixin gap-y($size) {
+  row-gap: $size;
+}
+
+// 文本工具
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin text-balance {
+  text-wrap: balance;
+}
+
+@mixin text-pretty {
+  text-wrap: pretty;
+}
+
+@mixin text-nowrap {
+  white-space: nowrap;
+}
+
+@mixin text-break {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+@mixin text-gradient($gradient) {
+  background: $gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// 边框工具
+@mixin border-all($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  border: $width $style $color;
+}
+
+@mixin border-top($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  border-top: $width $style $color;
+}
+
+@mixin border-right($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  border-right: $width $style $color;
+}
+
+@mixin border-bottom($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  border-bottom: $width $style $color;
+}
+
+@mixin border-left($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  border-left: $width $style $color;
+}
+
+@mixin border-x($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  @include border-left($width, $style, $color);
+  @include border-right($width, $style, $color);
+}
+
+@mixin border-y($width: borders.$border-width-1, $style: borders.$border-style-solid, $color: borders.$border-color-base) {
+  @include border-top($width, $style, $color);
+  @include border-bottom($width, $style, $color);
+}
+
+// 阴影工具
+@mixin shadow($shadow) {
+  box-shadow: $shadow;
+}
+
+@mixin shadow-sm {
+  box-shadow: shadows.$shadow-sm;
+}
+
+@mixin shadow-md {
+  box-shadow: shadows.$shadow-md;
+}
+
+@mixin shadow-lg {
+  box-shadow: shadows.$shadow-lg;
+}
+
+@mixin shadow-xl {
+  box-shadow: shadows.$shadow-xl;
+}
+
+@mixin shadow-2xl {
+  box-shadow: shadows.$shadow-2xl;
+}
+
+@mixin shadow-none {
+  box-shadow: shadows.$shadow-none;
+}
+
+@mixin shadow-hover {
+  transition: box-shadow animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    box-shadow: shadows.$shadow-hover-md;
+  }
+}
+
+// 交互工具
+@mixin hover-lift($amount: 2px) {
+  transition: transform animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    transform: translateY(-$amount);
+  }
+}
+
+@mixin hover-scale($amount: 1.05) {
+  transition: transform animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    transform: scale($amount);
+  }
+}
+
+@mixin hover-fade {
+  transition: opacity animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+@mixin hover-color($color) {
+  transition: color animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    color: $color;
+  }
+}
+
+@mixin hover-bg($color) {
+  transition: background-color animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    background-color: $color;
+  }
+}
+
+@mixin focus-ring($color: colors.$color-primary) {
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color, 0.2);
+  }
+}
+
+@mixin focus-visible {
+  &:focus-visible {
+    outline: borders.$outline-width borders.$outline-style colors.$color-primary;
+    outline-offset: borders.$outline-offset;
+  }
+}
+
+@mixin active-scale($amount: 0.98) {
+  &:active {
+    transform: scale($amount);
+  }
+}
+
+// 视觉效果工具
+@mixin backdrop-blur($blur: shadows.$backdrop-blur) {
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+}
+
+@mixin backdrop-saturate($saturate: 180%) {
+  backdrop-filter: saturate($saturate);
+  -webkit-backdrop-filter: saturate($saturate);
+}
+
+@mixin backdrop-brightness($brightness: 80%) {
+  backdrop-filter: brightness($brightness);
+  -webkit-backdrop-filter: brightness($brightness);
+}
+
+@mixin backdrop-contrast($contrast: 120%) {
+  backdrop-filter: contrast($contrast);
+  -webkit-backdrop-filter: contrast($contrast);
+}
+
+@mixin backdrop-grayscale($grayscale: 100%) {
+  backdrop-filter: grayscale($grayscale);
+  -webkit-backdrop-filter: grayscale($grayscale);
+}
+
+// 滚动条工具
+@mixin scrollbar-thin($thumb-color: colors.$color-gray-300, $track-color: colors.$color-gray-100) {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $track-color;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: darken($thumb-color, 10%);
+  }
+}
+
+@mixin scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+// 动画工具
+@mixin transition-all($duration: animations.$duration-base, $easing: animations.$easing-ease-in-out) {
+  transition: all $duration $easing;
+}
+
+@mixin transition-transform($duration: animations.$duration-base, $easing: animations.$easing-ease-in-out) {
+  transition: transform $duration $easing;
+}
+
+@mixin transition-opacity($duration: animations.$duration-base, $easing: animations.$easing-ease-in-out) {
+  transition: opacity $duration $easing;
+}
+
+@mixin transition-colors($duration: animations.$duration-base, $easing: animations.$easing-ease-in-out) {
+  transition: color $duration $easing, background-color $duration $easing, border-color $duration $easing, fill $duration $easing, stroke $duration $easing;
+}
+
+@mixin transition-shadow($duration: animations.$duration-base, $easing: animations.$easing-ease-in-out) {
+  transition: box-shadow $duration $easing;
+}
+
+@mixin animation-fade-in($duration: animations.$duration-base, $easing: animations.$easing-ease-out) {
+  animation: fade-in $duration $easing;
+}
+
+@mixin animation-slide-in-up($duration: animations.$duration-base, $easing: animations.$easing-ease-out) {
+  animation: slide-in-up $duration $easing;
+}
+
+// 辅助工具
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin sr-only {
+  @include visually-hidden;
+}
+
+@mixin not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+@mixin print-only {
+  @media not print {
+    display: none !important;
+  }
+}
+
+@mixin screen-only {
+  @media print {
+    display: none !important;
+  }
+}
+
+@mixin dark-mode-only {
+  @media not (prefers-color-scheme: dark) {
+    display: none !important;
+  }
+}
+
+@mixin light-mode-only {
+  @media (prefers-color-scheme: dark) {
+    display: none !important;
+  }
+}

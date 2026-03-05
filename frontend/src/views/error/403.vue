@@ -1,7 +1,7 @@
 <template>
   <div class="error-page">
     <div class="error-content">
-      <el-icon class="error-icon" :size="120" color="#409eff">
+      <el-icon class="error-icon" :size="120" color="var(--color-primary)">
         <Lock />
       </el-icon>
       <h1 class="error-title">403</h1>
@@ -70,7 +70,7 @@ const handleGoHome = async () => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
 }
 
 .error-content {

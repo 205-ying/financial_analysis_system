@@ -1,0 +1,670 @@
+// ============================================================================
+// 表格样式扩展
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+@use '../variables/borders' as borders;
+@use '../variables/animations' as animations;
+@use '../variables/shadows' as shadows;
+@use '../mixins/utilities' as utilities;
+
+// 财务表格基础样式
+@mixin financial-table {
+  border-radius: borders.$border-radius-md;
+  overflow: hidden;
+  box-shadow: shadows.$shadow-sm;
+  border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+  :deep(.el-table) {
+    background-color: colors.$color-white;
+
+    .el-table__header-wrapper {
+      border-bottom: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+      th {
+        background-color: colors.$color-gray-50;
+        color: colors.$color-text-primary;
+        font-weight: typography.$font-weight-semibold;
+        font-size: typography.$font-size-sm;
+        padding: spacing.$spacing-3 spacing.$spacing-4;
+        border-bottom: none;
+
+        &.is-sortable {
+          cursor: pointer;
+          transition: background-color animations.$duration-fast animations.$easing-ease-in-out;
+
+          &:hover {
+            background-color: colors.$color-gray-100;
+          }
+        }
+
+        .cell {
+          display: flex;
+          align-items: center;
+          gap: spacing.$spacing-2;
+        }
+      }
+    }
+
+    .el-table__body-wrapper {
+      .el-table__row {
+        transition: background-color animations.$duration-fast animations.$easing-ease-in-out;
+
+        &:hover {
+          background-color: colors.$color-gray-50;
+        }
+
+        td {
+          padding: spacing.$spacing-3 spacing.$spacing-4;
+          border-bottom: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+          font-size: typography.$font-size-sm;
+          color: colors.$color-text-secondary;
+
+          .cell {
+            line-height: typography.$line-height-normal;
+          }
+        }
+
+        // 斑马纹效果
+        &:nth-child(even) {
+          background-color: colors.$color-gray-50;
+
+          &:hover {
+            background-color: colors.$color-gray-100;
+          }
+        }
+
+        // 高亮行
+        &.highlight-row {
+          background-color: rgba(colors.$color-primary, 0.05) !important;
+          border-left: 3px solid colors.$color-primary;
+
+          &:hover {
+            background-color: rgba(colors.$color-primary, 0.1) !important;
+          }
+        }
+
+        // 警告行
+        &.warning-row {
+          background-color: rgba(colors.$color-warning, 0.05) !important;
+          border-left: 3px solid colors.$color-warning;
+
+          &:hover {
+            background-color: rgba(colors.$color-warning, 0.1) !important;
+          }
+        }
+
+        // 危险行
+        &.danger-row {
+          background-color: rgba(colors.$color-danger, 0.05) !important;
+          border-left: 3px solid colors.$color-danger;
+
+          &:hover {
+            background-color: rgba(colors.$color-danger, 0.1) !important;
+          }
+        }
+
+        // 成功行
+        &.success-row {
+          background-color: rgba(colors.$color-success, 0.05) !important;
+          border-left: 3px solid colors.$color-success;
+
+          &:hover {
+            background-color: rgba(colors.$color-success, 0.1) !important;
+          }
+        }
+      }
+    }
+
+    // 空状态
+    .el-table__empty-block {
+      padding: spacing.$spacing-8 spacing.$spacing-4;
+      color: colors.$color-text-tertiary;
+
+      .el-table__empty-text {
+        font-size: typography.$font-size-base;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: spacing.$spacing-3;
+
+        .empty-icon {
+          font-size: 48px;
+          color: colors.$color-gray-300;
+          margin-bottom: spacing.$spacing-2;
+        }
+      }
+    }
+
+    // 加载状态
+    .el-table__loading-wrapper {
+      background-color: rgba(colors.$color-white, 0.8);
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  // 表格页脚
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: spacing.$spacing-3 spacing.$spacing-4;
+    background-color: colors.$color-gray-50;
+    border-top: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+    .table-footer-info {
+      font-size: typography.$font-size-sm;
+      color: colors.$color-text-secondary;
+    }
+
+    .table-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: spacing.$spacing-2;
+    }
+  }
+}
+
+// 紧凑表格
+@mixin compact-table {
+  :deep(.el-table) {
+    .el-table__header-wrapper {
+      th {
+        padding: spacing.$spacing-2 spacing.$spacing-3;
+        font-size: typography.$font-size-xs;
+      }
+    }
+
+    .el-table__body-wrapper {
+      .el-table__row {
+        td {
+          padding: spacing.$spacing-2 spacing.$spacing-3;
+          font-size: typography.$font-size-xs;
+        }
+      }
+    }
+  }
+
+  .table-footer {
+    padding: spacing.$spacing-2 spacing.$spacing-3;
+  }
+}
+
+// 边框表格
+@mixin bordered-table {
+  :deep(.el-table) {
+    border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+    th,
+    td {
+      border-right: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+// 悬停表格
+@mixin hover-table {
+  :deep(.el-table) {
+    .el-table__body-wrapper {
+      .el-table__row {
+        td {
+          transition: all animations.$duration-fast animations.$easing-ease-in-out;
+        }
+
+        &:hover {
+          td {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 财务数据表格特殊列样式
+.financial-table {
+  // 金额列
+  .amount-column {
+    text-align: right;
+    font-family: typography.$font-family-mono;
+    font-weight: typography.$font-weight-medium;
+
+    &.positive {
+      color: colors.$color-success;
+    }
+
+    &.negative {
+      color: colors.$color-danger;
+    }
+
+    .currency-symbol {
+      font-size: typography.$font-size-xs;
+      color: colors.$color-text-tertiary;
+      margin-right: spacing.$spacing-1;
+    }
+  }
+
+  // 百分比列
+  .percent-column {
+    text-align: right;
+    font-family: typography.$font-family-mono;
+
+    &.positive {
+      color: colors.$color-success;
+
+      &::before {
+        content: '↑ ';
+      }
+    }
+
+    &.negative {
+      color: colors.$color-danger;
+
+      &::before {
+        content: '↓ ';
+      }
+    }
+
+    .percent-symbol {
+      font-size: typography.$font-size-xs;
+      color: colors.$color-text-tertiary;
+      margin-left: spacing.$spacing-1;
+    }
+  }
+
+  // 状态列
+  .status-column {
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: spacing.$spacing-1;
+      padding: spacing.$spacing-1 spacing.$spacing-2;
+      border-radius: borders.$border-radius-full;
+      font-size: typography.$font-size-xs;
+      font-weight: typography.$font-weight-medium;
+
+      &.status-success {
+        background-color: rgba(colors.$color-success, 0.1);
+        color: colors.$color-success;
+      }
+
+      &.status-warning {
+        background-color: rgba(colors.$color-warning, 0.1);
+        color: colors.$color-warning;
+      }
+
+      &.status-danger {
+        background-color: rgba(colors.$color-danger, 0.1);
+        color: colors.$color-danger;
+      }
+
+      &.status-info {
+        background-color: rgba(colors.$color-info, 0.1);
+        color: colors.$color-info;
+      }
+
+      &.status-primary {
+        background-color: rgba(colors.$color-primary, 0.1);
+        color: colors.$color-primary;
+      }
+    }
+  }
+
+  // 操作列
+  .actions-column {
+    text-align: center;
+    min-width: 120px;
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: spacing.$spacing-1;
+      opacity: 0;
+      transition: opacity animations.$duration-fast animations.$easing-ease-in-out;
+    }
+
+    &:hover .action-buttons {
+      opacity: 1;
+    }
+  }
+
+  // 可展开行
+  .expandable-row {
+    cursor: pointer;
+
+    .expand-icon {
+      transition: transform animations.$duration-base animations.$easing-ease-in-out;
+      color: colors.$color-text-tertiary;
+    }
+
+    &.expanded {
+      .expand-icon {
+        transform: rotate(90deg);
+        color: colors.$color-primary;
+      }
+    }
+  }
+
+  // 行展开内容
+  .expanded-content {
+    background-color: colors.$color-gray-50;
+    padding: spacing.$spacing-4;
+    border-top: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+    border-bottom: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+    .expanded-title {
+      font-size: typography.$font-size-sm;
+      font-weight: typography.$font-weight-semibold;
+      color: colors.$color-text-primary;
+      margin-bottom: spacing.$spacing-3;
+    }
+  }
+}
+
+// 表格工具条
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: spacing.$spacing-4;
+  padding: spacing.$spacing-3 spacing.$spacing-4;
+  background-color: colors.$color-white;
+  border-radius: borders.$border-radius-md;
+  border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+  box-shadow: shadows.$shadow-sm;
+
+  .table-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-4;
+    flex-wrap: wrap;
+
+    .table-title {
+      font-size: typography.$font-size-lg;
+      font-weight: typography.$font-weight-semibold;
+      color: colors.$color-text-primary;
+    }
+
+    .table-filters {
+      display: flex;
+      align-items: center;
+      gap: spacing.$spacing-2;
+      flex-wrap: wrap;
+    }
+  }
+
+  .table-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-2;
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: spacing.$spacing-1;
+    }
+  }
+
+  @media (max-width: spacing.$breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: spacing.$spacing-3;
+
+    .table-toolbar-left,
+    .table-toolbar-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: spacing.$breakpoint-sm) {
+    .table-toolbar-left {
+      flex-direction: column;
+      align-items: stretch;
+      gap: spacing.$spacing-3;
+
+      .table-filters {
+        width: 100%;
+
+        .el-input,
+        .el-select {
+          flex: 1;
+          min-width: 100%;
+        }
+      }
+    }
+
+    .table-toolbar-right {
+      flex-direction: column;
+      align-items: stretch;
+
+      .table-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: spacing.$spacing-2;
+
+        .el-button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// 表格分页
+.table-pagination {
+  margin-top: spacing.$spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  :deep(.el-pagination) {
+    .el-pagination__total {
+      color: colors.$color-text-secondary;
+      font-size: typography.$font-size-sm;
+    }
+
+    .btn-prev,
+    .btn-next,
+    .el-pager li {
+      border-radius: borders.$border-radius-sm;
+      border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+      background-color: colors.$color-white;
+      color: colors.$color-text-secondary;
+      transition: all animations.$duration-fast animations.$easing-ease-in-out;
+
+      &:hover {
+        color: colors.$color-primary;
+        border-color: colors.$color-primary-light;
+        transform: translateY(-1px);
+      }
+
+      &.active {
+        background-color: colors.$color-primary;
+        color: colors.$color-white;
+        border-color: colors.$color-primary;
+      }
+
+      &.disabled {
+        background-color: colors.$color-gray-100;
+        color: colors.$color-text-disabled;
+        border-color: colors.$color-gray-300;
+        cursor: not-allowed;
+
+        &:hover {
+          transform: none;
+          border-color: colors.$color-gray-300;
+          color: colors.$color-text-disabled;
+        }
+      }
+    }
+  }
+}
+
+// 响应式表格
+.responsive-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: colors.$color-gray-300;
+    border-radius: borders.$border-radius-full;
+  }
+
+  @media (max-width: spacing.$breakpoint-sm) {
+    .financial-table {
+      :deep(.el-table) {
+        min-width: 800px; // 确保表格可以水平滚动
+      }
+    }
+  }
+}
+
+// 暗色主题适配
+[data-theme="dark"],
+.dark-mode {
+  .financial-table {
+    :deep(.el-table) {
+      background-color: var(--color-gray-800);
+      color: var(--color-text-primary);
+
+      .el-table__header-wrapper {
+        border-bottom-color: var(--color-gray-700);
+
+        th {
+          background-color: var(--color-gray-700);
+          color: var(--color-text-primary);
+          border-bottom-color: var(--color-gray-600);
+
+          &.is-sortable:hover {
+            background-color: var(--color-gray-600);
+          }
+        }
+      }
+
+      .el-table__body-wrapper {
+        .el-table__row {
+          &:hover {
+            background-color: var(--color-gray-700);
+          }
+
+          td {
+            border-bottom-color: var(--color-gray-700);
+            color: var(--color-text-secondary);
+          }
+
+          &:nth-child(even) {
+            background-color: var(--color-gray-750);
+
+            &:hover {
+              background-color: var(--color-gray-700);
+            }
+          }
+
+          &.highlight-row {
+            background-color: rgba(var(--color-primary), 0.1) !important;
+            border-left-color: var(--color-primary);
+
+            &:hover {
+              background-color: rgba(var(--color-primary), 0.15) !important;
+            }
+          }
+        }
+      }
+
+      .el-table__empty-block {
+        color: var(--color-gray-400);
+      }
+    }
+  }
+
+  .table-toolbar {
+    background-color: var(--color-gray-800);
+    border-color: var(--color-gray-700);
+
+    .table-title {
+      color: var(--color-text-primary);
+    }
+  }
+
+  .table-footer {
+    background-color: var(--color-gray-700);
+    border-top-color: var(--color-gray-600);
+
+    .table-footer-info {
+      color: var(--color-gray-300);
+    }
+  }
+
+  .table-pagination {
+    :deep(.el-pagination) {
+      .el-pagination__total {
+        color: var(--color-gray-300);
+      }
+
+      .btn-prev,
+      .btn-next,
+      .el-pager li {
+        background-color: var(--color-gray-700);
+        border-color: var(--color-gray-600);
+        color: var(--color-gray-300);
+
+        &:hover {
+          color: var(--color-primary-light);
+          border-color: var(--color-primary);
+        }
+
+        &.active {
+          background-color: var(--color-primary);
+          color: var(--color-white);
+          border-color: var(--color-primary);
+        }
+
+        &.disabled {
+          background-color: var(--color-gray-800);
+          color: var(--color-gray-500);
+          border-color: var(--color-gray-700);
+        }
+      }
+    }
+  }
+
+  .financial-table {
+    .amount-column {
+      &.positive {
+        color: var(--color-success-light);
+      }
+
+      &.negative {
+        color: var(--color-danger-light);
+      }
+    }
+
+    .percent-column {
+      &.positive {
+        color: var(--color-success-light);
+      }
+
+      &.negative {
+        color: var(--color-danger-light);
+      }
+    }
+  }
+}

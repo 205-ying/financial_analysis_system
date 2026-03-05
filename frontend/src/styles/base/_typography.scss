@@ -1,0 +1,482 @@
+// ============================================================================
+// 全局字体样式
+// ============================================================================
+
+// 导入变量
+@use '../variables/typography' as typography;
+@use '../variables/colors' as colors;
+@use '../variables/spacing' as spacing;
+@use '../variables/borders' as borders;
+
+// 基础字体设置
+html {
+  font-family: typography.$font-family-sans;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: typography.$font-size-base;
+  line-height: typography.$line-height-normal;
+  color: colors.$color-text-primary;
+}
+
+// 标题样式
+h1, .h1 {
+  font-size: typography.$font-size-4xl;
+  font-weight: typography.$font-weight-bold;
+  line-height: typography.$line-height-tight;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-4;
+  letter-spacing: typography.$letter-spacing-tight;
+}
+
+h2, .h2 {
+  font-size: typography.$font-size-3xl;
+  font-weight: typography.$font-weight-semibold;
+  line-height: typography.$line-height-tight;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-4;
+  letter-spacing: typography.$letter-spacing-tight;
+}
+
+h3, .h3 {
+  font-size: typography.$font-size-2xl;
+  font-weight: typography.$font-weight-semibold;
+  line-height: typography.$line-height-tight;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-3;
+  letter-spacing: typography.$letter-spacing-tight;
+}
+
+h4, .h4 {
+  font-size: typography.$font-size-xl;
+  font-weight: typography.$font-weight-semibold;
+  line-height: typography.$line-height-tight;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-3;
+  letter-spacing: typography.$letter-spacing-normal;
+}
+
+h5, .h5 {
+  font-size: typography.$font-size-lg;
+  font-weight: typography.$font-weight-medium;
+  line-height: typography.$line-height-normal;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-2;
+  letter-spacing: typography.$letter-spacing-normal;
+}
+
+h6, .h6 {
+  font-size: typography.$font-size-base;
+  font-weight: typography.$font-weight-medium;
+  line-height: typography.$line-height-normal;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-2;
+  letter-spacing: typography.$letter-spacing-normal;
+}
+
+// 段落样式
+p {
+  margin-bottom: spacing.$spacing-4;
+  line-height: typography.$line-height-relaxed;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.lead {
+  font-size: typography.$font-size-lg;
+  line-height: typography.$line-height-relaxed;
+  color: colors.$color-text-secondary;
+  margin-bottom: spacing.$spacing-5;
+}
+
+.small {
+  font-size: typography.$font-size-sm;
+  line-height: typography.$line-height-normal;
+}
+
+.x-small {
+  font-size: typography.$font-size-xs;
+  line-height: typography.$line-height-normal;
+}
+
+// 链接样式
+a {
+  color: colors.$color-primary;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: colors.$color-primary-dark;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  &.link-secondary {
+    color: colors.$color-secondary;
+
+    &:hover {
+      color: colors.$color-secondary-dark;
+    }
+  }
+
+  &.link-muted {
+    color: colors.$color-text-tertiary;
+
+    &:hover {
+      color: colors.$color-text-secondary;
+    }
+  }
+}
+
+// 列表样式
+ul, ol {
+  margin-bottom: spacing.$spacing-4;
+  padding-left: spacing.$spacing-5;
+
+  li {
+    margin-bottom: spacing.$spacing-2;
+    line-height: typography.$line-height-relaxed;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul, ol {
+    margin-top: spacing.$spacing-2;
+    margin-bottom: 0;
+  }
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+.list-unstyled {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    margin-bottom: spacing.$spacing-2;
+  }
+}
+
+.list-inline {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    display: inline-block;
+    margin-right: spacing.$spacing-3;
+    margin-bottom: 0;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+// 文本样式
+strong, b {
+  font-weight: typography.$font-weight-semibold;
+}
+
+em, i {
+  font-style: italic;
+}
+
+u {
+  text-decoration: underline;
+}
+
+s, del {
+  text-decoration: line-through;
+}
+
+mark {
+  background-color: rgba(colors.$color-warning, 0.2);
+  color: colors.$color-text-primary;
+  padding: 0 0.2em;
+  border-radius: 2px;
+}
+
+code, kbd, pre, samp {
+  font-family: typography.$font-family-mono;
+}
+
+code {
+  font-size: 0.875em;
+  color: colors.$color-danger;
+  background-color: colors.$color-gray-100;
+  padding: 0.2em 0.4em;
+  border-radius: borders.$border-radius-sm;
+}
+
+kbd {
+  font-size: 0.875em;
+  color: colors.$color-text-primary;
+  background-color: colors.$color-gray-100;
+  border: 1px solid colors.$color-border-light;
+  padding: 0.2em 0.4em;
+  border-radius: borders.$border-radius-sm;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+pre {
+  font-size: 0.875em;
+  color: colors.$color-text-primary;
+  background-color: colors.$color-gray-50;
+  border: 1px solid colors.$color-border-light;
+  border-radius: borders.$border-radius-md;
+  padding: spacing.$spacing-4;
+  margin-bottom: spacing.$spacing-4;
+  overflow-x: auto;
+  line-height: typography.$line-height-relaxed;
+
+  code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: 1em;
+  }
+}
+
+// 引用样式
+blockquote {
+  border-left: 4px solid colors.$color-primary;
+  padding-left: spacing.$spacing-4;
+  margin-bottom: spacing.$spacing-4;
+  font-style: italic;
+  color: colors.$color-text-secondary;
+  line-height: typography.$line-height-relaxed;
+
+  cite {
+    display: block;
+    margin-top: spacing.$spacing-2;
+    font-style: normal;
+    font-size: typography.$font-size-sm;
+    color: colors.$color-text-tertiary;
+
+    &::before {
+      content: '— ';
+    }
+  }
+}
+
+// 水平线
+hr {
+  border: 0;
+  border-top: 1px solid colors.$color-border-light;
+  margin: spacing.$spacing-6 0;
+}
+
+// 文本对齐
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+// 文本变换
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+// 字体粗细
+.font-light {
+  font-weight: typography.$font-weight-light;
+}
+
+.font-normal {
+  font-weight: typography.$font-weight-normal;
+}
+
+.font-medium {
+  font-weight: typography.$font-weight-medium;
+}
+
+.font-semibold {
+  font-weight: typography.$font-weight-semibold;
+}
+
+.font-bold {
+  font-weight: typography.$font-weight-bold;
+}
+
+// 文本颜色
+.text-primary {
+  color: colors.$color-primary;
+}
+
+.text-secondary {
+  color: colors.$color-secondary;
+}
+
+.text-success {
+  color: colors.$color-success;
+}
+
+.text-warning {
+  color: colors.$color-warning;
+}
+
+.text-danger {
+  color: colors.$color-danger;
+}
+
+.text-info {
+  color: colors.$color-info;
+}
+
+.text-muted {
+  color: colors.$color-text-tertiary;
+}
+
+.text-white {
+  color: colors.$color-white;
+}
+
+// 文本装饰
+.text-decoration-none {
+  text-decoration: none;
+}
+
+.text-decoration-underline {
+  text-decoration: underline;
+}
+
+.text-decoration-line-through {
+  text-decoration: line-through;
+}
+
+// 文本溢出
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// 行高
+.leading-tight {
+  line-height: typography.$line-height-tight;
+}
+
+.leading-normal {
+  line-height: typography.$line-height-normal;
+}
+
+.leading-relaxed {
+  line-height: typography.$line-height-relaxed;
+}
+
+.leading-loose {
+  line-height: typography.$line-height-loose;
+}
+
+// 字母间距
+.tracking-tighter {
+  letter-spacing: typography.$letter-spacing-tighter;
+}
+
+.tracking-tight {
+  letter-spacing: typography.$letter-spacing-tight;
+}
+
+.tracking-normal {
+  letter-spacing: typography.$letter-spacing-normal;
+}
+
+.tracking-wide {
+  letter-spacing: typography.$letter-spacing-wide;
+}
+
+.tracking-wider {
+  letter-spacing: typography.$letter-spacing-wider;
+}
+
+// 响应式字体
+@media (max-width: spacing.$breakpoint-md) {
+  h1, .h1 {
+    font-size: typography.$font-size-3xl;
+  }
+
+  h2, .h2 {
+    font-size: typography.$font-size-2xl;
+  }
+
+  h3, .h3 {
+    font-size: typography.$font-size-xl;
+  }
+
+  .lead {
+    font-size: typography.$font-size-base;
+  }
+}
+
+@media (max-width: spacing.$breakpoint-sm) {
+  h1, .h1 {
+    font-size: typography.$font-size-2xl;
+  }
+
+  h2, .h2 {
+    font-size: typography.$font-size-xl;
+  }
+
+  h3, .h3 {
+    font-size: typography.$font-size-lg;
+  }
+}

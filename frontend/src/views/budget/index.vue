@@ -13,7 +13,7 @@
             type="year"
             placeholder="选择年份"
             value-format="YYYY"
-            style="width: 120px"
+            class="form-input-sm"
             @change="handleQuery"
           />
         </el-form-item>
@@ -23,7 +23,7 @@
             v-model="queryForm.month"
             placeholder="选择月份"
             clearable
-            style="width: 120px"
+            class="form-input-sm"
             @change="handleQuery"
           >
             <el-option
@@ -69,7 +69,7 @@
             type="info"
             :closable="false"
             show-icon
-            style="margin-bottom: 20px"
+            style="margin-bottom: var(--spacing-5)"
           />
 
           <el-table
@@ -78,7 +78,7 @@
             :data="budgetTableData"
             stripe
             border
-            :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
+            :header-cell-style="{ background: 'var(--color-gray-50)', color: 'var(--color-text-secondary)' }"
           >
             <el-table-column type="index" label="序号" width="60" align="center" />
             <el-table-column prop="name" label="费用科目" min-width="150" />
@@ -91,7 +91,7 @@
                   :precision="2"
                   :step="1000"
                   controls-position="right"
-                  style="width: 180px"
+                  class="budget-input"
                 />
               </template>
             </el-table-column>
@@ -124,7 +124,7 @@
             type="info"
             :closable="false"
             show-icon
-            style="margin-bottom: 20px"
+            style="margin-bottom: var(--spacing-5)"
           />
 
           <div v-else>
@@ -171,26 +171,28 @@
               :data="analysisData?.items || []"
               stripe
               border
-              :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
-              style="margin-top: 20px"
+              :header-cell-style="{ background: 'var(--color-gray-50)', color: 'var(--color-text-secondary)' }"
+              style="margin-top: var(--spacing-5)"
             >
               <el-table-column type="index" label="序号" width="60" align="center" />
               <el-table-column prop="expense_type_name" label="费用科目" min-width="120" />
               <el-table-column prop="budget_amount" label="预算金额" width="150" align="right">
                 <template #default="{ row }">
-                  ¥{{ formatNumber(row.budget_amount) }}
+                  <span class="budget-amount-cell">
+                    ¥{{ formatNumber(row.budget_amount) }}
+                  </span>
                 </template>
               </el-table-column>
               <el-table-column prop="actual_amount" label="实际金额" width="150" align="right">
                 <template #default="{ row }">
-                  <span :style="{ color: row.is_over_budget ? '#f56c6c' : '#67c23a', fontWeight: 600 }">
+                  <span :class="['actual-amount-cell', row.is_over_budget ? 'over-budget' : 'under-budget']">
                     ¥{{ formatNumber(row.actual_amount) }}
                   </span>
                 </template>
               </el-table-column>
               <el-table-column prop="variance" label="差异额" width="150" align="right">
                 <template #default="{ row }">
-                  <span :style="{ color: row.variance >= 0 ? '#f56c6c' : '#67c23a' }">
+                  <span :class="['variance-cell', row.variance >= 0 ? 'positive' : 'negative']">
                     {{ row.variance >= 0 ? '+' : '' }}¥{{ formatNumber(row.variance) }}
                   </span>
                 </template>
@@ -409,75 +411,507 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .budget-container {
-  padding: 20px;
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
+  background-color: var(--color-bg-secondary);
+  min-height: calc(100vh - var(--spacing-8)); // 减去顶部导航高度
 
   .filter-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-5);
   }
 
   .tabs-container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 4px;
+    background: var(--color-bg-primary);
+    padding: var(--spacing-5);
+    border-radius: var(--border-radius-md);
   }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: var(--spacing-4) 0;
   }
 
   // 汇总统计
   .summary-section {
+    margin-bottom: var(--spacing-5);
+
     .summary-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      padding: var(--spacing-5);
+      border-radius: var(--border-radius-md);
+      border: var(--border-width-thin) solid var(--color-border-light);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-duration-base) var(--transition-timing-function-base);
+      height: 100%;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-border-primary);
+      }
 
       .label {
-        font-size: 14px;
-        opacity: 0.9;
-        margin-bottom: 10px;
+        font-size: var(--font-size-sm);
+        color: var(--color-text-tertiary);
+        margin-bottom: var(--spacing-2);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: var(--font-weight-medium);
       }
 
       .value {
-        font-size: 24px;
-        font-weight: bold;
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        line-height: 1.2;
       }
 
+      // 预算卡片 - 使用主色调
       &.budget {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .value {
+          color: var(--color-primary);
+        }
       }
 
+      // 实际卡片 - 使用信息色调
       &.actual {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .value {
+          color: var(--color-info);
+        }
       }
 
+      // 差异卡片 - 根据超支/节省状态变化
       &.variance {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-
         &.over {
-          background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+          .value {
+            color: var(--color-danger);
+          }
         }
 
         &.under {
-          background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+          .value {
+            color: var(--color-success);
+          }
         }
       }
 
+      // 差异率卡片 - 与差异卡片保持一致
       &.rate {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        color: #333;
-
         &.over {
-          background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+          .value {
+            color: var(--color-danger);
+          }
         }
 
         &.under {
-          background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+          .value {
+            color: var(--color-success);
+          }
         }
+      }
+    }
+  }
+
+  // ===== 筛选卡片样式 =====
+  .filter-card {
+    margin-bottom: var(--spacing-5);
+    border-radius: var(--border-radius-md);
+    border: var(--border-width-thin) solid var(--color-border-light);
+    background-color: var(--color-bg-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-duration-base) var(--transition-timing-function-base);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    :deep(.el-card__body) {
+      padding: var(--spacing-5);
+    }
+
+    :deep(.el-form) {
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-4);
+      align-items: flex-start;
+
+      .el-form-item {
+        margin: 0;
+        margin-bottom: var(--spacing-2);
+
+        &:last-child {
+          flex: 1;
+          display: flex;
+          justify-content: flex-end;
+          gap: var(--spacing-2);
+          margin-top: var(--spacing-2);
+        }
+      }
+
+      // 小尺寸表单输入
+      .form-input-sm {
+        width: calc(var(--spacing-6) * 3.75); // 120px
+
+        :deep(.el-input__wrapper) {
+          border-radius: var(--border-radius-sm);
+          border: var(--border-width-thin) solid var(--color-border-light);
+          background-color: var(--color-bg-primary);
+          transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+          &:hover {
+            border-color: var(--color-border-base);
+          }
+
+          &.is-focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 1px var(--color-primary-lightest);
+          }
+        }
+
+        // 日期选择器特殊处理
+        &.el-date-editor {
+          :deep(.el-input__wrapper) {
+            .el-range__icon,
+            .el-input__icon {
+              color: var(--color-text-tertiary);
+            }
+          }
+        }
+      }
+    }
+
+    @media (max-width: var(--breakpoint-md)) {
+      :deep(.el-form) {
+        .el-form-item {
+          width: calc(50% - var(--spacing-4));
+
+          &:last-child {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      }
+    }
+
+    @media (max-width: var(--breakpoint-sm)) {
+      :deep(.el-form) {
+        .el-form-item {
+          width: 100%;
+
+          &:last-child {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+
+  // ===== 标签页样式 =====
+  :deep(.el-tabs) {
+    .el-tabs__header {
+      background: var(--color-bg-primary);
+      border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+      border-bottom: var(--border-width-thin) solid var(--color-border-light);
+      padding: 0 var(--spacing-5);
+
+      .el-tabs__nav-wrap {
+        &:after {
+          background-color: var(--color-border-light);
+        }
+      }
+
+      .el-tabs__item {
+        color: var(--color-text-secondary);
+        font-weight: var(--font-weight-medium);
+        padding: var(--spacing-3) var(--spacing-4);
+        transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+        &:hover {
+          color: var(--color-text-primary);
+        }
+
+        &.is-active {
+          color: var(--color-primary);
+          font-weight: var(--font-weight-semibold);
+        }
+      }
+
+      .el-tabs__active-bar {
+        background-color: var(--color-primary);
+        height: var(--border-width-thick);
+      }
+    }
+
+    .el-tabs__content {
+      background: var(--color-bg-primary);
+      border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+      padding: var(--spacing-5);
+    }
+  }
+
+  // ===== 卡片统一样式 =====
+  :deep(.el-card:not(.filter-card)) {
+    border-radius: var(--border-radius-md);
+    border: var(--border-width-thin) solid var(--color-border-light);
+    background-color: var(--color-bg-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-duration-base) var(--transition-timing-function-base);
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .el-card__header {
+      background-color: var(--color-bg-secondary);
+      border-bottom: var(--border-width-thin) solid var(--color-border-light);
+      padding: var(--spacing-4) var(--spacing-5);
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+      }
+    }
+
+    .el-card__body {
+      padding: var(--spacing-5);
+    }
+  }
+
+  // ===== 数据表格统一样式 =====
+  :deep(.el-table) {
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    border: var(--border-width-thin) solid var(--color-border-light);
+
+    &.el-table--border {
+      border: var(--border-width-thin) solid var(--color-border-light);
+    }
+
+    &.el-table--striped {
+      .el-table__body {
+        tr.el-table__row--striped {
+          td {
+            background-color: var(--color-bg-secondary);
+          }
+
+          &:hover {
+            td {
+              background-color: var(--color-gray-50);
+            }
+          }
+        }
+      }
+    }
+
+    // 表头样式
+    .el-table__header-wrapper {
+      th {
+        background-color: var(--color-bg-secondary) !important;
+        color: var(--color-text-secondary) !important;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: var(--border-width-thin) solid var(--color-border-base);
+        padding: var(--spacing-3) var(--spacing-3);
+
+        .cell {
+          line-height: 1.4;
+        }
+      }
+    }
+
+    // 表格主体
+    .el-table__body-wrapper {
+      .el-table__row {
+        transition: background-color var(--transition-duration-fast) var(--transition-timing-function-base);
+
+        &:hover {
+          td {
+            background-color: var(--color-bg-tertiary);
+          }
+        }
+
+        td {
+          padding: var(--spacing-3) var(--spacing-3);
+          border-bottom: var(--border-width-thin) solid var(--color-border-light);
+          color: var(--color-text-secondary);
+          font-size: var(--font-size-sm);
+          line-height: 1.5;
+
+          &:first-child {
+            color: var(--color-text-tertiary);
+            font-weight: var(--font-weight-medium);
+          }
+        }
+      }
+    }
+
+    // 金额列样式 - 预算使用主色调，实际根据状态变化
+    .el-table__row {
+      .budget-amount-cell {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+      }
+
+      .actual-amount-cell {
+        font-weight: var(--font-weight-semibold);
+
+        &.over-budget {
+          color: var(--color-danger);
+        }
+
+        &.under-budget {
+          color: var(--color-success);
+        }
+      }
+
+      .variance-cell {
+        font-weight: var(--font-weight-semibold);
+
+        &.positive {
+          color: var(--color-danger);
+        }
+
+        &.negative {
+          color: var(--color-success);
+        }
+      }
+    }
+
+    // 操作按钮
+    .el-button {
+      transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+
+      &.el-button--link {
+        padding: var(--spacing-1) var(--spacing-2);
+        font-size: var(--font-size-xs);
+      }
+    }
+
+    // 预算输入框样式
+    .budget-input {
+      width: calc(var(--spacing-6) * 5.625); // 180px
+
+      :deep(.el-input__wrapper) {
+        border-radius: var(--border-radius-sm);
+        border: var(--border-width-thin) solid var(--color-border-light);
+        background-color: var(--color-bg-primary);
+        transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+        &:hover {
+          border-color: var(--color-border-base);
+        }
+
+        &.is-focus {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 1px var(--color-primary-lightest);
+        }
+      }
+    }
+  }
+
+  // ===== 警报统一样式 =====
+  :deep(.el-alert) {
+    border-radius: var(--border-radius-sm);
+    border: var(--border-width-thin) solid var(--color-border-light);
+    background-color: var(--color-bg-secondary);
+
+    .el-alert__title {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .el-alert__description {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  // ===== 加载状态 =====
+  :deep(.el-loading-mask) {
+    background-color: rgba(var(--color-bg-primary-rgb), 0.8);
+    backdrop-filter: blur(4px);
+
+    .el-loading-spinner {
+      .circular {
+        .path {
+          stroke: var(--color-primary);
+        }
+      }
+
+      .el-loading-text {
+        color: var(--color-text-secondary);
+        margin-top: var(--spacing-2);
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+
+  // ===== 响应式调整 =====
+  @media (max-width: var(--breakpoint-md)) {
+    padding: var(--spacing-4);
+
+    .summary-section {
+      .el-row {
+        flex-direction: column;
+        gap: var(--spacing-3);
+
+        .el-col {
+          width: 100%;
+        }
+      }
+    }
+
+    .tabs-container {
+      padding: var(--spacing-4);
+    }
+
+    :deep(.el-table) {
+      .el-table__header-wrapper,
+      .el-table__body-wrapper {
+        overflow-x: auto;
+
+        th,
+        td {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  @media (max-width: var(--breakpoint-sm)) {
+    padding: var(--spacing-3);
+
+    .tabs-container {
+      padding: var(--spacing-3);
+    }
+
+    .filter-card {
+      :deep(.el-form) {
+        .el-form-item {
+          width: 100%;
+        }
+      }
+    }
+
+    :deep(.el-card) {
+      .el-card__header {
+        padding: var(--spacing-3) var(--spacing-4);
+      }
+
+      .el-card__body {
+        padding: var(--spacing-4);
       }
     }
   }

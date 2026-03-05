@@ -1,0 +1,310 @@
+// ============================================================================
+// 动画变量系统
+// ============================================================================
+
+// 持续时间
+$duration-instant: 50ms;
+$duration-fastest: 100ms;
+$duration-faster: 150ms;
+$duration-fast: 200ms;
+$duration-base: 300ms;
+$duration-slow: 500ms;
+$duration-slower: 700ms;
+$duration-slowest: 1000ms;
+
+// 缓动函数
+$easing-linear: linear;
+$easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+$easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+$easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$easing-ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+$easing-ease-in-out-back: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+$easing-ease-in-out-smooth: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+// 延迟
+$delay-none: 0ms;
+$delay-short: 100ms;
+$delay-medium: 300ms;
+$delay-long: 500ms;
+
+// 动画方向
+$animation-direction-normal: normal;
+$animation-direction-reverse: reverse;
+$animation-direction-alternate: alternate;
+$animation-direction-alternate-reverse: alternate-reverse;
+
+// 动画填充模式
+$animation-fill-mode-none: none;
+$animation-fill-mode-forwards: forwards;
+$animation-fill-mode-backwards: backwards;
+$animation-fill-mode-both: both;
+
+// 动画迭代次数
+$animation-iteration-count-1: 1;
+$animation-iteration-count-infinite: infinite;
+
+// 关键帧动画
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-up {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+// 动画混入
+@mixin animation-fade-in($duration: $duration-base, $easing: $easing-ease-out) {
+  animation: fade-in $duration $easing;
+}
+
+@mixin animation-fade-out($duration: $duration-base, $easing: $easing-ease-in) {
+  animation: fade-out $duration $easing;
+}
+
+@mixin animation-slide-in-up($duration: $duration-base, $easing: $easing-ease-out) {
+  animation: slide-in-up $duration $easing;
+}
+
+@mixin animation-slide-in-down($duration: $duration-base, $easing: $easing-ease-out) {
+  animation: slide-in-down $duration $easing;
+}
+
+@mixin animation-slide-in-left($duration: $duration-base, $easing: $easing-ease-out) {
+  animation: slide-in-left $duration $easing;
+}
+
+@mixin animation-slide-in-right($duration: $duration-base, $easing: $easing-ease-out) {
+  animation: slide-in-right $duration $easing;
+}
+
+@mixin animation-scale-in($duration: $duration-base, $easing: $easing-ease-out-back) {
+  animation: scale-in $duration $easing;
+}
+
+@mixin animation-pulse($duration: $duration-slow) {
+  animation: pulse $duration $easing-ease-in-out infinite;
+}
+
+@mixin animation-bounce($duration: $duration-base) {
+  animation: bounce $duration infinite;
+}
+
+@mixin animation-spin($duration: $duration-slow) {
+  animation: spin $duration linear infinite;
+}
+
+@mixin animation-ping($duration: $duration-slow) {
+  animation: ping $duration cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@mixin animation-shimmer($duration: $duration-slower) {
+  animation: shimmer $duration linear infinite;
+}
+
+// 过渡混入
+@mixin transition-all($duration: $duration-base, $easing: $easing-ease-in-out) {
+  transition: all $duration $easing;
+}
+
+@mixin transition-transform($duration: $duration-base, $easing: $easing-ease-in-out) {
+  transition: transform $duration $easing;
+}
+
+@mixin transition-opacity($duration: $duration-base, $easing: $easing-ease-in-out) {
+  transition: opacity $duration $easing;
+}
+
+@mixin transition-colors($duration: $duration-base, $easing: $easing-ease-in-out) {
+  transition: color $duration $easing, background-color $duration $easing, border-color $duration $easing;
+}
+
+@mixin transition-shadow($duration: $duration-base, $easing: $easing-ease-in-out) {
+  transition: box-shadow $duration $easing;
+}
+
+// CSS变量 - 用于主题切换
+:root {
+  // 持续时间
+  --duration-instant: #{$duration-instant};
+  --duration-fastest: #{$duration-fastest};
+  --duration-faster: #{$duration-faster};
+  --duration-fast: #{$duration-fast};
+  --duration-base: #{$duration-base};
+  --duration-slow: #{$duration-slow};
+  --duration-slower: #{$duration-slower};
+  --duration-slowest: #{$duration-slowest};
+
+  // 缓动函数
+  --easing-linear: #{$easing-linear};
+  --easing-ease-in: #{$easing-ease-in};
+  --easing-ease-out: #{$easing-ease-out};
+  --easing-ease-in-out: #{$easing-ease-in-out};
+  --easing-ease-out-back: #{$easing-ease-out-back};
+  --easing-ease-in-out-back: #{$easing-ease-in-out-back};
+  --easing-ease-in-out-smooth: #{$easing-ease-in-out-smooth};
+}

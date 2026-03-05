@@ -86,7 +86,7 @@
         :data="tableData"
         stripe
         border
-        :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
+        :header-cell-style="{ background: 'var(--color-gray-50)', color: 'var(--color-gray-600)' }"
       >
         <el-table-column type="index" label="序号" width="60" align="center" />
         
@@ -258,7 +258,7 @@ const pagination = reactive({
 
 // 表格数据
 const tableData = ref<AuditLog[]>([])
-const loading = ref(false)
+const loading = ref(true)  // 默认 true ，避免初始闪现空表格
 
 // 操作类型和资源类型列表
 const actionList = ref<string[]>([])
@@ -288,15 +288,24 @@ const handleQuery = async () => {
     queryForm.page_size = pagination.page_size
     
     const res = await getAuditLogs(queryForm)
-    const data = res.data
-    tableData.value = data.items || []
-    pagination.total = data.total || 0
-    pagination.total_pages = data.total_pages || 0
-    pagination.page = data.page || 1
-    pagination.page_size = data.page_size || 20
+    const data = res?.data
+    if (data) {
+      tableData.value = data.items || []
+      pagination.total = data.total || 0
+      pagination.total_pages = data.total_pages || 0
+      pagination.page = data.page || 1
+      pagination.page_size = data.page_size || 20
+    } else {
+      tableData.value = []
+      pagination.total = 0
+      pagination.total_pages = 0
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : '查询失败'
     ElMessage.error(message)
+    // 清空表格数据
+    tableData.value = []
+    pagination.total = 0
   } finally {
     loading.value = false
   }
@@ -366,11 +375,6 @@ const getActionTagType = (action: string): 'success' | 'info' | 'warning' | 'dan
   if (lowerAction.includes('update')) return 'warning'
   if (lowerAction.includes('login') && !lowerAction.includes('failed')) return 'success'
   if (lowerAction.includes('failed')) return 'danger'
-  return 'info'
-}
-  if (action.includes('update') || action.includes('UPDATE')) return 'warning'
-  if (action === 'login') return 'success'
-  if (action.includes('failed') || action.includes('FAILED')) return 'danger'
   return 'info'
 }
 
@@ -446,19 +450,24 @@ const loadOptions = async () => {
       getAuditActions(),
       getResourceTypes()
     ])
-    actionList.value = actions.data || []
-    resourceTypeList.value = resourceTypes.data || []
+    actionList.value = actions?.data || []
+    resourceTypeList.value = resourceTypes?.data || []
   } catch {
     // 静默失败：避免在控制台输出
+    actionList.value = []
+    resourceTypeList.value = []
   }
 }
 
 /**
  * 初始化
  */
-onMounted(() => {
-  loadOptions()
-  handleQuery()
+onMounted(async () => {
+  // 并行加载下拉选项和表格数据，提高加载速度
+  await Promise.all([
+    loadOptions(),
+    handleQuery()
+  ])
 })
 </script>
 
@@ -475,23 +484,23 @@ onMounted(() => {
   }
 
   .text-muted {
-    color: #909399;
+    color: var(--color-text-tertiary);
   }
 
   .detail-content {
     .user-agent {
       padding: 10px;
-      background-color: #f5f7fa;
+      background-color: var(--color-gray-50);
       border-radius: 4px;
       word-break: break-all;
       font-size: 14px;
-      color: #606266;
+      color: var(--color-gray-600);
     }
 
     .detail-json {
       max-height: 400px;
       overflow-y: auto;
-      background-color: #f5f7fa;
+      background-color: var(--color-gray-50);
       border-radius: 4px;
       padding: 15px;
 
@@ -500,7 +509,7 @@ onMounted(() => {
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 13px;
         line-height: 1.6;
-        color: #303133;
+        color: var(--color-gray-900);
         white-space: pre-wrap;
         word-break: break-all;
       }

@@ -1,0 +1,316 @@
+// ============================================================================
+// 卡片样式扩展
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+@use '../variables/shadows' as shadows;
+@use '../variables/borders' as borders;
+@use '../variables/animations' as animations;
+@use '../mixins/utilities' as utilities;
+@use '../mixins/glassmorphism' as glassmorphism;
+
+// 财务指标卡片
+@mixin metric-card {
+  background: linear-gradient(135deg, colors.$color-white, colors.$color-gray-50);
+  border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+  border-radius: borders.$border-radius-lg;
+  padding: spacing.$spacing-6;
+  transition: all animations.$duration-base animations.$easing-ease-in-out;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, colors.$color-primary, colors.$color-secondary);
+    opacity: 0;
+    transition: opacity animations.$duration-base animations.$easing-ease-in-out;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: shadows.$shadow-lg;
+    border-color: colors.$color-primary-light;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  .metric-header {
+    @include utilities.flex-between;
+    margin-bottom: spacing.$spacing-4;
+
+    .metric-title {
+      font-size: typography.$font-size-base;
+      font-weight: typography.$font-weight-semibold;
+      color: colors.$color-text-primary;
+      display: flex;
+      align-items: center;
+      gap: spacing.$spacing-2;
+
+      .metric-icon {
+        font-size: typography.$font-size-lg;
+        color: colors.$color-primary;
+      }
+    }
+
+    .metric-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: spacing.$spacing-1;
+      padding: spacing.$spacing-1 spacing.$spacing-2;
+      border-radius: borders.$border-radius-full;
+      font-size: typography.$font-size-xs;
+      font-weight: typography.$font-weight-medium;
+
+      &.trend-up {
+        background-color: rgba(colors.$color-success, 0.1);
+        color: colors.$color-success;
+      }
+
+      &.trend-down {
+        background-color: rgba(colors.$color-danger, 0.1);
+        color: colors.$color-danger;
+      }
+
+      &.trend-neutral {
+        background-color: rgba(colors.$color-gray-400, 0.1);
+        color: colors.$color-text-tertiary;
+      }
+    }
+  }
+
+  .metric-value {
+    font-size: typography.$font-size-3xl;
+    font-weight: typography.$font-weight-bold;
+    color: colors.$color-primary;
+    margin-bottom: spacing.$spacing-2;
+    line-height: typography.$line-height-tight;
+
+    .value-unit {
+      font-size: typography.$font-size-base;
+      color: colors.$color-text-tertiary;
+      font-weight: typography.$font-weight-normal;
+      margin-left: spacing.$spacing-1;
+    }
+  }
+
+  .metric-description {
+    font-size: typography.$font-size-sm;
+    color: colors.$color-text-secondary;
+    line-height: typography.$line-height-relaxed;
+    margin-bottom: spacing.$spacing-4;
+  }
+
+  .metric-footer {
+    @include utilities.flex-between;
+    font-size: typography.$font-size-xs;
+    color: colors.$color-text-tertiary;
+    padding-top: spacing.$spacing-3;
+    border-top: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+
+    .metric-period {
+      display: flex;
+      align-items: center;
+      gap: spacing.$spacing-1;
+    }
+
+    .metric-change {
+      font-weight: typography.$font-weight-medium;
+
+      &.positive {
+        color: colors.$color-success;
+      }
+
+      &.negative {
+        color: colors.$color-danger;
+      }
+    }
+  }
+}
+
+// 玻璃态卡片
+@mixin glass-card {
+  @include glassmorphism.glassmorphism-card;
+  border: 1px solid rgba(colors.$color-white, 0.2);
+  color: colors.$color-white;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  .card-title {
+    color: colors.$color-white;
+    font-weight: typography.$font-weight-semibold;
+    margin-bottom: spacing.$spacing-4;
+  }
+}
+
+// 渐变卡片
+@mixin gradient-card($start-color: colors.$color-primary, $end-color: colors.$color-primary-dark) {
+  background: linear-gradient(135deg, $start-color, $end-color);
+  border: none;
+  color: colors.$color-white;
+
+  .card-title,
+  .card-content {
+    color: colors.$color-white;
+  }
+
+  .card-footer {
+    border-top-color: rgba(colors.$color-white, 0.2);
+  }
+}
+
+// 可交互卡片
+@mixin interactive-card {
+  @include utilities.transition-all;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: shadows.$shadow-xl;
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+
+  .card-actions {
+    opacity: 0;
+    transition: opacity animations.$duration-base animations.$easing-ease-in-out;
+  }
+
+  &:hover .card-actions {
+    opacity: 1;
+  }
+}
+
+// 紧凑卡片
+@mixin compact-card {
+  padding: spacing.$spacing-4;
+
+  .card-title {
+    font-size: typography.$font-size-base;
+    margin-bottom: spacing.$spacing-3;
+  }
+
+  .card-content {
+    font-size: typography.$font-size-sm;
+  }
+}
+
+// 卡片组
+.card-group {
+  display: grid;
+  gap: spacing.$spacing-4;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  @media (max-width: spacing.$breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// 卡片标题
+.card-title {
+  font-size: typography.$font-size-lg;
+  font-weight: typography.$font-weight-semibold;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .card-title-actions {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-2;
+  }
+}
+
+// 卡片内容
+.card-content {
+  color: colors.$color-text-secondary;
+  line-height: typography.$line-height-relaxed;
+  margin-bottom: spacing.$spacing-4;
+}
+
+// 卡片页脚
+.card-footer {
+  padding-top: spacing.$spacing-4;
+  border-top: borders.$border-width-1 borders.$border-style-solid colors.$color-border-light;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// 暗色主题适配
+[data-theme="dark"],
+.dark-mode {
+  .metric-card {
+    background: linear-gradient(135deg, var(--color-gray-800), var(--color-gray-850));
+    border-color: var(--color-gray-700);
+
+    &::before {
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    }
+
+    .metric-header {
+      .metric-title {
+        color: var(--color-text-primary);
+      }
+    }
+
+    .metric-value {
+      color: var(--color-primary-light);
+    }
+
+    .metric-footer {
+      border-top-color: var(--color-gray-700);
+    }
+  }
+
+  .glass-card {
+    background: rgba(var(--color-gray-800), 0.7);
+    border-color: rgba(var(--color-gray-700), 0.5);
+  }
+}
+
+// 响应式调整
+@media (max-width: spacing.$breakpoint-md) {
+  .metric-card {
+    padding: spacing.$spacing-4;
+
+    .metric-value {
+      font-size: typography.$font-size-2xl;
+    }
+  }
+
+  .card-group {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: spacing.$breakpoint-sm) {
+  .metric-card {
+    .metric-value {
+      font-size: typography.$font-size-xl;
+    }
+
+    .metric-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: spacing.$spacing-2;
+    }
+  }
+
+  .card-group {
+    grid-template-columns: 1fr;
+  }
+}

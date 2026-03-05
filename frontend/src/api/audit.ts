@@ -55,40 +55,27 @@ export interface AuditLogListResponse {
 /**
  * 获取审计日志列表
  */
-export function getAuditLogs(params: AuditLogQuery) {
-  return request<ApiResponse<AuditLogListResponse>>({
-    url: '/audit/logs',
-    method: 'get',
-    params
-  })
+export function getAuditLogs(params: AuditLogQuery): Promise<ApiResponse<AuditLogListResponse>> {
+  return request.get('/audit/logs', { params })
 }
 
 /**
  * 获取审计日志详情
  */
-export function getAuditLogDetail(id: number) {
-  return request<ApiResponse<AuditLog>>({
-    url: `/audit/logs/${id}`,
-    method: 'get'
-  })
+export function getAuditLogDetail(id: number): Promise<ApiResponse<AuditLog>> {
+  return request.get(`/audit/logs/${id}`)
 }
 
 /**
  * 获取所有操作类型
  */
-export function getAuditActions() {
-  return request<ApiResponse<string[]>>({
-    url: '/audit/actions',
-    method: 'get'
-  })
+export function getAuditActions(): Promise<ApiResponse<string[]>> {
+  return request.get('/audit/actions')
 }
 
 /**
  * 获取所有资源类型
  */
-export function getResourceTypes() {
-  return request<ApiResponse<string[]>>({
-    url: '/audit/resource-types',
-    method: 'get'
-  })
+export function getResourceTypes(): Promise<ApiResponse<string[]>> {
+  return request.get('/audit/resource-types')
 }

@@ -1,0 +1,492 @@
+// ============================================================================
+// 按钮样式扩展
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+@use '../variables/borders' as borders;
+@use '../variables/animations' as animations;
+@use '../variables/shadows' as shadows;
+@use '../mixins/utilities' as utilities;
+@use '../mixins/glassmorphism' as glassmorphism;
+
+// 财务系统专用按钮变体
+.financial-button {
+  @include utilities.flex-center;
+  gap: spacing.$spacing-2;
+  font-family: typography.$font-family-sans;
+  font-weight: typography.$font-weight-medium;
+  letter-spacing: typography.$letter-spacing-wide;
+  text-transform: uppercase;
+  transition: all animations.$duration-base animations.$easing-ease-in-out;
+  border-radius: borders.$border-radius-base;
+  border: borders.$border-width-2 borders.$border-style-solid transparent;
+  cursor: pointer;
+  user-select: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include utilities.focus-ring;
+  }
+
+  // 尺寸变体
+  &--small {
+    font-size: typography.$font-size-xs;
+    padding: spacing.$spacing-1 spacing.$spacing-3;
+    height: 28px;
+  }
+
+  &--medium {
+    font-size: typography.$font-size-sm;
+    padding: spacing.$spacing-2 spacing.$spacing-4;
+    height: 36px;
+  }
+
+  &--large {
+    font-size: typography.$font-size-base;
+    padding: spacing.$spacing-3 spacing.$spacing-6;
+    height: 44px;
+  }
+
+  // 财务主按钮
+  &--primary {
+    background: linear-gradient(135deg, colors.$color-primary, colors.$color-primary-dark);
+    color: colors.$color-white;
+    border-color: colors.$color-primary-dark;
+    box-shadow: shadows.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-primary-light, colors.$color-primary);
+      border-color: colors.$color-primary;
+      box-shadow: shadows.$shadow-md;
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-primary-dark, colors.$color-primary-darker);
+      border-color: colors.$color-primary-darker;
+      box-shadow: shadows.$shadow-sm;
+      transform: translateY(0);
+    }
+  }
+
+  // 财务次要按钮
+  &--secondary {
+    background: linear-gradient(135deg, colors.$color-secondary, colors.$color-secondary-dark);
+    color: colors.$color-white;
+    border-color: colors.$color-secondary-dark;
+    box-shadow: shadows.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-secondary-light, colors.$color-secondary);
+      border-color: colors.$color-secondary;
+      box-shadow: shadows.$shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+
+  // 财务成功按钮
+  &--success {
+    background: linear-gradient(135deg, colors.$color-success, colors.$color-success-dark);
+    color: colors.$color-white;
+    border-color: colors.$color-success-dark;
+    box-shadow: shadows.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-success-light, colors.$color-success);
+      border-color: colors.$color-success;
+      box-shadow: shadows.$shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+
+  // 财务警告按钮
+  &--warning {
+    background: linear-gradient(135deg, colors.$color-warning, colors.$color-warning-dark);
+    color: colors.$color-text-primary;
+    border-color: colors.$color-warning-dark;
+    box-shadow: shadows.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-warning-light, colors.$color-warning);
+      border-color: colors.$color-warning;
+      box-shadow: shadows.$shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+
+  // 财务危险按钮
+  &--danger {
+    background: linear-gradient(135deg, colors.$color-danger, colors.$color-danger-dark);
+    color: colors.$color-white;
+    border-color: colors.$color-danger-dark;
+    box-shadow: shadows.$shadow-sm;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, colors.$color-danger-light, colors.$color-danger);
+      border-color: colors.$color-danger;
+      box-shadow: shadows.$shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+
+  // 财务轮廓按钮
+  &--outline {
+    background: transparent;
+    color: colors.$color-primary;
+    border-color: colors.$color-primary;
+    box-shadow: none;
+
+    &:hover:not(:disabled) {
+      background: rgba(colors.$color-primary, 0.1);
+      color: colors.$color-primary-dark;
+      border-color: colors.$color-primary-dark;
+      transform: translateY(-1px);
+    }
+
+    &.financial-button--secondary {
+      color: colors.$color-secondary;
+      border-color: colors.$color-secondary;
+
+      &:hover:not(:disabled) {
+        background: rgba(colors.$color-secondary, 0.1);
+        color: colors.$color-secondary-dark;
+        border-color: colors.$color-secondary-dark;
+      }
+    }
+
+    &.financial-button--success {
+      color: colors.$color-success;
+      border-color: colors.$color-success;
+
+      &:hover:not(:disabled) {
+        background: rgba(colors.$color-success, 0.1);
+        color: colors.$color-success-dark;
+        border-color: colors.$color-success-dark;
+      }
+    }
+
+    &.financial-button--warning {
+      color: colors.$color-warning;
+      border-color: colors.$color-warning;
+
+      &:hover:not(:disabled) {
+        background: rgba(colors.$color-warning, 0.1);
+        color: colors.$color-warning-dark;
+        border-color: colors.$color-warning-dark;
+      }
+    }
+
+    &.financial-button--danger {
+      color: colors.$color-danger;
+      border-color: colors.$color-danger;
+
+      &:hover:not(:disabled) {
+        background: rgba(colors.$color-danger, 0.1);
+        color: colors.$color-danger-dark;
+        border-color: colors.$color-danger-dark;
+      }
+    }
+  }
+
+  // 财务文本按钮
+  &--text {
+    background: transparent;
+    color: colors.$color-primary;
+    border-color: transparent;
+    box-shadow: none;
+    padding: spacing.$spacing-1 spacing.$spacing-2;
+
+    &:hover:not(:disabled) {
+      background: rgba(colors.$color-primary, 0.1);
+      color: colors.$color-primary-dark;
+      transform: none;
+    }
+
+    &.financial-button--secondary {
+      color: colors.$color-secondary;
+
+      &:hover:not(:disabled) {
+        background: rgba(colors.$color-secondary, 0.1);
+        color: colors.$color-secondary-dark;
+      }
+    }
+  }
+
+  // 财务玻璃态按钮
+  &--glass {
+    @include glassmorphism.glassmorphism-base;
+    color: colors.$color-white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(colors.$color-white, 0.2);
+
+    &:hover:not(:disabled) {
+      background: rgba(colors.$color-white, 0.15);
+      border-color: rgba(colors.$color-white, 0.3);
+      transform: translateY(-1px);
+    }
+  }
+
+  // 财务图标按钮
+  &--icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    @include utilities.flex-center;
+
+    &.financial-button--small {
+      width: 28px;
+      height: 28px;
+    }
+
+    &.financial-button--large {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  // 财务加载状态
+  &--loading {
+    position: relative;
+    color: transparent !important;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// 按钮组
+.financial-button-group {
+  display: inline-flex;
+  border-radius: borders.$border-radius-base;
+  overflow: hidden;
+  box-shadow: shadows.$shadow-sm;
+
+  .financial-button {
+    border-radius: 0;
+    border-right: 1px solid rgba(colors.$color-white, 0.2);
+
+    &:first-child {
+      border-top-left-radius: borders.$border-radius-base;
+      border-bottom-left-radius: borders.$border-radius-base;
+    }
+
+    &:last-child {
+      border-top-right-radius: borders.$border-radius-base;
+      border-bottom-right-radius: borders.$border-radius-base;
+      border-right: none;
+    }
+
+    &:not(:first-child) {
+      margin-left: -1px;
+    }
+  }
+
+  // 轮廓按钮组
+  &--outline {
+    box-shadow: none;
+    border: borders.$border-width-1 borders.$border-style-solid colors.$color-border-base;
+    border-radius: borders.$border-radius-base;
+
+    .financial-button {
+      border: none;
+      box-shadow: none;
+
+      &:hover {
+        z-index: 1;
+      }
+    }
+  }
+}
+
+// 财务操作按钮
+.financial-action-button {
+  @extend .financial-button;
+  @extend .financial-button--primary;
+  @extend .financial-button--large;
+  font-weight: typography.$font-weight-semibold;
+  letter-spacing: typography.$letter-spacing-wider;
+  box-shadow: shadows.$shadow-md;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(colors.$color-white, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  &:hover:not(:disabled) {
+    &::before {
+      left: 100%;
+    }
+  }
+}
+
+// 财务浮动操作按钮
+.financial-fab {
+  @extend .financial-button;
+  @extend .financial-button--primary;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: shadows.$shadow-xl;
+  position: fixed;
+  bottom: spacing.$spacing-6;
+  right: spacing.$spacing-6;
+  z-index: 1000;
+  @include utilities.flex-center;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: shadows.$shadow-2xl;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+}
+
+// 财务下拉按钮
+.financial-dropdown-button {
+  @extend .financial-button;
+  position: relative;
+  padding-right: spacing.$spacing-8;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: spacing.$spacing-3;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+  }
+}
+
+// 响应式调整
+@media (max-width: spacing.$breakpoint-sm) {
+  .financial-button {
+    &--large {
+      padding: spacing.$spacing-2 spacing.$spacing-4;
+      height: 36px;
+      font-size: typography.$font-size-sm;
+    }
+  }
+
+  .financial-button-group {
+    flex-direction: column;
+    border-radius: borders.$border-radius-base;
+
+    .financial-button {
+      border-radius: 0;
+      border-right: none;
+      border-bottom: 1px solid rgba(colors.$color-white, 0.2);
+
+      &:first-child {
+        border-top-left-radius: borders.$border-radius-base;
+        border-top-right-radius: borders.$border-radius-base;
+        border-bottom-left-radius: 0;
+      }
+
+      &:last-child {
+        border-bottom-left-radius: borders.$border-radius-base;
+        border-bottom-right-radius: borders.$border-radius-base;
+        border-top-right-radius: 0;
+        border-bottom: none;
+      }
+
+      &:not(:first-child) {
+        margin-left: 0;
+        margin-top: -1px;
+      }
+    }
+  }
+
+  .financial-fab {
+    width: 48px;
+    height: 48px;
+    bottom: spacing.$spacing-4;
+    right: spacing.$spacing-4;
+  }
+}
+
+// 暗色主题适配
+[data-theme="dark"],
+.dark-mode {
+  .financial-button {
+    // 轮廓按钮暗色模式
+    &--outline {
+      &:hover:not(:disabled) {
+        background: rgba(var(--color-primary), 0.2);
+      }
+
+      &.financial-button--secondary:hover:not(:disabled) {
+        background: rgba(var(--color-secondary), 0.2);
+      }
+
+      &.financial-button--success:hover:not(:disabled) {
+        background: rgba(var(--color-success), 0.2);
+      }
+
+      &.financial-button--warning:hover:not(:disabled) {
+        background: rgba(var(--color-warning), 0.2);
+      }
+
+      &.financial-button--danger:hover:not(:disabled) {
+        background: rgba(var(--color-danger), 0.2);
+      }
+    }
+
+    // 文本按钮暗色模式
+    &--text {
+      &:hover:not(:disabled) {
+        background: rgba(var(--color-primary), 0.15);
+      }
+
+      &.financial-button--secondary:hover:not(:disabled) {
+        background: rgba(var(--color-secondary), 0.15);
+      }
+    }
+
+    // 玻璃态按钮暗色模式
+    &--glass {
+      background: rgba(var(--color-gray-800), 0.7);
+      border-color: rgba(var(--color-gray-700), 0.5);
+
+      &:hover:not(:disabled) {
+        background: rgba(var(--color-gray-800), 0.9);
+        border-color: rgba(var(--color-gray-600), 0.7);
+      }
+    }
+  }
+
+  .financial-button-group {
+    &--outline {
+      border-color: var(--color-gray-600);
+    }
+  }
+}

@@ -1,0 +1,383 @@
+// ============================================================================
+// 响应式设计混入
+// ============================================================================
+
+// 导入间距变量
+@use '../variables/spacing' as spacing;
+
+// 媒体查询断点
+$breakpoint-xs: spacing.$breakpoint-xs;
+$breakpoint-sm: spacing.$breakpoint-sm;
+$breakpoint-md: spacing.$breakpoint-md;
+$breakpoint-lg: spacing.$breakpoint-lg;
+$breakpoint-xl: spacing.$breakpoint-xl;
+$breakpoint-2xl: spacing.$breakpoint-2xl;
+
+// 移动优先媒体查询混入
+@mixin media-xs-up {
+  @media (min-width: $breakpoint-xs) {
+    @content;
+  }
+}
+
+@mixin media-sm-up {
+  @media (min-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin media-md-up {
+  @media (min-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin media-lg-up {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin media-xl-up {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}
+
+@mixin media-2xl-up {
+  @media (min-width: $breakpoint-2xl) {
+    @content;
+  }
+}
+
+// 桌面优先媒体查询混入
+@mixin media-2xl-down {
+  @media (max-width: ($breakpoint-2xl - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-xl-down {
+  @media (max-width: ($breakpoint-xl - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-lg-down {
+  @media (max-width: ($breakpoint-lg - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-md-down {
+  @media (max-width: ($breakpoint-md - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-sm-down {
+  @media (max-width: ($breakpoint-sm - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-xs-down {
+  @media (max-width: ($breakpoint-xs - 1px)) {
+    @content;
+  }
+}
+
+// 范围媒体查询混入
+@mixin media-only-xs {
+  @media (max-width: ($breakpoint-xs - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-sm {
+  @media (min-width: $breakpoint-xs) and (max-width: ($breakpoint-sm - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-md {
+  @media (min-width: $breakpoint-sm) and (max-width: ($breakpoint-md - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-lg {
+  @media (min-width: $breakpoint-md) and (max-width: ($breakpoint-lg - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-xl {
+  @media (min-width: $breakpoint-lg) and (max-width: ($breakpoint-xl - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-2xl {
+  @media (min-width: $breakpoint-xl) and (max-width: ($breakpoint-2xl - 1px)) {
+    @content;
+  }
+}
+
+@mixin media-only-3xl {
+  @media (min-width: $breakpoint-2xl) {
+    @content;
+  }
+}
+
+// 响应式隐藏混入
+@mixin hidden-xs {
+  @include media-only-xs {
+    display: none !important;
+  }
+}
+
+@mixin hidden-sm {
+  @include media-only-sm {
+    display: none !important;
+  }
+}
+
+@mixin hidden-md {
+  @include media-only-md {
+    display: none !important;
+  }
+}
+
+@mixin hidden-lg {
+  @include media-only-lg {
+    display: none !important;
+  }
+}
+
+@mixin hidden-xl {
+  @include media-only-xl {
+    display: none !important;
+  }
+}
+
+@mixin hidden-2xl {
+  @include media-only-2xl {
+    display: none !important;
+  }
+}
+
+// 响应式显示混入
+@mixin visible-xs-only {
+  display: none !important;
+
+  @include media-only-xs {
+    display: block !important;
+  }
+}
+
+@mixin visible-sm-only {
+  display: none !important;
+
+  @include media-only-sm {
+    display: block !important;
+  }
+}
+
+@mixin visible-md-only {
+  display: none !important;
+
+  @include media-only-md {
+    display: block !important;
+  }
+}
+
+@mixin visible-lg-only {
+  display: none !important;
+
+  @include media-only-lg {
+    display: block !important;
+  }
+}
+
+@mixin visible-xl-only {
+  display: none !important;
+
+  @include media-only-xl {
+    display: block !important;
+  }
+}
+
+@mixin visible-2xl-only {
+  display: none !important;
+
+  @include media-only-2xl {
+    display: block !important;
+  }
+}
+
+// 响应式文本对齐
+@mixin text-align-responsive {
+  text-align: left;
+
+  @include media-sm-up {
+    text-align: center;
+  }
+
+  @include media-md-up {
+    text-align: left;
+  }
+}
+
+// 响应式间距
+@mixin spacing-responsive($property, $xs-value, $sm-value: null, $md-value: null, $lg-value: null, $xl-value: null) {
+  #{$property}: $xs-value;
+
+  @if $sm-value {
+    @include media-sm-up {
+      #{$property}: $sm-value;
+    }
+  }
+
+  @if $md-value {
+    @include media-md-up {
+      #{$property}: $md-value;
+    }
+  }
+
+  @if $lg-value {
+    @include media-lg-up {
+      #{$property}: $lg-value;
+    }
+  }
+
+  @if $xl-value {
+    @include media-xl-up {
+      #{$property}: $xl-value;
+    }
+  }
+}
+
+// 响应式网格布局
+@mixin grid-responsive($columns-xs: 1, $columns-sm: 2, $columns-md: 3, $columns-lg: 4, $gap: spacing.$spacing-4) {
+  display: grid;
+  grid-template-columns: repeat($columns-xs, 1fr);
+  gap: $gap;
+
+  @include media-sm-up {
+    grid-template-columns: repeat($columns-sm, 1fr);
+  }
+
+  @include media-md-up {
+    grid-template-columns: repeat($columns-md, 1fr);
+  }
+
+  @include media-lg-up {
+    grid-template-columns: repeat($columns-lg, 1fr);
+  }
+}
+
+// 响应式弹性布局
+@mixin flex-responsive($direction-xs: column, $direction-sm: null, $direction-md: null, $align: null, $justify: null) {
+  display: flex;
+  flex-direction: $direction-xs;
+
+  @if $align {
+    align-items: $align;
+  }
+
+  @if $justify {
+    justify-content: $justify;
+  }
+
+  @if $direction-sm {
+    @include media-sm-up {
+      flex-direction: $direction-sm;
+    }
+  }
+
+  @if $direction-md {
+    @include media-md-up {
+      flex-direction: $direction-md;
+    }
+  }
+}
+
+// 响应式容器
+@mixin container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: spacing.$spacing-4;
+  padding-right: spacing.$spacing-4;
+
+  @include media-sm-up {
+    max-width: spacing.$container-sm;
+  }
+
+  @include media-md-up {
+    max-width: spacing.$container-md;
+  }
+
+  @include media-lg-up {
+    max-width: spacing.$container-lg;
+  }
+
+  @include media-xl-up {
+    max-width: spacing.$container-xl;
+  }
+
+  @include media-2xl-up {
+    max-width: spacing.$container-2xl;
+  }
+}
+
+// 响应式字体大小
+@mixin font-size-responsive($xs, $sm: null, $md: null, $lg: null, $xl: null) {
+  font-size: $xs;
+
+  @if $sm {
+    @include media-sm-up {
+      font-size: $sm;
+    }
+  }
+
+  @if $md {
+    @include media-md-up {
+      font-size: $md;
+    }
+  }
+
+  @if $lg {
+    @include media-lg-up {
+      font-size: $lg;
+    }
+  }
+
+  @if $xl {
+    @include media-xl-up {
+      font-size: $xl;
+    }
+  }
+}
+
+// 高对比度模式支持
+@mixin high-contrast {
+  @media (prefers-contrast: high) {
+    @content;
+  }
+}
+
+// 减少动画模式支持
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// 暗色模式支持
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+}

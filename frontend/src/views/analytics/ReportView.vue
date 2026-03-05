@@ -26,14 +26,28 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
+          <el-button
+            type="primary"
+            :icon="Search"
+            @click="handleQuery"
+            class="financial-button financial-button--primary financial-button--medium"
+          >
+            查询
+          </el-button>
+          <el-button
+            :icon="Refresh"
+            @click="handleReset"
+            class="financial-button financial-button--outline financial-button--medium"
+          >
+            重置
+          </el-button>
           <el-button
             v-permission="PERMISSIONS.REPORT_EXPORT"
             type="success"
             :icon="Download"
             :loading="exportLoading"
             @click="handleExport"
+            class="financial-button financial-button--success financial-button--medium"
           >
             导出Excel
           </el-button>
@@ -56,12 +70,12 @@
                 y-axis-name="金额（元）"
                 height="350px"
               />
-              <el-empty v-else description="暂无数据" />
+              <EmptyState v-else />
             </el-col>
           </el-row>
           
           <div class="table-title">日汇总明细</div>
-          <el-table :data="dailySummaryData" stripe border>
+          <el-table :data="dailySummaryData" stripe border class="financial-table">
             <el-table-column prop="biz_date" label="日期" width="120" align="center" />
             <el-table-column prop="store_name" label="门店" min-width="120" />
             <el-table-column label="营收" width="130" align="right">
@@ -119,12 +133,12 @@
                 y-axis-name="金额（元）"
                 height="350px"
               />
-              <el-empty v-else description="暂无数据" />
+              <EmptyState v-else />
             </el-col>
           </el-row>
 
           <div class="table-title">月汇总明细</div>
-          <el-table :data="monthlySummaryData" stripe border>
+          <el-table :data="monthlySummaryData" stripe border class="financial-table">
             <el-table-column label="年月" width="120" align="center">
               <template #default="{ row }">
                 {{ row.year }}-{{ String(row.month).padStart(2, '0') }}
@@ -190,12 +204,12 @@
                 :horizontal="true"
                 height="400px"
               />
-              <el-empty v-else description="暂无数据" />
+              <EmptyState v-else />
             </el-col>
           </el-row>
 
           <div class="table-title">门店绩效明细</div>
-          <el-table :data="storePerformanceData" stripe border>
+          <el-table :data="storePerformanceData" stripe border class="financial-table">
             <el-table-column type="index" label="排名" width="80" align="center" />
             <el-table-column prop="store_name" label="门店名称" min-width="150" />
             <el-table-column label="营收" width="130" align="right" sortable>
@@ -246,12 +260,12 @@
                 :is-donut="true"
                 height="400px"
               />
-              <el-empty v-else description="暂无数据" />
+              <EmptyState v-else />
             </el-col>
           </el-row>
 
           <div class="table-title">费用明细</div>
-          <el-table :data="expenseBreakdownData" stripe border>
+          <el-table :data="expenseBreakdownData" stripe border class="financial-table">
             <el-table-column type="index" label="排名" width="80" align="center" />
             <el-table-column prop="type_code" label="科目代码" width="120" />
             <el-table-column prop="type_name" label="科目名称" min-width="150" />
@@ -291,9 +305,11 @@ import {
   getExpenseBreakdown,
   exportReport
 } from '@/api/reports'
+import { COLORS } from '@/utils/colors'
 import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
 import type {
   ReportQuery,
   DailySummaryRow,
@@ -388,17 +404,17 @@ const dailyChartData = computed(() => {
       {
         name: '营收',
         data: dailySummaryData.value.map(item => item.revenue),
-        color: '#67c23a'
+        color: COLORS.SUCCESS
       },
       {
         name: '毛利',
         data: dailySummaryData.value.map(item => item.gross_profit),
-        color: '#409eff'
+        color: COLORS.PRIMARY
       },
       {
         name: '营业利润',
         data: dailySummaryData.value.map(item => item.operating_profit),
-        color: '#f56c6c'
+        color: COLORS.DANGER
       }
     ]
   }
@@ -417,12 +433,12 @@ const monthlyChartData = computed(() => {
       {
         name: '营收',
         data: monthlySummaryData.value.map(item => item.revenue),
-        color: '#67c23a'
+        color: COLORS.SUCCESS
       },
       {
         name: '营业利润',
         data: monthlySummaryData.value.map(item => item.operating_profit),
-        color: '#409eff'
+        color: COLORS.PRIMARY
       }
     ]
   }
@@ -442,7 +458,7 @@ const storeChartData = computed(() => {
       {
         name: '营收',
         data: top10.map(item => item.revenue),
-        color: '#67c23a'
+        color: COLORS.SUCCESS
       }
     ]
   }
@@ -730,83 +746,83 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .report-container {
-  padding: 20px;
+  padding: var(--spacing-5);
 
   .filter-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-5);
   }
 
   .content-card {
     :deep(.el-tabs__header) {
-      margin-bottom: 20px;
+      margin-bottom: var(--spacing-5);
     }
   }
 
   .filter-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-5);
 
     .filter-label {
-      font-size: 14px;
-      color: #606266;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
       font-weight: 500;
     }
   }
 
   .chart-title {
-    font-size: 16px;
+    font-size: var(--font-size-base);
     font-weight: 600;
-    color: #303133;
-    margin-bottom: 15px;
-    padding-left: 10px;
-    border-left: 4px solid #409eff;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+    padding-left: var(--spacing-3);
+    border-left: 4px solid var(--color-primary);
   }
 
   .table-title {
-    font-size: 16px;
+    font-size: var(--font-size-base);
     font-weight: 600;
-    color: #303133;
-    margin: 30px 0 15px;
-    padding-left: 10px;
-    border-left: 4px solid #67c23a;
+    color: var(--color-text-primary);
+    margin: var(--spacing-7) 0 var(--spacing-4);
+    padding-left: var(--spacing-3);
+    border-left: 4px solid var(--color-success);
   }
 
   .amount-text {
     font-weight: 600;
 
     &.success {
-      color: #67c23a;
+      color: var(--color-success);
     }
 
     &.warning {
-      color: #e6a23c;
+      color: var(--color-warning);
     }
 
     &.danger {
-      color: #f56c6c;
+      color: var(--color-danger);
     }
 
     &.primary {
-      color: #409eff;
+      color: var(--color-primary);
     }
   }
 
   .text-success {
-    color: #67c23a;
+    color: var(--color-success);
   }
 
   .text-danger {
-    color: #f56c6c;
+    color: var(--color-danger);
   }
 
   :deep(.el-table) {
-    margin-top: 10px;
+    margin-top: var(--spacing-3);
 
     .el-table__header th {
-      background-color: #f5f7fa;
-      color: #606266;
+      background-color: var(--color-gray-50);
+      color: var(--color-text-secondary);
       font-weight: 600;
     }
   }

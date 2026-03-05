@@ -1,0 +1,429 @@
+// ============================================================================
+// 现代化重置样式
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+
+// 1. 使用更符合直觉的盒模型
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// 2. 移除默认边距
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+// 3. HTML5 显示定义
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+
+// 4. 主体基础样式
+html {
+  font-size: 16px; // 1rem = 16px
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: typography.$font-family-sans;
+  font-size: typography.$font-size-base;
+  line-height: typography.$line-height-normal;
+  color: colors.$color-text-primary;
+  background-color: colors.$color-bg-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// 5. 移除列表样式
+ol,
+ul {
+  list-style: none;
+}
+
+// 6. 引用样式
+blockquote,
+q {
+  quotes: none;
+
+  &::before,
+  &::after {
+    content: '';
+    content: none;
+  }
+}
+
+// 7. 表格重置
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+// 8. 链接样式
+a {
+  color: inherit;
+  text-decoration: none;
+  background-color: transparent;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+  }
+}
+
+// 9. 按钮和输入框重置
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+// 10. 按钮重置
+button {
+  background-color: transparent;
+  background-image: none;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// 11. 输入框和文本域重置
+input,
+textarea {
+  &::placeholder {
+    color: colors.$color-text-placeholder;
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// 12. 图片和媒体重置
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+// 13. 继承字体样式
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+// 14. 移除 textarea 默认调整大小
+textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+// 15. 移除 input 类型为 number 的默认箭头
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+// 16. 移除 input 类型为 search 的默认清除按钮
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+// 17. 移除 details 默认箭头
+details > summary {
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+// 18. 代码和预格式化文本
+code,
+kbd,
+pre,
+samp {
+  font-family: typography.$font-family-mono;
+  font-size: 0.875em;
+}
+
+pre {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// 19. 隐藏 visually-hidden 内容
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// 20. 打印样式
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: ' (' attr(href) ')';
+  }
+
+  abbr[title]::after {
+    content: ' (' attr(title) ')';
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
+
+// 21. 减少动画支持
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// 22. 高对比度支持
+@media (prefers-contrast: high) {
+  :root {
+    --color-text-primary: #000;
+    --color-text-secondary: #333;
+    --color-border-base: #000;
+  }
+}
+
+// 23. 滚动条样式（仅Webkit）
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: colors.$color-gray-100;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: colors.$color-gray-400;
+  border-radius: 6px;
+  border: 3px solid colors.$color-gray-100;
+
+  &:hover {
+    background: colors.$color-gray-500;
+  }
+
+  &:active {
+    background: colors.$color-gray-600;
+  }
+}
+
+// 24. 选择文本样式
+::selection {
+  background-color: rgba(colors.$color-primary, 0.2);
+  color: colors.$color-text-primary;
+}
+
+::-moz-selection {
+  background-color: rgba(colors.$color-primary, 0.2);
+  color: colors.$color-text-primary;
+}

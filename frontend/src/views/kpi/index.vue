@@ -39,7 +39,7 @@
                 <el-icon><Histogram /></el-icon>
                 门店利润排名
               </span>
-              <el-select v-model="topN" size="small" style="width: 120px" @change="handleTopNChange">
+              <el-select v-model="topN" size="small" class="kpi-select" @change="handleTopNChange">
                 <el-option label="Top 5" :value="5" />
                 <el-option label="Top 10" :value="10" />
                 <el-option label="Top 15" :value="15" />
@@ -68,17 +68,17 @@
         <el-table-column prop="store_name" label="门店名称" min-width="150" />
         <el-table-column label="营收" width="150" align="right">
           <template #default="{ row }">
-            <span style="color: #67c23a; font-weight: 600">¥{{ formatNumber(row.revenue || row.total_revenue || 0) }}</span>
+            <span class="revenue-cell">¥{{ formatNumber(row.revenue || row.total_revenue || 0) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="成本" width="150" align="right">
           <template #default="{ row }">
-            <span style="color: #e6a23c; font-weight: 600">¥{{ formatNumber(row.cost || row.total_cost || 0) }}</span>
+            <span class="cost-cell">¥{{ formatNumber(row.cost || row.total_cost || 0) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="利润" width="150" align="right">
           <template #default="{ row }">
-            <span style="color: #409eff; font-weight: 600">¥{{ formatNumber(row.profit || row.total_profit || 0) }}</span>
+            <span class="profit-cell">¥{{ formatNumber(row.profit || row.total_profit || 0) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="利润率" width="120" align="right">
@@ -100,6 +100,7 @@ import { FilterBar } from '@/components'
 import { useECharts, type ECOption } from '@/composables/useECharts'
 import { getExpenseCategory, getStoreRanking } from '@/api/kpi'
 import type { ExpenseCategoryItem, StoreRankingItem, KPIQuery } from '@/types'
+import { COLORS, CHART_PALETTE } from '@/utils/colors'
 
 // 筛选栏引用
 const filterBarRef = ref()
@@ -230,7 +231,7 @@ const renderCategoryChart = (data: ExpenseCategoryItem[]) => {
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 10,
-          borderColor: '#fff',
+          borderColor: COLORS.WHITE,
           borderWidth: 2
         },
         label: {
@@ -247,7 +248,7 @@ const renderCategoryChart = (data: ExpenseCategoryItem[]) => {
         data: chartData
       }
     ],
-    color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4']
+    color: CHART_PALETTE.CATEGORY
   }
 
   setCategoryOption(option, true)
@@ -298,7 +299,7 @@ const renderRankingChart = (data: Array<Record<string, unknown>>) => {
         const list = Array.isArray(params) ? params : []
         const axisValue = (list[0] as { axisValue?: unknown } | undefined)?.axisValue
         const title = typeof axisValue === 'string' ? axisValue : ''
-        let result = `<div style="font-weight: bold; margin-bottom: 5px;">${title}</div>`
+        let result = `<div style="font-weight: bold; margin-bottom: var(--spacing-1);">${title}</div>`
         list.forEach((raw) => {
           const item = raw as { seriesName?: unknown; marker?: unknown; value?: unknown }
           const seriesName = typeof item.seriesName === 'string' ? item.seriesName : ''
@@ -372,8 +373,8 @@ const renderRankingChart = (data: Array<Record<string, unknown>>) => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: '#409eff' },
-              { offset: 1, color: '#79bbff' }
+              { offset: 0, color: COLORS.PRIMARY },
+              { offset: 1, color: COLORS.PRIMARY_LIGHT }
             ]
           }
         },
@@ -384,7 +385,7 @@ const renderRankingChart = (data: Array<Record<string, unknown>>) => {
         type: 'line',
         yAxisIndex: 1,
         data: profitRates,
-        itemStyle: { color: '#67c23a' },
+        itemStyle: { color: COLORS.SUCCESS },
         lineStyle: { width: 3 },
         symbol: 'circle',
         symbolSize: 8
@@ -402,61 +403,333 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .kpi-container {
-  padding: 0;
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
+  background-color: var(--color-bg-secondary);
+  min-height: calc(100vh - var(--spacing-8)); // 减去顶部导航高度
 }
 
 .chart-card,
 .table-card {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: var(--spacing-4) 0;
 
     .title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 600;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+
+      .el-icon {
+        color: var(--color-primary);
+        font-size: var(--font-size-xl);
+      }
     }
   }
 
   .chart-container {
     width: 100%;
-    height: 400px;
+    height: calc(var(--spacing-6) * 12.5); // 400px
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
   }
 
   .chart-legend {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f5f7fa;
-    border-radius: 4px;
+    margin-top: var(--spacing-5);
+    padding: var(--spacing-4);
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius-sm);
+    border: var(--border-width-thin) solid var(--color-border-light);
 
     .legend-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #e4e7ed;
+      padding: var(--spacing-2) 0;
+      border-bottom: var(--border-width-thin) solid var(--color-border-light);
+      transition: background-color var(--transition-duration-fast) var(--transition-timing-function-base);
 
       &:last-child {
         border-bottom: none;
       }
 
+      &:hover {
+        background-color: var(--color-bg-tertiary);
+        padding-left: var(--spacing-2);
+        padding-right: var(--spacing-2);
+        margin: 0 calc(-1 * var(--spacing-2));
+        border-radius: var(--border-radius-sm);
+      }
+
       .legend-label {
-        color: #606266;
-        font-weight: 500;
+        color: var(--color-text-secondary);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-sm);
       }
 
       .legend-value {
-        color: #409eff;
-        font-weight: 600;
+        color: var(--color-primary);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-sm);
       }
 
       .legend-percent {
-        color: #909399;
+        color: var(--color-text-tertiary);
+        font-size: var(--font-size-sm);
       }
+    }
+  }
+
+  // ===== 卡片统一样式 =====
+  :deep(.chart-card),
+  :deep(.table-card) {
+    border-radius: var(--border-radius-md);
+    border: var(--border-width-thin) solid var(--color-border-light);
+    background-color: var(--color-bg-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-duration-base) var(--transition-timing-function-base);
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .el-card__header {
+      background-color: var(--color-bg-secondary);
+      border-bottom: var(--border-width-thin) solid var(--color-border-light);
+      padding: var(--spacing-4) var(--spacing-5);
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+      }
+    }
+
+    .el-card__body {
+      padding: var(--spacing-5);
+    }
+  }
+
+  // ===== 数据表格统一样式 =====
+  :deep(.el-table) {
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    border: var(--border-width-thin) solid var(--color-border-light);
+
+    &.el-table--border {
+      border: var(--border-width-thin) solid var(--color-border-light);
+    }
+
+    &.el-table--striped {
+      .el-table__body {
+        tr.el-table__row--striped {
+          td {
+            background-color: var(--color-bg-secondary);
+          }
+
+          &:hover {
+            td {
+              background-color: var(--color-gray-50);
+            }
+          }
+        }
+      }
+    }
+
+    // 表头样式
+    .el-table__header-wrapper {
+      th {
+        background-color: var(--color-bg-secondary) !important;
+        color: var(--color-text-secondary) !important;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: var(--border-width-thin) solid var(--color-border-base);
+        padding: var(--spacing-3) var(--spacing-3);
+
+        .cell {
+          line-height: 1.4;
+        }
+      }
+    }
+
+    // 表格主体
+    .el-table__body-wrapper {
+      .el-table__row {
+        transition: background-color var(--transition-duration-fast) var(--transition-timing-function-base);
+
+        &:hover {
+          td {
+            background-color: var(--color-bg-tertiary);
+          }
+        }
+
+        td {
+          padding: var(--spacing-3) var(--spacing-3);
+          border-bottom: var(--border-width-thin) solid var(--color-border-light);
+          color: var(--color-text-secondary);
+          font-size: var(--font-size-sm);
+          line-height: 1.5;
+
+          &:first-child {
+            color: var(--color-text-tertiary);
+            font-weight: var(--font-weight-medium);
+          }
+        }
+      }
+    }
+
+    // KPI 表格单元格样式
+    .el-table__row {
+      .revenue-cell {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-success);
+      }
+
+      .cost-cell {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-warning);
+      }
+
+      .profit-cell {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+      }
+    }
+
+    // 标签样式
+    .el-tag {
+      border-radius: var(--border-radius-sm);
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-xs);
+      padding: var(--spacing-1) var(--spacing-2);
+      transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+      }
+    }
+  }
+
+  // ===== KPI 选择器样式 =====
+  .kpi-select {
+    width: calc(var(--spacing-6) * 3.75); // 120px
+
+    :deep(.el-input__wrapper) {
+      border-radius: var(--border-radius-sm);
+      border: var(--border-width-thin) solid var(--color-border-light);
+      background-color: var(--color-bg-primary);
+      transition: all var(--transition-duration-fast) var(--transition-timing-function-base);
+
+      &:hover {
+        border-color: var(--color-border-base);
+      }
+
+      &.is-focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 1px var(--color-primary-lightest);
+      }
+    }
+
+    :deep(.el-select__caret) {
+      color: var(--color-text-tertiary);
+    }
+  }
+
+  // ===== 网格布局 =====
+  :deep(.el-row) {
+    margin-bottom: var(--spacing-5);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // ===== 加载状态 =====
+  :deep(.el-loading-mask) {
+    background-color: rgba(var(--color-bg-primary-rgb), 0.8);
+    backdrop-filter: blur(4px);
+
+    .el-loading-spinner {
+      .circular {
+        .path {
+          stroke: var(--color-primary);
+        }
+      }
+
+      .el-loading-text {
+        color: var(--color-text-secondary);
+        margin-top: var(--spacing-2);
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+
+  // ===== 响应式调整 =====
+  @media (max-width: var(--breakpoint-md)) {
+    padding: var(--spacing-4);
+
+    :deep(.el-col) {
+      margin-bottom: var(--spacing-4);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    :deep(.chart-card),
+    :deep(.table-card) {
+      .el-card__header {
+        padding: var(--spacing-3) var(--spacing-4);
+      }
+
+      .el-card__body {
+        padding: var(--spacing-4);
+      }
+    }
+
+    :deep(.el-table) {
+      .el-table__header-wrapper,
+      .el-table__body-wrapper {
+        overflow-x: auto;
+
+        th,
+        td {
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .chart-container {
+      height: calc(var(--spacing-6) * 9.375); // 300px
+    }
+  }
+
+  @media (max-width: var(--breakpoint-sm)) {
+    padding: var(--spacing-3);
+
+    :deep(.chart-card),
+    :deep(.table-card) {
+      .el-card__header {
+        padding: var(--spacing-3);
+      }
+
+      .el-card__body {
+        padding: var(--spacing-3);
+      }
+    }
+
+    .chart-container {
+      height: calc(var(--spacing-6) * 7.8125); // 250px
     }
   }
 }

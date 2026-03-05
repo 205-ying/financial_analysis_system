@@ -18,7 +18,15 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
+          <el-button
+            type="primary"
+            :icon="Search"
+            @click="handleQuery"
+            class="financial-button financial-button--primary financial-button--medium"
+            aria-label="查询CVP分析数据"
+          >
+            查询
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -26,7 +34,7 @@
     <!-- 核心指标卡片 -->
     <el-row :gutter="20" class="metrics-row">
       <el-col :span="6">
-        <el-card shadow="hover" class="metric-card bep">
+        <el-card shadow="hover" class="metric-card bep financial-metric-card">
           <div class="card-icon"><el-icon><TrendCharts /></el-icon></div>
           <div class="card-content">
             <div class="card-label">盈亏平衡点 (BEP)</div>
@@ -36,7 +44,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="metric-card safety">
+        <el-card shadow="hover" class="metric-card safety financial-metric-card">
           <div class="card-icon"><el-icon><CircleCheckFilled /></el-icon></div>
           <div class="card-content">
             <div class="card-label">安全边际率</div>
@@ -46,7 +54,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="metric-card leverage">
+        <el-card shadow="hover" class="metric-card leverage financial-metric-card">
           <div class="card-icon"><el-icon><Opportunity /></el-icon></div>
           <div class="card-content">
             <div class="card-label">经营杠杆系数</div>
@@ -56,7 +64,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="metric-card profit">
+        <el-card shadow="hover" class="metric-card profit financial-metric-card">
           <div class="card-icon"><el-icon><Money /></el-icon></div>
           <div class="card-content">
             <div class="card-label">经营利润</div>
@@ -101,7 +109,14 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" style="width: 100%" :loading="simulating" @click="handleSimulate">
+                <el-button
+                  type="primary"
+                  style="width: 100%"
+                  :loading="simulating"
+                  @click="handleSimulate"
+                  class="financial-button financial-button--primary financial-button--medium"
+                  aria-label="计算CVP敏感性分析模拟结果"
+                >
                   <el-icon><DataAnalysis /></el-icon> 计算模拟结果
                 </el-button>
               </el-form-item>
@@ -173,6 +188,7 @@ import StoreSelect from '@/components/StoreSelect.vue'
 import { useECharts } from '@/composables/useECharts'
 import { getCVPAnalysis, simulateCVP } from '@/api/cvp'
 import type { CVPAnalysisResult, CVPSimulationResult } from '@/types/modules/cvp'
+import { COLORS } from '@/utils/colors'
 
 const storeId = ref<number>()
 const dateRange = ref<[string, string]>([
@@ -337,8 +353,8 @@ function renderCVPChart() {
           type: 'line',
           data: revenueData.map((val, idx) => [xData[idx], val]),
           smooth: true,
-          lineStyle: { color: '#67c23a', width: 2 },
-          itemStyle: { color: '#67c23a' },
+          lineStyle: { color: COLORS.SUCCESS, width: 2 },
+          itemStyle: { color: COLORS.SUCCESS },
           emphasis: { disabled: true }
         },
         {
@@ -346,16 +362,16 @@ function renderCVPChart() {
           type: 'line',
           data: totalCostData.map((val, idx) => [xData[idx], val]),
           smooth: true,
-          lineStyle: { color: '#e6a23c', width: 2 },
-          itemStyle: { color: '#e6a23c' },
+          lineStyle: { color: COLORS.WARNING, width: 2 },
+          itemStyle: { color: COLORS.WARNING },
           emphasis: { disabled: true }
         },
         {
           name: '固定成本',
           type: 'line',
           data: fixedCostData.map((val, idx) => [xData[idx], val]),
-          lineStyle: { color: '#909399', type: 'dashed', width: 2 },
-          itemStyle: { color: '#909399' },
+          lineStyle: { color: COLORS.GRAY_400, type: 'dashed', width: 2 },
+          itemStyle: { color: COLORS.GRAY_400 },
           emphasis: { disabled: true }
         }
       ],
@@ -366,7 +382,7 @@ function renderCVPChart() {
             name: '盈亏平衡点',
             coord: [cvpData.break_even_point, cvpData.break_even_point],
             value: '盈亏平衡点\n' + formatAmount(cvpData.break_even_point),
-            itemStyle: { color: '#f56c6c' },
+            itemStyle: { color: COLORS.DANGER },
             label: {
               show: true,
               formatter: '{c}',
@@ -387,77 +403,77 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .cvp-dashboard {
-  padding: 20px;
+  padding: var(--spacing-5);
 }
 
 .filter-card {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
 }
 
 .metrics-row {
-  margin-bottom: 20px;
-  
+  margin-bottom: var(--spacing-5);
+
   .metric-card {
     display: flex;
     align-items: center;
-    padding: 20px;
-    transition: transform 0.3s;
-    
+    padding: var(--spacing-5);
+    transition: transform var(--transition-duration-base) var(--transition-timing-function-base);
+
     &:hover {
       transform: translateY(-5px);
     }
-    
+
     .card-icon {
       width: 70px;
       height: 70px;
-      border-radius: 10px;
+      border-radius: var(--border-radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 32px;
       color: white;
-      margin-right: 15px;
+      margin-right: var(--spacing-4);
     }
-    
+
     .card-content {
       flex: 1;
-      
+
       .card-label {
-        font-size: 13px;
-        color: #909399;
-        margin-bottom: 8px;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-tertiary);
+        margin-bottom: var(--spacing-2);
       }
-      
+
       .card-value {
-        font-size: 26px;
+        font-size: var(--font-size-3xl);
         font-weight: bold;
-        margin-bottom: 5px;
+        margin-bottom: var(--spacing-1);
       }
-      
+
       .card-extra {
-        font-size: 12px;
-        color: #c0c4cc;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-placeholder);
       }
     }
-    
+
     &.bep {
-      .card-icon { background: linear-gradient(135deg, #409eff 0%, #79bbff 100%); }
-      .card-value { color: #409eff; }
+      .card-icon { background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); }
+      .card-value { color: var(--color-primary); }
     }
-    
+
     &.safety {
-      .card-icon { background: linear-gradient(135deg, #67c23a 0%, #95d475 100%); }
-      .card-value { color: #67c23a; }
+      .card-icon { background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-light) 100%); }
+      .card-value { color: var(--color-success); }
     }
-    
+
     &.leverage {
-      .card-icon { background: linear-gradient(135deg, #e6a23c 0%, #f3c78e 100%); }
-      .card-value { color: #e6a23c; }
+      .card-icon { background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-light) 100%); }
+      .card-value { color: var(--color-warning); }
     }
-    
+
     &.profit {
-      .card-icon { background: linear-gradient(135deg, #f56c6c 0%, #f89898 100%); }
-      .card-value { color: #f56c6c; }
+      .card-icon { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-light) 100%); }
+      .card-value { color: var(--color-danger); }
     }
   }
 }
@@ -468,32 +484,32 @@ onMounted(() => {
       width: 80px;
     }
   }
-  
+
   .simulation-result {
     .result-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-      
+      padding: var(--spacing-2) 0;
+      border-bottom: 1px solid var(--color-border-light);
+
       .label {
-        color: #606266;
+        color: var(--color-text-secondary);
       }
-      
+
       .value {
         font-weight: bold;
-        
+
         &.highlight {
-          color: #409eff;
-          font-size: 16px;
+          color: var(--color-primary);
+          font-size: var(--font-size-base);
         }
-        
+
         &.danger {
-          color: #f56c6c;
+          color: var(--color-danger);
         }
-        
+
         &.success {
-          color: #67c23a;
+          color: var(--color-success);
         }
       }
     }
@@ -504,21 +520,21 @@ onMounted(() => {
   .cost-item {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-    
+    padding: var(--spacing-2) 0;
+
     .label {
-      color: #606266;
-      font-size: 14px;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
     }
-    
+
     .value {
       font-weight: bold;
-      font-size: 14px;
-      
-      &.revenue { color: #67c23a; }
-      &.variable { color: #e6a23c; }
-      &.fixed { color: #909399; }
-      &.contribution { color: #409eff; font-size: 16px; }
+      font-size: var(--font-size-sm);
+
+      &.revenue { color: var(--color-success); }
+      &.variable { color: var(--color-warning); }
+      &.fixed { color: var(--color-text-tertiary); }
+      &.contribution { color: var(--color-primary); font-size: var(--font-size-base); }
     }
   }
 }

@@ -12,10 +12,10 @@
         title="提示"
         type="info"
         :closable="false"
-        style="margin-bottom: 20px"
+        style="margin-bottom: var(--spacing-5)"
       >
         <div>请为每个费用科目设置成本习性：</div>
-        <ul style="margin: 5px 0 0 20px;">
+        <ul style="margin: var(--spacing-1) 0 0 var(--spacing-5);">
           <li><strong>固定成本</strong>：不随营业额变化而变化的成本（如房租、折旧、管理人员工资等）</li>
           <li><strong>变动成本</strong>：随营业额变化而变化的成本（如采购提成、配送费、营销费等）</li>
         </ul>
@@ -150,28 +150,28 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .cvp-config {
-  padding: 20px;
-  
+  padding: var(--spacing-5);
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .title {
-      font-size: 16px;
+      font-size: var(--font-size-base);
       font-weight: 600;
     }
   }
-  
+
   .info-text {
-    color: #909399;
-    font-size: 13px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    
+    gap: var(--spacing-1);
+
     &.success {
-      color: #67c23a;
+      color: var(--color-success);
     }
   }
 }

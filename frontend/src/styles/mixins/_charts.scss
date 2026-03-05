@@ -1,0 +1,492 @@
+// ============================================================================
+// 图表样式混入
+// ============================================================================
+
+// 导入变量
+@use '../variables/colors' as colors;
+@use '../variables/typography' as typography;
+@use '../variables/spacing' as spacing;
+@use '../variables/shadows' as shadows;
+@use '../variables/animations' as animations;
+@use '../variables/borders' as borders;
+
+// 图表容器基础样式
+@mixin chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  background: colors.$color-white;
+  border-radius: borders.$border-radius-md;
+  box-shadow: shadows.$shadow-sm;
+  overflow: hidden;
+  transition: box-shadow animations.$duration-base animations.$easing-ease-in-out;
+
+  &:hover {
+    box-shadow: shadows.$shadow-md;
+  }
+}
+
+@mixin chart-container-responsive {
+  @include chart-container;
+
+  @media (max-width: spacing.$breakpoint-sm) {
+    min-height: 250px;
+  }
+
+  @media (max-width: spacing.$breakpoint-xs) {
+    min-height: 200px;
+  }
+}
+
+// 图表标题样式
+@mixin chart-title {
+  font-size: typography.$font-size-lg;
+  font-weight: typography.$font-weight-semibold;
+  color: colors.$color-text-primary;
+  margin-bottom: spacing.$spacing-4;
+  padding: spacing.$spacing-4 spacing.$spacing-6 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin chart-title-small {
+  font-size: typography.$font-size-base;
+  font-weight: typography.$font-weight-medium;
+  color: colors.$color-text-secondary;
+  margin-bottom: spacing.$spacing-3;
+}
+
+// 图表副标题样式
+@mixin chart-subtitle {
+  font-size: typography.$font-size-sm;
+  color: colors.$color-text-tertiary;
+  margin-bottom: spacing.$spacing-4;
+  padding: 0 spacing.$spacing-6;
+}
+
+// 图表工具条样式
+@mixin chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: spacing.$spacing-2;
+  padding: spacing.$spacing-3 spacing.$spacing-6;
+  background: colors.$color-gray-50;
+  border-top: 1px solid colors.$color-border-light;
+}
+
+// 图表加载状态
+@mixin chart-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(colors.$color-white, 0.8);
+  z-index: 10;
+  border-radius: inherit;
+}
+
+@mixin chart-loading-skeleton {
+  @include chart-loading;
+
+  &::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 3px solid colors.$color-gray-200;
+    border-top-color: colors.$color-primary;
+    border-radius: 50%;
+    animation: spin animations.$duration-slow linear infinite;
+  }
+}
+
+// 图表空状态
+@mixin chart-empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: colors.$color-white;
+  color: colors.$color-text-tertiary;
+  padding: spacing.$spacing-6;
+  text-align: center;
+  z-index: 5;
+  border-radius: inherit;
+}
+
+// 图表网格线样式
+@mixin chart-grid-lines($color: colors.$color-gray-200, $width: 1px) {
+  .echarts-grid-line {
+    stroke: $color;
+    stroke-width: $width;
+  }
+}
+
+// 图表轴线样式
+@mixin chart-axis-line($color: colors.$color-gray-300, $width: 1px) {
+  .echarts-axis-line {
+    stroke: $color;
+    stroke-width: $width;
+  }
+}
+
+// 图表刻度线样式
+@mixin chart-tick-line($color: colors.$color-gray-200, $width: 1px) {
+  .echarts-tick-line {
+    stroke: $color;
+    stroke-width: $width;
+  }
+}
+
+// 图表刻度标签样式
+@mixin chart-tick-label {
+  .echarts-tick-label {
+    font-size: typography.$font-size-xs;
+    fill: colors.$color-text-tertiary;
+    font-family: typography.$font-family-sans;
+  }
+}
+
+// 图表图例样式
+@mixin chart-legend {
+  .echarts-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: spacing.$spacing-3;
+    margin-top: spacing.$spacing-4;
+    padding: 0 spacing.$spacing-6 spacing.$spacing-4;
+  }
+
+  .echarts-legend-item {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-2;
+    cursor: pointer;
+    font-size: typography.$font-size-sm;
+    color: colors.$color-text-secondary;
+    transition: color animations.$duration-fast animations.$easing-ease-in-out;
+
+    &:hover {
+      color: colors.$color-text-primary;
+    }
+  }
+
+  .echarts-legend-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .echarts-legend-text {
+    font-size: typography.$font-size-sm;
+  }
+}
+
+// 图表提示框样式
+@mixin chart-tooltip {
+  .echarts-tooltip {
+    background: colors.$color-white;
+    border: 1px solid colors.$color-border-light;
+    border-radius: borders.$border-radius-md;
+    box-shadow: shadows.$shadow-lg;
+    padding: spacing.$spacing-3 spacing.$spacing-4;
+    font-family: typography.$font-family-sans;
+    font-size: typography.$font-size-sm;
+  }
+
+  .echarts-tooltip-title {
+    font-weight: typography.$font-weight-semibold;
+    color: colors.$color-text-primary;
+    margin-bottom: spacing.$spacing-2;
+    padding-bottom: spacing.$spacing-2;
+    border-bottom: 1px solid colors.$color-border-light;
+  }
+
+  .echarts-tooltip-list {
+    display: flex;
+    flex-direction: column;
+    gap: spacing.$spacing-2;
+  }
+
+  .echarts-tooltip-item {
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-2;
+  }
+
+  .echarts-tooltip-marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .echarts-tooltip-name {
+    color: colors.$color-text-secondary;
+  }
+
+  .echarts-tooltip-value {
+    font-weight: typography.$font-weight-medium;
+    color: colors.$color-text-primary;
+    margin-left: auto;
+  }
+}
+
+// 图表数据系列颜色
+@mixin chart-series-colors {
+  // 主色调系列
+  .echarts-series-1 {
+    fill: colors.$color-chart-category-1;
+    stroke: colors.$color-chart-category-1;
+  }
+
+  .echarts-series-2 {
+    fill: colors.$color-chart-category-2;
+    stroke: colors.$color-chart-category-2;
+  }
+
+  .echarts-series-3 {
+    fill: colors.$color-chart-category-3;
+    stroke: colors.$color-chart-category-3;
+  }
+
+  .echarts-series-4 {
+    fill: colors.$color-chart-category-4;
+    stroke: colors.$color-chart-category-4;
+  }
+
+  .echarts-series-5 {
+    fill: colors.$color-chart-category-5;
+    stroke: colors.$color-chart-category-5;
+  }
+
+  .echarts-series-6 {
+    fill: colors.$color-chart-category-6;
+    stroke: colors.$color-chart-category-6;
+  }
+
+  .echarts-series-7 {
+    fill: colors.$color-chart-category-7;
+    stroke: colors.$color-chart-category-7;
+  }
+
+  .echarts-series-8 {
+    fill: colors.$color-chart-category-8;
+    stroke: colors.$color-chart-category-8;
+  }
+
+  // 语义色调系列
+  .echarts-series-good {
+    fill: colors.$color-chart-semantic-good;
+    stroke: colors.$color-chart-semantic-good;
+  }
+
+  .echarts-series-warning {
+    fill: colors.$color-chart-semantic-warning;
+    stroke: colors.$color-chart-semantic-warning;
+  }
+
+  .echarts-series-bad {
+    fill: colors.$color-chart-semantic-bad;
+    stroke: colors.$color-chart-semantic-bad;
+  }
+}
+
+// 图表渐变效果
+@mixin chart-gradient-fill($start-color, $end-color) {
+  fill: url(#chart-gradient);
+
+  .chart-gradient-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  .chart-gradient {
+    &-linear {
+      id: chart-gradient;
+      x1: "0%";
+      y1: "0%";
+      x2: "0%";
+      y2: "100%";
+
+      stop {
+        &[offset="0%"] {
+          stop-color: $start-color;
+          stop-opacity: 0.8;
+        }
+
+        &[offset="100%"] {
+          stop-color: $end-color;
+          stop-opacity: 0.2;
+        }
+      }
+    }
+  }
+}
+
+// 图表动画
+@mixin chart-animation-fade-in {
+  .echarts-series {
+    animation: fade-in animations.$duration-base animations.$easing-ease-out;
+  }
+}
+
+@mixin chart-animation-slide-up {
+  .echarts-bar {
+    transform-origin: bottom;
+    animation: slide-in-up animations.$duration-base animations.$easing-ease-out;
+  }
+}
+
+@mixin chart-animation-scale-in {
+  .echarts-pie {
+    transform-origin: center;
+    animation: scale-in animations.$duration-base animations.$easing-ease-out-back;
+  }
+}
+
+// 图表响应式
+@mixin chart-responsive {
+  @media (max-width: spacing.$breakpoint-md) {
+    .echarts-legend {
+      justify-content: center;
+    }
+
+    .echarts-tooltip {
+      max-width: 250px;
+    }
+  }
+
+  @media (max-width: spacing.$breakpoint-sm) {
+    min-height: 250px;
+
+    .echarts-title {
+      font-size: typography.$font-size-base;
+      padding: spacing.$spacing-3 spacing.$spacing-4 0;
+    }
+
+    .echarts-subtitle {
+      padding: 0 spacing.$spacing-4;
+    }
+
+    .echarts-toolbar {
+      padding: spacing.$spacing-2 spacing.$spacing-4;
+    }
+
+    .echarts-legend {
+      padding: 0 spacing.$spacing-4 spacing.$spacing-3;
+    }
+  }
+
+  @media (max-width: spacing.$breakpoint-xs) {
+    min-height: 200px;
+
+    .echarts-title {
+      font-size: typography.$font-size-sm;
+    }
+
+    .echarts-legend {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+// 图表主题混入
+@mixin chart-theme-light {
+  background: colors.$color-white;
+  color: colors.$color-text-primary;
+
+  .echarts-grid-line {
+    stroke: colors.$color-gray-200;
+  }
+
+  .echarts-axis-line {
+    stroke: colors.$color-gray-300;
+  }
+
+  .echarts-tick-label {
+    fill: colors.$color-text-tertiary;
+  }
+}
+
+@mixin chart-theme-dark {
+  background: colors.$color-gray-900;
+  color: colors.$color-text-inverse;
+
+  .echarts-grid-line {
+    stroke: colors.$color-gray-700;
+  }
+
+  .echarts-axis-line {
+    stroke: colors.$color-gray-600;
+  }
+
+  .echarts-tick-label {
+    fill: colors.$color-gray-300;
+  }
+
+  .echarts-tooltip {
+    background: colors.$color-gray-800;
+    border-color: colors.$color-gray-700;
+    color: colors.$color-text-inverse;
+  }
+}
+
+// 图表组合样式
+@mixin chart-default {
+  @include chart-container;
+  @include chart-title;
+  @include chart-grid-lines;
+  @include chart-axis-line;
+  @include chart-tick-label;
+  @include chart-legend;
+  @include chart-tooltip;
+  @include chart-series-colors;
+  @include chart-animation-fade-in;
+  @include chart-responsive;
+}
+
+@mixin chart-minimal {
+  @include chart-container;
+  @include chart-grid-lines(colors.$color-gray-100);
+  @include chart-series-colors;
+  @include chart-responsive;
+
+  .echarts-axis-line,
+  .echarts-tick-line,
+  .echarts-legend,
+  .echarts-tooltip {
+    display: none;
+  }
+}
+
+@mixin chart-interactive {
+  @include chart-default;
+
+  .echarts-series {
+    cursor: pointer;
+    transition: opacity animations.$duration-fast animations.$easing-ease-in-out;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .echarts-legend-item {
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}

@@ -1,0 +1,136 @@
+// ============================================================================
+// 字体变量系统
+// ============================================================================
+
+// 字体家族
+$font-family-sans-cn: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-en: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-sans: $font-family-sans-en, $font-family-sans-cn;
+$font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, "Courier New", monospace;
+
+// 字体大小系统 - V2重构: 拉大标题与正文的对比度
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.75rem;   // 28px (增加对比度，原24px)
+$font-size-3xl: 2.25rem;   // 36px (增加对比度，原30px)
+$font-size-4xl: 3rem;      // 48px (增加对比度，原36px)
+$font-size-5xl: 4rem;      // 64px (增加对比度，原48px)
+
+// 字体粗细
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-black: 900;
+
+// 行高
+$line-height-tight: 1.2;    // 标题
+$line-height-normal: 1.4;   // 正文
+$line-height-relaxed: 1.6;  // 长文本
+$line-height-loose: 1.8;    // 大段文本
+
+// 字母间距
+$letter-spacing-tighter: -0.05em;
+$letter-spacing-tight: -0.025em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.025em;
+$letter-spacing-wider: 0.05em;
+
+// 文字装饰
+$text-decoration-none: none;
+$text-decoration-underline: underline;
+
+// 文字变换
+$text-transform-none: none;
+$text-transform-uppercase: uppercase;
+$text-transform-lowercase: lowercase;
+$text-transform-capitalize: capitalize;
+
+// CSS变量 - 用于主题切换
+:root {
+  // 字体家族
+  --font-family-sans: #{$font-family-sans};
+  --font-family-mono: #{$font-family-mono};
+
+  // 字体大小
+  --font-size-xs: #{$font-size-xs};
+  --font-size-sm: #{$font-size-sm};
+  --font-size-base: #{$font-size-base};
+  --font-size-lg: #{$font-size-lg};
+  --font-size-xl: #{$font-size-xl};
+  --font-size-2xl: #{$font-size-2xl};
+  --font-size-3xl: #{$font-size-3xl};
+  --font-size-4xl: #{$font-size-4xl};
+  --font-size-5xl: #{$font-size-5xl};
+
+  // 字体粗细
+  --font-weight-light: #{$font-weight-light};
+  --font-weight-normal: #{$font-weight-normal};
+  --font-weight-medium: #{$font-weight-medium};
+  --font-weight-semibold: #{$font-weight-semibold};
+  --font-weight-bold: #{$font-weight-bold};
+  --font-weight-black: #{$font-weight-black};
+
+  // 行高
+  --line-height-tight: #{$line-height-tight};
+  --line-height-normal: #{$line-height-normal};
+  --line-height-relaxed: #{$line-height-relaxed};
+  --line-height-loose: #{$line-height-loose};
+
+  // 字母间距
+  --letter-spacing-tighter: #{$letter-spacing-tighter};
+  --letter-spacing-tight: #{$letter-spacing-tight};
+  --letter-spacing-normal: #{$letter-spacing-normal};
+  --letter-spacing-wide: #{$letter-spacing-wide};
+  --letter-spacing-wider: #{$letter-spacing-wider};
+}
+
+// 字体样式混合
+@mixin text-xs {
+  font-size: $font-size-xs;
+  line-height: $line-height-normal;
+}
+
+@mixin text-sm {
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+}
+
+@mixin text-base {
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+}
+
+@mixin text-lg {
+  font-size: $font-size-lg;
+  line-height: $line-height-normal;
+}
+
+@mixin text-xl {
+  font-size: $font-size-xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-2xl {
+  font-size: $font-size-2xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-3xl {
+  font-size: $font-size-3xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-4xl {
+  font-size: $font-size-4xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-5xl {
+  font-size: $font-size-5xl;
+  line-height: $line-height-tight;
+}
