@@ -46,8 +46,7 @@ async def batch_save_budgets(
     missing_expense_type_ids = expense_type_ids - existing_expense_type_ids
     if missing_expense_type_ids:
         missing_ids_text = ", ".join(
-            str(expense_type_id)
-            for expense_type_id in sorted(missing_expense_type_ids)
+            str(expense_type_id) for expense_type_id in sorted(missing_expense_type_ids)
         )
         raise NotFoundException(f"费用科目不存在: {missing_ids_text}")
 

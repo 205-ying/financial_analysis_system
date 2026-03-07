@@ -32,9 +32,7 @@ class IDMixin:
 class UUIDMixin:
     """UUID 主键 Mixin"""
 
-    id = Column(
-        Uuid, primary_key=True, default=uuid.uuid4, comment="主键UUID"
-    )
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4, comment="主键UUID")
 
 
 class TimestampMixin:

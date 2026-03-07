@@ -67,7 +67,9 @@ async def _truncate_all_tables() -> None:
 
     quoted_names = ", ".join(f'"{table_name}"' for table_name in table_names)
     async with test_engine.begin() as conn:
-        await conn.execute(text(f"TRUNCATE TABLE {quoted_names} RESTART IDENTITY CASCADE"))
+        await conn.execute(
+            text(f"TRUNCATE TABLE {quoted_names} RESTART IDENTITY CASCADE")
+        )
 
 
 @pytest.fixture(scope="session", autouse=True)
