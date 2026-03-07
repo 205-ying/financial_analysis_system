@@ -6,26 +6,26 @@ from pydantic import BaseModel, Field
 
 
 class BudgetBase(BaseModel):
-    amount: Decimal = Field(..., description="预算金额")
+    amount: Decimal = Field(..., ge=0, description="预算金额")
 
 
 class BudgetCreate(BudgetBase):
-    store_id: int = Field(..., description="门店ID")
-    expense_type_id: int = Field(..., description="费用科目ID")
-    year: int = Field(..., description="年份")
-    month: int = Field(..., description="月份")
+    store_id: int = Field(..., gt=0, description="门店ID")
+    expense_type_id: int = Field(..., gt=0, description="费用科目ID")
+    year: int = Field(..., ge=2000, le=2100, description="年份")
+    month: int = Field(..., ge=1, le=12, description="月份")
 
 
 class BudgetItemCreate(BaseModel):
-    expense_type_id: int
-    amount: float
+    expense_type_id: int = Field(..., gt=0, description="费用科目ID")
+    amount: float = Field(..., ge=0, description="预算金额")
 
 
 class BudgetBatchCreate(BaseModel):
-    store_id: int
-    year: int
-    month: int
-    items: list[BudgetItemCreate]
+    store_id: int = Field(..., gt=0, description="门店ID")
+    year: int = Field(..., ge=2000, le=2100, description="年份")
+    month: int = Field(..., ge=1, le=12, description="月份")
+    items: list[BudgetItemCreate] = Field(..., min_length=1, description="预算条目")
 
 
 class BudgetUpdate(BudgetBase):

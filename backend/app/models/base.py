@@ -26,14 +26,14 @@ Base = declarative_base()
 class IDMixin:
     """ID 主键 Mixin"""
 
-    id = Column(Integer, primary_key=True, index=True, comment="主键ID")
+    id = Column(Integer, primary_key=True, comment="主键ID")
 
 
 class UUIDMixin:
     """UUID 主键 Mixin"""
 
     id = Column(
-        Uuid, primary_key=True, default=uuid.uuid4, index=True, comment="主键UUID"
+        Uuid, primary_key=True, default=uuid.uuid4, comment="主键UUID"
     )
 
 

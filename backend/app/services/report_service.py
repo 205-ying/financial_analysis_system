@@ -683,9 +683,9 @@ async def export_report_excel(
         "总费用",
         "订单数",
         "毛利润",
-        "净利润",
+        "营业利润",
         "毛利率(%)",
-        "净利率(%)",
+        "营业利润率(%)",
     ]
     for col_num, header in enumerate(headers1, start=1):
         cell = ws1.cell(row=1, column=col_num, value=header)
@@ -708,7 +708,7 @@ async def export_report_excel(
         ws1.cell(row=row_num, column=11, value=float(data.expense_total))
         ws1.cell(row=row_num, column=12, value=data.order_count)
         ws1.cell(row=row_num, column=13, value=float(data.gross_profit))
-        ws1.cell(row=row_num, column=14, value=float(data.net_profit))
+        ws1.cell(row=row_num, column=14, value=float(data.operating_profit))
         ws1.cell(
             row=row_num,
             column=15,
@@ -717,7 +717,9 @@ async def export_report_excel(
         ws1.cell(
             row=row_num,
             column=16,
-            value=float(data.net_profit_rate) if data.net_profit_rate else None,
+            value=float(data.operating_profit_rate)
+            if data.operating_profit_rate
+            else None,
         )
 
     # 自动调整列宽
@@ -735,9 +737,9 @@ async def export_report_excel(
         "订单数",
         "客单价",
         "毛利润",
-        "净利润",
+        "营业利润",
         "毛利率(%)",
-        "净利率(%)",
+        "营业利润率(%)",
         "营收排名",
         "利润排名",
     ]
@@ -755,7 +757,7 @@ async def export_report_excel(
         ws2.cell(row=row_num, column=5, value=data.order_count)
         ws2.cell(row=row_num, column=6, value=float(data.avg_order_amount))
         ws2.cell(row=row_num, column=7, value=float(data.gross_profit))
-        ws2.cell(row=row_num, column=8, value=float(data.net_profit))
+        ws2.cell(row=row_num, column=8, value=float(data.operating_profit))
         ws2.cell(
             row=row_num,
             column=9,
@@ -764,7 +766,9 @@ async def export_report_excel(
         ws2.cell(
             row=row_num,
             column=10,
-            value=float(data.net_profit_rate) if data.net_profit_rate else None,
+            value=float(data.operating_profit_rate)
+            if data.operating_profit_rate
+            else None,
         )
         ws2.cell(row=row_num, column=11, value=data.revenue_rank)
         ws2.cell(row=row_num, column=12, value=data.profit_rank)

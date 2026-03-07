@@ -5,8 +5,10 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundException
 from app.models.budget import Budget
 from app.models.expense import ExpenseRecord, ExpenseType
+from app.models.store import Store
 from app.models.user import User
 from app.schemas.budget import (
     BudgetAnalysisItem,
@@ -27,6 +29,28 @@ async def batch_save_budgets(
     批量保存预算
     :param items: list of BudgetItemCreate
     """
+    store = await db.get(Store, store_id)
+    if store is None:
+        raise NotFoundException(f"门店 {store_id} 不存在")
+
+    expense_type_ids = {item.expense_type_id for item in items}
+    existing_expense_type_ids = set(
+        (
+            await db.execute(
+                select(ExpenseType.id).where(ExpenseType.id.in_(expense_type_ids))
+            )
+        )
+        .scalars()
+        .all()
+    )
+    missing_expense_type_ids = expense_type_ids - existing_expense_type_ids
+    if missing_expense_type_ids:
+        missing_ids_text = ", ".join(
+            str(expense_type_id)
+            for expense_type_id in sorted(missing_expense_type_ids)
+        )
+        raise NotFoundException(f"费用科目不存在: {missing_ids_text}")
+
     # 1. 查询该门店、该月已有的预算记录
     stmt = select(Budget).where(
         Budget.store_id == store_id, Budget.year == year, Budget.month == month

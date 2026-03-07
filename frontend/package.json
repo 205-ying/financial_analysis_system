@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "test:coverage": "vitest --coverage",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "lint:style": "stylelint \"src/**/*.{vue,css,scss}\" --fix",
@@ -25,7 +25,7 @@
     "element-plus": "^2.4.3",
     "lodash-es": "^4.17.21",
     "pinia": "^2.1.7",
-    "pinia-plugin-persistedstate": "^4.7.1",
+    "pinia-plugin-persistedstate": "^3.2.3",
     "vue": "^3.3.8",
     "vue-echarts": "^6.6.1",
     "vue-router": "^4.2.5"

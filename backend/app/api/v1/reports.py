@@ -3,7 +3,7 @@
 
 提供日汇总、月汇总、门店绩效、费用明细等报表查询和导出功能
 """
-from datetime import datetime
+from datetime import date, datetime
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -29,8 +29,8 @@ router = APIRouter()
 @router.get("/daily-summary", response_model=Response[list[DailySummaryRow]])
 async def get_daily_summary_report(
     request: Request,
-    start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
+    start_date: date = Query(..., description="开始日期 (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -43,12 +43,9 @@ async def get_daily_summary_report(
     # 权限检查
     await check_permission(current_user, "report:view", db)
 
-    # 构建查询参数
-    from datetime import date
-
     filters = ReportQuery(
-        start_date=date.fromisoformat(start_date),
-        end_date=date.fromisoformat(end_date),
+        start_date=start_date,
+        end_date=end_date,
         store_id=store_id,
     )
 
@@ -63,8 +60,8 @@ async def get_daily_summary_report(
         request=request,
         resource_type="report",
         detail={
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "store_id": store_id,
             "record_count": len(data),
         },
@@ -76,8 +73,8 @@ async def get_daily_summary_report(
 @router.get("/monthly-summary", response_model=Response[list[MonthlySummaryRow]])
 async def get_monthly_summary_report(
     request: Request,
-    start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
+    start_date: date = Query(..., description="开始日期 (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -90,12 +87,9 @@ async def get_monthly_summary_report(
     # 权限检查
     await check_permission(current_user, "report:view", db)
 
-    # 构建查询参数
-    from datetime import date
-
     filters = ReportQuery(
-        start_date=date.fromisoformat(start_date),
-        end_date=date.fromisoformat(end_date),
+        start_date=start_date,
+        end_date=end_date,
         store_id=store_id,
     )
 
@@ -110,8 +104,8 @@ async def get_monthly_summary_report(
         request=request,
         resource_type="report",
         detail={
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "store_id": store_id,
             "record_count": len(data),
         },
@@ -123,8 +117,8 @@ async def get_monthly_summary_report(
 @router.get("/store-performance", response_model=Response[list[StorePerformanceRow]])
 async def get_store_performance_report(
     request: Request,
-    start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
+    start_date: date = Query(..., description="开始日期 (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
     top_n: int | None = Query(None, ge=1, le=100, description="TOP N排名（1-100）"),
     db: AsyncSession = Depends(get_db),
@@ -138,12 +132,9 @@ async def get_store_performance_report(
     # 权限检查
     await check_permission(current_user, "report:view", db)
 
-    # 构建查询参数
-    from datetime import date
-
     filters = ReportQuery(
-        start_date=date.fromisoformat(start_date),
-        end_date=date.fromisoformat(end_date),
+        start_date=start_date,
+        end_date=end_date,
         store_id=store_id,
         top_n=top_n,
     )
@@ -159,8 +150,8 @@ async def get_store_performance_report(
         request=request,
         resource_type="report",
         detail={
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "store_id": store_id,
             "top_n": top_n,
             "record_count": len(data),
@@ -173,8 +164,8 @@ async def get_store_performance_report(
 @router.get("/expense-breakdown", response_model=Response[list[ExpenseBreakdownRow]])
 async def get_expense_breakdown_report(
     request: Request,
-    start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
+    start_date: date = Query(..., description="开始日期 (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
     top_n: int | None = Query(None, ge=1, le=100, description="TOP N排名（1-100）"),
     db: AsyncSession = Depends(get_db),
@@ -188,12 +179,9 @@ async def get_expense_breakdown_report(
     # 权限检查
     await check_permission(current_user, "report:view", db)
 
-    # 构建查询参数
-    from datetime import date
-
     filters = ReportQuery(
-        start_date=date.fromisoformat(start_date),
-        end_date=date.fromisoformat(end_date),
+        start_date=start_date,
+        end_date=end_date,
         store_id=store_id,
         top_n=top_n,
     )
@@ -209,8 +197,8 @@ async def get_expense_breakdown_report(
         request=request,
         resource_type="report",
         detail={
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "store_id": store_id,
             "top_n": top_n,
             "record_count": len(data),
@@ -223,8 +211,8 @@ async def get_expense_breakdown_report(
 @router.get("/export")
 async def export_report(
     request: Request,
-    start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="结束日期 (YYYY-MM-DD)"),
+    start_date: date = Query(..., description="开始日期 (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="结束日期 (YYYY-MM-DD)"),
     store_id: int | None = Query(None, description="门店ID（为空表示全部门店）"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -237,12 +225,9 @@ async def export_report(
     # 权限检查
     await check_permission(current_user, "report:export", db)
 
-    # 构建查询参数
-    from datetime import date
-
     filters = ReportQuery(
-        start_date=date.fromisoformat(start_date),
-        end_date=date.fromisoformat(end_date),
+        start_date=start_date,
+        end_date=end_date,
         store_id=store_id,
     )
 
@@ -257,8 +242,8 @@ async def export_report(
         request=request,
         resource_type="report",
         detail={
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
             "store_id": store_id,
             "export_time": datetime.now().isoformat(),
         },

@@ -146,7 +146,7 @@ export const useAuthStore = defineStore(
     persist: {
       key: STORAGE_KEYS.AUTH,
       storage: localStorage,
-      pick: ['token', 'userInfo', 'permissions', 'accessibleStores']
+      paths: ['token', 'userInfo', 'permissions', 'accessibleStores']
     }
   }
 )

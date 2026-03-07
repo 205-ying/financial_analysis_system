@@ -456,6 +456,7 @@ class ImportService:
                     biz_date=biz_date,
                     amount=amount,
                     description=description,
+                    created_by=job.created_by_id,
                 )
 
                 db.add(record)
