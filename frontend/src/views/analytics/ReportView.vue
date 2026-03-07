@@ -29,15 +29,15 @@
           <el-button
             type="primary"
             :icon="Search"
-            @click="handleQuery"
             class="financial-button financial-button--primary financial-button--medium"
+            @click="handleQuery"
           >
             查询
           </el-button>
           <el-button
             :icon="Refresh"
-            @click="handleReset"
             class="financial-button financial-button--outline financial-button--medium"
+            @click="handleReset"
           >
             重置
           </el-button>
@@ -46,8 +46,8 @@
             type="success"
             :icon="Download"
             :loading="exportLoading"
-            @click="handleExport"
             class="financial-button financial-button--success financial-button--medium"
+            @click="handleExport"
           >
             导出Excel
           </el-button>

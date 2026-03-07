@@ -21,9 +21,9 @@
           <el-button
             type="primary"
             :icon="Search"
-            @click="handleQuery"
             class="financial-button financial-button--primary financial-button--medium"
             aria-label="查询CVP分析数据"
+            @click="handleQuery"
           >
             查询
           </el-button>
@@ -113,9 +113,9 @@
                   type="primary"
                   style="width: 100%"
                   :loading="simulating"
-                  @click="handleSimulate"
                   class="financial-button financial-button--primary financial-button--medium"
                   aria-label="计算CVP敏感性分析模拟结果"
+                  @click="handleSimulate"
                 >
                   <el-icon><DataAnalysis /></el-icon> 计算模拟结果
                 </el-button>

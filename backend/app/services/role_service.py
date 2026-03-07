@@ -2,14 +2,19 @@
 角色管理服务
 """
 
-from typing import List, Optional
-from sqlalchemy import select, func, delete
+from typing import Optional
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exceptions import NotFoundException, ConflictException, ValidationException
+from app.core.exceptions import (
+    ConflictException,
+    NotFoundException,
+    ValidationException,
+)
 from app.core.security import hash_password
-from app.models.user import Role, Permission, role_permission, User, user_role
+from app.models.user import Permission, Role, User, role_permission, user_role
 from app.schemas.role import RoleCreate, RoleUpdate
 
 
@@ -22,8 +27,8 @@ class RoleService:
         skip: int = 0,
         limit: int = 100,
         search: Optional[str] = None,
-        is_active: Optional[bool] = None
-    ) -> tuple[List[Role], int]:
+        is_active: Optional[bool] = None,
+    ) -> tuple[list[Role], int]:
         """
         获取角色列表
 
@@ -101,9 +106,7 @@ class RoleService:
         Returns:
             角色对象或None
         """
-        result = await db.execute(
-            select(Role).where(Role.code == code)
-        )
+        result = await db.execute(select(Role).where(Role.code == code))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -131,7 +134,7 @@ class RoleService:
             code=data.code,
             name=data.name,
             description=data.description,
-            is_active=data.is_active
+            is_active=data.is_active,
         )
 
         # 分配权限
@@ -203,16 +206,16 @@ class RoleService:
         user_count = user_count_result.scalar_one()
 
         if user_count > 0:
-            raise ValidationException(f"角色 {role.name} 仍有 {user_count} 个用户，无法删除")
+            raise ValidationException(
+                f"角色 {role.name} 仍有 {user_count} 个用户，无法删除"
+            )
 
         await db.delete(role)
         await db.commit()
 
     @staticmethod
     async def assign_permissions(
-        db: AsyncSession,
-        role_id: int,
-        permission_ids: List[int]
+        db: AsyncSession, role_id: int, permission_ids: list[int]
     ) -> Role:
         """
         为角色分配权限
@@ -282,10 +285,7 @@ class RoleService:
         )
         permission_count = permission_count_result.scalar_one()
 
-        return {
-            "user_count": user_count,
-            "permission_count": permission_count
-        }
+        return {"user_count": user_count, "permission_count": permission_count}
 
     @staticmethod
     async def get_user_list(
@@ -294,7 +294,7 @@ class RoleService:
         limit: int = 20,
         search: Optional[str] = None,
         is_active: Optional[bool] = None,
-    ) -> tuple[List[User], int]:
+    ) -> tuple[list[User], int]:
         """获取用户列表（含角色）"""
         query = select(User).options(selectinload(User.roles))
 
@@ -322,9 +322,7 @@ class RoleService:
     async def get_user_with_roles(db: AsyncSession, user_id: int) -> User:
         """按ID获取用户及其角色"""
         result = await db.execute(
-            select(User)
-            .options(selectinload(User.roles))
-            .where(User.id == user_id)
+            select(User).options(selectinload(User.roles)).where(User.id == user_id)
         )
         user = result.scalar_one_or_none()
 
@@ -337,7 +335,7 @@ class RoleService:
     async def assign_roles_to_user(
         db: AsyncSession,
         user_id: int,
-        role_ids: List[int],
+        role_ids: list[int],
     ) -> User:
         """为用户分配角色（覆盖式保存）"""
         user = await RoleService.get_user_with_roles(db, user_id)
@@ -351,9 +349,15 @@ class RoleService:
             roles = list(roles_result.scalars().all())
 
             found_role_ids = {role.id for role in roles}
-            missing_role_ids = [role_id for role_id in deduplicated_role_ids if role_id not in found_role_ids]
+            missing_role_ids = [
+                role_id
+                for role_id in deduplicated_role_ids
+                if role_id not in found_role_ids
+            ]
             if missing_role_ids:
-                raise NotFoundException(f"角色不存在: {', '.join(map(str, missing_role_ids))}")
+                raise NotFoundException(
+                    f"角色不存在: {', '.join(map(str, missing_role_ids))}"
+                )
         else:
             roles = []
 
@@ -382,9 +386,7 @@ class RoleService:
         if existing_username.scalar_one_or_none() is not None:
             raise ConflictException(f"用户名 {username_clean} 已存在")
 
-        existing_email = await db.execute(
-            select(User).where(User.email == email_clean)
-        )
+        existing_email = await db.execute(select(User).where(User.email == email_clean))
         if existing_email.scalar_one_or_none() is not None:
             raise ConflictException(f"邮箱 {email_clean} 已存在")
 

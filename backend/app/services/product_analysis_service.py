@@ -11,16 +11,16 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import select, func, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import OrderHeader, OrderItem
-from app.models.store import Store, Product
+from app.models.store import Product, Store
 from app.schemas.product_analysis import (
-    ProductSalesRankingItem,
     CategorySalesItem,
-    ProductProfitItem,
     ProductABCItem,
+    ProductProfitItem,
+    ProductSalesRankingItem,
     ProductStoreCrossItem,
 )
 
@@ -63,19 +63,16 @@ async def get_product_sales_ranking(
     从 order_item JOIN order_header 聚合统计每个菜品的销量、销售额、订单数。
     可选择按销量或销售额排序。
     """
-    query = (
-        select(
-            OrderItem.product_name,
-            OrderItem.product_category,
-            func.sum(OrderItem.quantity).label("total_quantity"),
-            func.sum(OrderItem.line_amount).label("total_revenue"),
-            func.sum(
-                OrderItem.line_amount - func.coalesce(OrderItem.discount_amount, 0)
-            ).label("net_revenue"),
-            func.count(func.distinct(OrderHeader.id)).label("order_count"),
-        )
-        .join(OrderHeader, OrderItem.order_id == OrderHeader.id)
-    )
+    query = select(
+        OrderItem.product_name,
+        OrderItem.product_category,
+        func.sum(OrderItem.quantity).label("total_quantity"),
+        func.sum(OrderItem.line_amount).label("total_revenue"),
+        func.sum(
+            OrderItem.line_amount - func.coalesce(OrderItem.discount_amount, 0)
+        ).label("net_revenue"),
+        func.count(func.distinct(OrderHeader.id)).label("order_count"),
+    ).join(OrderHeader, OrderItem.order_id == OrderHeader.id)
 
     query = _base_query_filter(query, start_date, end_date, accessible_store_ids)
     query = query.group_by(OrderItem.product_name, OrderItem.product_category)
@@ -139,14 +136,11 @@ async def get_category_sales_distribution(
     按 product_category 快照字段聚合销售额和销量，
     计算各品类的营收占比百分比。
     """
-    query = (
-        select(
-            func.coalesce(OrderItem.product_category, "未分类").label("category_name"),
-            func.sum(OrderItem.line_amount).label("revenue"),
-            func.sum(OrderItem.quantity).label("quantity"),
-        )
-        .join(OrderHeader, OrderItem.order_id == OrderHeader.id)
-    )
+    query = select(
+        func.coalesce(OrderItem.product_category, "未分类").label("category_name"),
+        func.sum(OrderItem.line_amount).label("revenue"),
+        func.sum(OrderItem.quantity).label("quantity"),
+    ).join(OrderHeader, OrderItem.order_id == OrderHeader.id)
 
     query = _base_query_filter(query, start_date, end_date, accessible_store_ids)
     query = query.group_by(OrderItem.product_category)
@@ -193,9 +187,9 @@ async def get_product_profit_contribution(
             func.sum(
                 OrderItem.line_amount - func.coalesce(OrderItem.discount_amount, 0)
             ).label("total_revenue"),
-            func.sum(
-                OrderItem.quantity * func.coalesce(Product.cost_price, 0)
-            ).label("total_cost"),
+            func.sum(OrderItem.quantity * func.coalesce(Product.cost_price, 0)).label(
+                "total_cost"
+            ),
         )
         .join(OrderHeader, OrderItem.order_id == OrderHeader.id)
         .outerjoin(Product, OrderItem.product_id == Product.id)
@@ -203,10 +197,14 @@ async def get_product_profit_contribution(
 
     query = _base_query_filter(query, start_date, end_date, accessible_store_ids)
     query = query.group_by(OrderItem.product_name, OrderItem.product_category)
-    query = query.order_by(desc(
-        func.sum(OrderItem.line_amount - func.coalesce(OrderItem.discount_amount, 0))
-        - func.sum(OrderItem.quantity * func.coalesce(Product.cost_price, 0))
-    ))
+    query = query.order_by(
+        desc(
+            func.sum(
+                OrderItem.line_amount - func.coalesce(OrderItem.discount_amount, 0)
+            )
+            - func.sum(OrderItem.quantity * func.coalesce(Product.cost_price, 0))
+        )
+    )
     query = query.limit(top_n)
 
     result = await db.execute(query)
@@ -248,13 +246,10 @@ async def get_product_abc_classification(
     - B类: 累计占比 ≤ 90%（重要菜品）
     - C类: 累计占比 > 90%（长尾菜品）
     """
-    query = (
-        select(
-            OrderItem.product_name,
-            func.sum(OrderItem.line_amount).label("total_revenue"),
-        )
-        .join(OrderHeader, OrderItem.order_id == OrderHeader.id)
-    )
+    query = select(
+        OrderItem.product_name,
+        func.sum(OrderItem.line_amount).label("total_revenue"),
+    ).join(OrderHeader, OrderItem.order_id == OrderHeader.id)
 
     query = _base_query_filter(query, start_date, end_date, accessible_store_ids)
     query = query.group_by(OrderItem.product_name)
@@ -306,16 +301,14 @@ async def get_product_store_cross_analysis(
     展示每个门店中各菜品的销售表现。
     """
     # 先找出 Top N 菜品（按总销售额）
-    top_products_query = (
-        select(OrderItem.product_name)
-        .join(OrderHeader, OrderItem.order_id == OrderHeader.id)
+    top_products_query = select(OrderItem.product_name).join(
+        OrderHeader, OrderItem.order_id == OrderHeader.id
     )
     top_products_query = _base_query_filter(
         top_products_query, start_date, end_date, accessible_store_ids
     )
     top_products_query = (
-        top_products_query
-        .group_by(OrderItem.product_name)
+        top_products_query.group_by(OrderItem.product_name)
         .order_by(desc(func.sum(OrderItem.line_amount)))
         .limit(top_n)
     )

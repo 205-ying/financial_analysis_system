@@ -43,7 +43,9 @@ class MetricComparison(BaseModel):
 class PeriodComparisonResponse(BaseModel):
     """期间对比汇总响应"""
 
-    current_period: str = Field(..., description="当期范围 (如 2024-01-01 ~ 2024-01-31)")
+    current_period: str = Field(
+        ..., description="当期范围 (如 2024-01-01 ~ 2024-01-31)"
+    )
     previous_period: str = Field(..., description="对比期范围")
     metrics: list[MetricComparison] = Field(
         default_factory=list, description="指标对比列表"

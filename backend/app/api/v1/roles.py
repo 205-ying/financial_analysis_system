@@ -2,41 +2,42 @@
 角色管理 API
 """
 
-from typing import List, Optional
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user, check_permission
+from app.api.deps import check_permission, get_current_user, get_db
 from app.core.exceptions import AuthorizationException, ValidationException
 from app.models.user import User
-from app.schemas.common import Response, PaginatedResponse
+from app.schemas.common import PaginatedResponse, Response
 from app.schemas.role import (
-    RoleSchema,
-    RoleCreate,
-    RoleUpdate,
-    RoleListItem,
     AssignPermissionsRequest,
-    UserRoleListItem,
-    UserWithRoles,
     AssignUserRolesRequest,
-    UserCreateRequest,
-    UserUpdateRequest,
+    RoleCreate,
+    RoleListItem,
+    RoleSchema,
+    RoleUpdate,
     UpdateUserStatusRequest,
+    UserCreateRequest,
+    UserRoleListItem,
+    UserUpdateRequest,
+    UserWithRoles,
 )
-from app.services.role_service import RoleService
 from app.services.audit_log_service import log_audit
+from app.services.role_service import RoleService
 
 router = APIRouter()
 
 
-@router.get("", response_model=PaginatedResponse[List[RoleListItem]])
+@router.get("", response_model=PaginatedResponse[list[RoleListItem]])
 async def get_roles(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
     search: Optional[str] = Query(None, description="搜索关键词"),
     is_active: Optional[bool] = Query(None, description="是否启用"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     获取角色列表
@@ -45,28 +46,26 @@ async def get_roles(
 
     skip = (page - 1) * page_size
     roles, total = await RoleService.get_list(
-        db=db,
-        skip=skip,
-        limit=page_size,
-        search=search,
-        is_active=is_active
+        db=db, skip=skip, limit=page_size, search=search, is_active=is_active
     )
 
     # 获取每个角色的统计信息
     result_items = []
     for role in roles:
         stats = await RoleService.get_role_stats(db, role.id)
-        result_items.append({
-            "id": role.id,
-            "code": role.code,
-            "name": role.name,
-            "description": role.description,
-            "is_active": role.is_active,
-            "permission_count": stats["permission_count"],
-            "user_count": stats["user_count"],
-            "created_at": role.created_at,
-            "updated_at": role.updated_at
-        })
+        result_items.append(
+            {
+                "id": role.id,
+                "code": role.code,
+                "name": role.name,
+                "description": role.description,
+                "is_active": role.is_active,
+                "permission_count": stats["permission_count"],
+                "user_count": stats["user_count"],
+                "created_at": role.created_at,
+                "updated_at": role.updated_at,
+            }
+        )
 
     return PaginatedResponse(
         code=200,
@@ -74,11 +73,11 @@ async def get_roles(
         data=result_items,
         total=total,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
 
-@router.get("/users", response_model=PaginatedResponse[List[UserRoleListItem]])
+@router.get("/users", response_model=PaginatedResponse[list[UserRoleListItem]])
 async def get_users_with_roles(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
@@ -149,7 +148,9 @@ async def get_user_roles(
         "phone": user.phone,
         "email": user.email,
         "is_active": user.is_active,
-        "roles": [{"id": role.id, "code": role.code, "name": role.name} for role in user.roles],
+        "roles": [
+            {"id": role.id, "code": role.code, "name": role.name} for role in user.roles
+        ],
     }
 
     return Response(code=200, message="查询成功", data=data)
@@ -383,7 +384,7 @@ async def update_user_status(
 async def get_role(
     role_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     获取角色详情
@@ -392,11 +393,7 @@ async def get_role(
 
     role = await RoleService.get_by_id(db, role_id)
 
-    return Response(
-        code=200,
-        message="查询成功",
-        data=role
-    )
+    return Response(code=200, message="查询成功", data=role)
 
 
 @router.post("", response_model=Response[RoleSchema])
@@ -404,7 +401,7 @@ async def create_role(
     request: Request,
     data: RoleCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     创建角色
@@ -424,15 +421,11 @@ async def create_role(
         detail={
             "role_code": role.code,
             "role_name": role.name,
-            "permission_count": len(data.permission_ids)
-        }
+            "permission_count": len(data.permission_ids),
+        },
     )
 
-    return Response(
-        code=200,
-        message="创建成功",
-        data=role
-    )
+    return Response(code=200, message="创建成功", data=role)
 
 
 @router.put("/{role_id}", response_model=Response[RoleSchema])
@@ -441,7 +434,7 @@ async def update_role(
     role_id: int,
     data: RoleUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     更新角色
@@ -461,15 +454,11 @@ async def update_role(
         detail={
             "role_code": role.code,
             "role_name": role.name,
-            "updates": data.model_dump(exclude_unset=True)
-        }
+            "updates": data.model_dump(exclude_unset=True),
+        },
     )
 
-    return Response(
-        code=200,
-        message="更新成功",
-        data=role
-    )
+    return Response(code=200, message="更新成功", data=role)
 
 
 @router.delete("/{role_id}", response_model=Response[None])
@@ -477,7 +466,7 @@ async def delete_role(
     request: Request,
     role_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     删除角色
@@ -498,14 +487,10 @@ async def delete_role(
         request=request,
         resource_type="role",
         resource_id=role_id,
-        detail=role_info
+        detail=role_info,
     )
 
-    return Response(
-        code=200,
-        message="删除成功",
-        data=None
-    )
+    return Response(code=200, message="删除成功", data=None)
 
 
 @router.post("/{role_id}/permissions", response_model=Response[RoleSchema])
@@ -514,7 +499,7 @@ async def assign_permissions(
     role_id: int,
     data: AssignPermissionsRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     为角色分配权限
@@ -535,12 +520,8 @@ async def assign_permissions(
             "role_code": role.code,
             "role_name": role.name,
             "permission_count": len(data.permission_ids),
-            "permission_ids": data.permission_ids
-        }
+            "permission_ids": data.permission_ids,
+        },
     )
 
-    return Response(
-        code=200,
-        message="分配权限成功",
-        data=role
-    )
+    return Response(code=200, message="分配权限成功", data=role)

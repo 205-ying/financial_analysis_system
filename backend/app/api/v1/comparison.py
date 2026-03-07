@@ -6,18 +6,17 @@
 """
 
 from datetime import date
-from typing import List
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user, check_permission
+from app.api.deps import check_permission, get_current_user, get_db
 from app.models.user import User
 from app.schemas.common import Response
 from app.schemas.comparison import (
     PeriodComparisonResponse,
-    TrendComparisonResponse,
     StoreComparisonItem,
+    TrendComparisonResponse,
 )
 from app.services import comparison_service
 from app.services.audit_log_service import log_audit
@@ -52,8 +51,12 @@ async def get_period_comparison(
         start_date=date.fromisoformat(start_date),
         end_date=date.fromisoformat(end_date),
         compare_type=compare_type,
-        compare_start_date=date.fromisoformat(compare_start_date) if compare_start_date else None,
-        compare_end_date=date.fromisoformat(compare_end_date) if compare_end_date else None,
+        compare_start_date=date.fromisoformat(compare_start_date)
+        if compare_start_date
+        else None,
+        compare_end_date=date.fromisoformat(compare_end_date)
+        if compare_end_date
+        else None,
         accessible_store_ids=accessible_store_ids,
     )
 
@@ -79,7 +82,10 @@ async def get_trend_comparison(
     request: Request,
     start_date: str = Query(..., description="当期开始日期 (YYYY-MM-DD)"),
     end_date: str = Query(..., description="当期结束日期 (YYYY-MM-DD)"),
-    metric: str = Query("revenue", description="指标: revenue/net_revenue/operating_profit/order_count/avg_order_value"),
+    metric: str = Query(
+        "revenue",
+        description="指标: revenue/net_revenue/operating_profit/order_count/avg_order_value",
+    ),
     compare_type: str = Query("yoy", description="对比类型: yoy/mom/custom"),
     compare_start_date: str | None = Query(None, description="自定义对比期开始日期"),
     compare_end_date: str | None = Query(None, description="自定义对比期结束日期"),
@@ -102,8 +108,12 @@ async def get_trend_comparison(
         end_date=date.fromisoformat(end_date),
         metric=metric,
         compare_type=compare_type,
-        compare_start_date=date.fromisoformat(compare_start_date) if compare_start_date else None,
-        compare_end_date=date.fromisoformat(compare_end_date) if compare_end_date else None,
+        compare_start_date=date.fromisoformat(compare_start_date)
+        if compare_start_date
+        else None,
+        compare_end_date=date.fromisoformat(compare_end_date)
+        if compare_end_date
+        else None,
         accessible_store_ids=accessible_store_ids,
     )
 
@@ -125,7 +135,7 @@ async def get_trend_comparison(
     return Response(code=0, message="查询成功", data=data)
 
 
-@router.get("/stores", response_model=Response[List[StoreComparisonItem]])
+@router.get("/stores", response_model=Response[list[StoreComparisonItem]])
 async def get_store_comparison(
     request: Request,
     start_date: str = Query(..., description="当期开始日期 (YYYY-MM-DD)"),
@@ -151,8 +161,12 @@ async def get_store_comparison(
         start_date=date.fromisoformat(start_date),
         end_date=date.fromisoformat(end_date),
         compare_type=compare_type,
-        compare_start_date=date.fromisoformat(compare_start_date) if compare_start_date else None,
-        compare_end_date=date.fromisoformat(compare_end_date) if compare_end_date else None,
+        compare_start_date=date.fromisoformat(compare_start_date)
+        if compare_start_date
+        else None,
+        compare_end_date=date.fromisoformat(compare_end_date)
+        if compare_end_date
+        else None,
         accessible_store_ids=accessible_store_ids,
     )
 

@@ -2,11 +2,12 @@
 权限管理服务
 """
 
-from typing import List, Optional
-from sqlalchemy import select, func
+from typing import Optional
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundException, ConflictException
+from app.core.exceptions import ConflictException, NotFoundException
 from app.models.user import Permission, role_permission
 from app.schemas.permission import PermissionCreate, PermissionUpdate
 
@@ -20,8 +21,8 @@ class PermissionService:
         skip: int = 0,
         limit: int = 1000,
         search: Optional[str] = None,
-        resource: Optional[str] = None
-    ) -> tuple[List[Permission], int]:
+        resource: Optional[str] = None,
+    ) -> tuple[list[Permission], int]:
         """
         获取权限列表
 
@@ -41,8 +42,7 @@ class PermissionService:
         # 搜索条件
         if search:
             query = query.where(
-                (Permission.name.contains(search)) |
-                (Permission.code.contains(search))
+                (Permission.name.contains(search)) | (Permission.code.contains(search))
             )
 
         # 资源过滤
@@ -55,14 +55,18 @@ class PermissionService:
         total = total_result.scalar_one()
 
         # 分页查询
-        query = query.order_by(Permission.resource, Permission.action).offset(skip).limit(limit)
+        query = (
+            query.order_by(Permission.resource, Permission.action)
+            .offset(skip)
+            .limit(limit)
+        )
         result = await db.execute(query)
         permissions = result.scalars().all()
 
         return list(permissions), total
 
     @staticmethod
-    async def get_all(db: AsyncSession) -> List[Permission]:
+    async def get_all(db: AsyncSession) -> list[Permission]:
         """
         获取所有权限（不分页）
 
@@ -114,9 +118,7 @@ class PermissionService:
         Returns:
             权限对象或None
         """
-        result = await db.execute(
-            select(Permission).where(Permission.code == code)
-        )
+        result = await db.execute(select(Permission).where(Permission.code == code))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -145,7 +147,7 @@ class PermissionService:
             name=data.name,
             resource=data.resource,
             action=data.action,
-            description=data.description
+            description=data.description,
         )
 
         db.add(permission)
@@ -155,7 +157,9 @@ class PermissionService:
         return permission
 
     @staticmethod
-    async def update(db: AsyncSession, permission_id: int, data: PermissionUpdate) -> Permission:
+    async def update(
+        db: AsyncSession, permission_id: int, data: PermissionUpdate
+    ) -> Permission:
         """
         更新权限
 
@@ -200,7 +204,7 @@ class PermissionService:
         await db.commit()
 
     @staticmethod
-    async def get_resources(db: AsyncSession) -> List[str]:
+    async def get_resources(db: AsyncSession) -> list[str]:
         """
         获取所有资源类型
 
@@ -235,6 +239,4 @@ class PermissionService:
         )
         role_count = role_count_result.scalar_one()
 
-        return {
-            "role_count": role_count
-        }
+        return {"role_count": role_count}

@@ -4,21 +4,21 @@
 提供审计日志查询接口
 """
 
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import check_permission, get_current_user
 from app.core.database import get_db
-from app.api.deps import get_current_user, check_permission
 from app.models.user import User
-from app.schemas.common import Response, success
 from app.schemas.audit_log import (
+    AuditAction,
     AuditLogListRequest,
     AuditLogListResponse,
     AuditLogResponse,
-    AuditAction,
     ResourceType,
 )
+from app.schemas.common import Response, success
 from app.services.audit_log_service import AuditLogService
 
 router = APIRouter()
@@ -47,9 +47,9 @@ async def get_audit_logs(
 ):
     """
     获取审计日志列表
-    
+
     **权限要求：** audit:view
-    
+
     **支持的筛选条件：**
     - user_id: 按用户ID筛选
     - username: 按用户名模糊查询
@@ -57,7 +57,7 @@ async def get_audit_logs(
     - resource_type: 按资源类型筛选
     - status: 按操作结果筛选
     - start_date/end_date: 按日期范围筛选
-    
+
     **支持的操作类型：**
     - login: 用户登录
     - logout: 用户登出
@@ -69,10 +69,10 @@ async def get_audit_logs(
     """
     # 检查权限
     await check_permission(current_user, "audit:view", db)
-    
+
     # 构建请求
     from datetime import datetime
-    
+
     request_data = AuditLogListRequest(
         page=page,
         page_size=page_size,
@@ -86,11 +86,11 @@ async def get_audit_logs(
         sort_by=sort_by,
         sort_order=sort_order,
     )
-    
+
     # 查询日志
     service = AuditLogService(db)
     result = await service.get_logs(request_data)
-    
+
     return success(data=result)
 
 
@@ -107,28 +107,27 @@ async def get_audit_log_detail(
 ):
     """
     获取审计日志详情
-    
+
     **权限要求：** audit:view
     """
     # 检查权限
     await check_permission(current_user, "audit:view", db)
-    
+
     # 查询日志
     service = AuditLogService(db)
     log = await service.get_log_by_id(log_id)
-    
+
     if not log:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="审计日志不存在"
+            status_code=status.HTTP_404_NOT_FOUND, detail="审计日志不存在"
         )
-    
+
     return success(data=AuditLogResponse.model_validate(log))
 
 
 @router.get(
     "/actions",
-    response_model=Response[List[str]],
+    response_model=Response[list[str]],
     summary="获取所有操作类型",
     description="获取系统支持的所有审计操作类型列表",
 )
@@ -138,25 +137,25 @@ async def get_audit_actions(
 ):
     """
     获取所有操作类型
-    
+
     **权限要求：** audit:view
     """
     # 检查权限
     await check_permission(current_user, "audit:view", db)
-    
+
     # 返回所有操作类型
     actions = [
         attr_value
         for attr_name, attr_value in vars(AuditAction).items()
         if not attr_name.startswith("_") and isinstance(attr_value, str)
     ]
-    
+
     return success(data=actions)
 
 
 @router.get(
     "/resource-types",
-    response_model=Response[List[str]],
+    response_model=Response[list[str]],
     summary="获取所有资源类型",
     description="获取系统支持的所有资源类型列表",
 )
@@ -166,17 +165,17 @@ async def get_resource_types(
 ):
     """
     获取所有资源类型
-    
+
     **权限要求：** audit:view
     """
     # 检查权限
     await check_permission(current_user, "audit:view", db)
-    
+
     # 返回所有资源类型
     resource_types = [
         attr_value
         for attr_name, attr_value in vars(ResourceType).items()
         if not attr_name.startswith("_") and isinstance(attr_value, str)
     ]
-    
+
     return success(data=resource_types)

@@ -15,21 +15,22 @@ def run_command(cmd: str, description: str) -> int:
     print(f"🚀 {description}")
     print(f"{'='*60}")
     print(f"命令: {cmd}\n")
-    
+
     result = subprocess.run(cmd, shell=True)
-    
+
     if result.returncode == 0:
         print(f"\n✅ {description} - 成功")
     else:
         print(f"\n❌ {description} - 失败")
-    
+
     return result.returncode
 
 
 def main():
     """主函数"""
     if len(sys.argv) < 2:
-        print("""
+        print(
+            """
 后端开发脚本
 
 用法: python dev.py <command>
@@ -45,40 +46,42 @@ def main():
   install       安装开发依赖
   migrate       运行数据库迁移
   start         启动开发服务器
-        """)
+        """
+        )
         return 1
-    
+
     command = sys.argv[1]
-    
+
     # 确保在后端目录
     backend_dir = Path(__file__).parent
     import os
+
     os.chdir(backend_dir)
-    
+
     if command == "test":
         return run_command("pytest", "运行测试")
-    
+
     elif command == "test-cov":
         return run_command(
             "pytest --cov=app --cov-report=html --cov-report=term",
-            "运行测试并生成覆盖率报告"
+            "运行测试并生成覆盖率报告",
         )
-    
+
     elif command == "lint":
         return run_command("ruff check .", "代码检查")
-    
+
     elif command == "format":
         code = run_command("ruff format .", "格式化代码")
         if code == 0:
             run_command("ruff check --fix .", "修复可自动修复的问题")
         return code
-    
+
     elif command == "format-check":
         return run_command("ruff format --check .", "检查代码格式")
-    
+
     elif command == "type-check":
         return run_command("mypy app", "类型检查")
-    
+
     elif command == "all":
         commands = [
             ("ruff check .", "代码检查"),
@@ -86,33 +89,29 @@ def main():
             ("mypy app", "类型检查"),
             ("pytest", "运行测试"),
         ]
-        
+
         for cmd, desc in commands:
             code = run_command(cmd, desc)
             if code != 0:
-                print(f"\n❌ 检查失败，请修复后重试")
+                print("\n❌ 检查失败，请修复后重试")
                 return code
-        
+
         print(f"\n{'='*60}")
         print("🎉 所有检查通过！")
         print(f"{'='*60}\n")
         return 0
-    
+
     elif command == "install":
-        return run_command(
-            "pip install -r requirements_dev.txt",
-            "安装开发依赖"
-        )
-    
+        return run_command("pip install -r requirements_dev.txt", "安装开发依赖")
+
     elif command == "migrate":
         return run_command("alembic upgrade head", "运行数据库迁移")
-    
+
     elif command == "start":
         return run_command(
-            "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
-            "启动开发服务器"
+            "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000", "启动开发服务器"
         )
-    
+
     else:
         print(f"❌ 未知命令: {command}")
         return 1

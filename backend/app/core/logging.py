@@ -17,12 +17,12 @@ from app.core.config import settings
 def configure_logging() -> None:
     """
     配置应用日志
-    
+
     根据配置设置日志级别、输出格式、文件轮转等。
     """
     # 移除默认的控制台处理器
     logger.remove()
-    
+
     # 日志格式
     log_format = (
         "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
@@ -30,7 +30,7 @@ def configure_logging() -> None:
         "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
         "<level>{message}</level>"
     )
-    
+
     # 添加控制台处理器
     logger.add(
         sys.stdout,
@@ -40,12 +40,12 @@ def configure_logging() -> None:
         backtrace=True,
         diagnose=True,
     )
-    
+
     # 如果配置了日志文件，添加文件处理器
     if settings.log_file:
         log_path = Path(settings.log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         logger.add(
             settings.log_file,
             format=log_format,
@@ -56,7 +56,7 @@ def configure_logging() -> None:
             backtrace=True,
             diagnose=True,
         )
-    
+
     # 配置第三方库日志级别
     configure_third_party_logging()
 
@@ -64,20 +64,20 @@ def configure_logging() -> None:
 def configure_third_party_logging() -> None:
     """
     配置第三方库的日志级别
-    
+
     避免第三方库的日志过于冗余。
     """
     import logging
-    
+
     # SQLAlchemy 日志配置
     if not settings.database_echo:
         logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
         logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
-    
+
     # uvicorn 日志配置
     logging.getLogger("uvicorn.access").setLevel(logging.INFO)
     logging.getLogger("uvicorn.error").setLevel(logging.INFO)
-    
+
     # httpx 日志配置
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
@@ -85,10 +85,10 @@ def configure_third_party_logging() -> None:
 class StructuredLogger:
     """
     结构化日志记录器
-    
+
     提供统一的日志记录接口，支持结构化日志输出。
     """
-    
+
     @staticmethod
     def log_request(
         method: str,
@@ -99,7 +99,7 @@ class StructuredLogger:
     ) -> None:
         """
         记录 HTTP 请求日志
-        
+
         Args:
             method: HTTP 方法
             url: 请求 URL
@@ -116,9 +116,9 @@ class StructuredLogger:
                 "status_code": status_code,
                 "duration": duration,
                 "user_id": user_id,
-            }
+            },
         )
-    
+
     @staticmethod
     def log_database_operation(
         operation: str,
@@ -129,7 +129,7 @@ class StructuredLogger:
     ) -> None:
         """
         记录数据库操作日志
-        
+
         Args:
             operation: 操作类型（SELECT, INSERT, UPDATE, DELETE）
             table: 表名
@@ -146,9 +146,9 @@ class StructuredLogger:
                 "duration": duration,
                 "affected_rows": affected_rows,
                 "user_id": user_id,
-            }
+            },
         )
-    
+
     @staticmethod
     def log_business_event(
         event: str,
@@ -157,7 +157,7 @@ class StructuredLogger:
     ) -> None:
         """
         记录业务事件日志
-        
+
         Args:
             event: 事件名称
             details: 事件详情
@@ -170,9 +170,9 @@ class StructuredLogger:
                 "event": event,
                 "details": details,
                 "user_id": user_id,
-            }
+            },
         )
-    
+
     @staticmethod
     def log_error(
         error: Exception,
@@ -181,7 +181,7 @@ class StructuredLogger:
     ) -> None:
         """
         记录错误日志
-        
+
         Args:
             error: 异常对象
             context: 错误上下文信息
@@ -195,7 +195,7 @@ class StructuredLogger:
                 "error_message": str(error),
                 "context": context or {},
                 "user_id": user_id,
-            }
+            },
         )
 
 

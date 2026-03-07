@@ -58,7 +58,9 @@ async def get_expense_record_list(
             ExpenseType.name.label("expense_type_name"),
         )
         .join(Store, ExpenseRecord.store_id == Store.id, isouter=True)
-        .join(ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True)
+        .join(
+            ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True
+        )
     )
 
     if conditions:
@@ -71,7 +73,9 @@ async def get_expense_record_list(
     total = total_result.scalar() or 0
 
     offset = (page - 1) * page_size
-    query = query.order_by(ExpenseRecord.biz_date.desc()).offset(offset).limit(page_size)
+    query = (
+        query.order_by(ExpenseRecord.biz_date.desc()).offset(offset).limit(page_size)
+    )
     result = await db.execute(query)
     rows = result.all()
 
@@ -82,10 +86,14 @@ async def get_expense_record_list(
             "store_name": row.store_name or "未知门店",
             "expense_type_id": row.ExpenseRecord.expense_type_id,
             "expense_type_name": row.expense_type_name or "未知类型",
-            "expense_date": row.ExpenseRecord.biz_date.isoformat() if row.ExpenseRecord.biz_date else "",
+            "expense_date": row.ExpenseRecord.biz_date.isoformat()
+            if row.ExpenseRecord.biz_date
+            else "",
             "amount": float(row.ExpenseRecord.amount or 0),
             "remark": row.ExpenseRecord.remark or "",
-            "created_at": row.ExpenseRecord.created_at.isoformat() if row.ExpenseRecord.created_at else "",
+            "created_at": row.ExpenseRecord.created_at.isoformat()
+            if row.ExpenseRecord.created_at
+            else "",
         }
         for row in rows
     ]
@@ -123,7 +131,9 @@ async def get_expense_record_export_rows(
             ExpenseType.category.label("expense_type_category"),
         )
         .join(Store, ExpenseRecord.store_id == Store.id, isouter=True)
-        .join(ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True)
+        .join(
+            ExpenseType, ExpenseRecord.expense_type_id == ExpenseType.id, isouter=True
+        )
     )
 
     if conditions:

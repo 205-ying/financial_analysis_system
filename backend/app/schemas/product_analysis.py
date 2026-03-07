@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 class ProductAnalysisQuery(BaseModel):
     """菜品分析查询参数"""
+
     start_date: date = Field(..., description="开始日期")
     end_date: date = Field(..., description="结束日期")
     store_id: int | None = Field(None, description="门店ID（为空表示全部门店）")
@@ -21,6 +22,7 @@ class ProductAnalysisQuery(BaseModel):
 
 class ProductSalesRankingItem(BaseModel):
     """菜品销量排行项"""
+
     rank: int = Field(..., description="排名")
     product_name: str = Field(..., description="菜品名称")
     product_category: str | None = Field(None, description="菜品分类")
@@ -33,6 +35,7 @@ class ProductSalesRankingItem(BaseModel):
 
 class CategorySalesItem(BaseModel):
     """品类销售分布项"""
+
     category_name: str = Field(..., description="分类名称")
     revenue: float = Field(..., description="销售额")
     quantity: float = Field(..., description="销量")
@@ -41,6 +44,7 @@ class CategorySalesItem(BaseModel):
 
 class ProductProfitItem(BaseModel):
     """菜品毛利贡献项"""
+
     rank: int = Field(..., description="排名")
     product_name: str = Field(..., description="菜品名称")
     product_category: str | None = Field(None, description="菜品分类")
@@ -52,6 +56,7 @@ class ProductProfitItem(BaseModel):
 
 class ProductABCItem(BaseModel):
     """菜品ABC分类项"""
+
     product_name: str = Field(..., description="菜品名称")
     total_revenue: float = Field(..., description="总销售额")
     percentage: float = Field(..., description="营收占比(%)")
@@ -61,6 +66,7 @@ class ProductABCItem(BaseModel):
 
 class ProductStoreCrossItem(BaseModel):
     """菜品-门店交叉分析项"""
+
     store_name: str = Field(..., description="门店名称")
     product_name: str = Field(..., description="菜品名称")
     quantity: float = Field(..., description="销量")

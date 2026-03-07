@@ -17,6 +17,6 @@
 
 如果您看到此导入，请立即修改为从 app.api.deps 导入。
 """
-from app.api.deps import get_current_user, get_db, check_permission
+from app.api.deps import check_permission, get_current_user, get_db
 
 __all__ = ["get_current_user", "get_db", "check_permission"]

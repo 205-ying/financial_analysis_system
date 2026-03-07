@@ -2,37 +2,41 @@
 费用记录管理 API
 """
 
-from typing import List, Dict, Any
-from fastapi import APIRouter, Depends, Query, Request
-from fastapi.responses import StreamingResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from datetime import date, datetime
 import io
-import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill
+from datetime import date, datetime
+from typing import Any
 from urllib.parse import quote
 
+import openpyxl
+from fastapi import APIRouter, Depends, Query, Request
+from fastapi.responses import StreamingResponse
+from openpyxl.styles import Alignment, Font, PatternFill
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import check_permission, get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundException
-from app.api.deps import get_current_user, check_permission
-from app.models.user import User
 from app.models.expense import ExpenseRecord, ExpenseType
 from app.models.store import Store
+from app.models.user import User
 from app.schemas.common import Response, success
 from app.schemas.expense_record import ExpenseRecordCreate, ExpenseRecordUpdate
 from app.services.audit import create_audit_log
 from app.services.data_scope_service import assert_store_access
-from app.services.expense_record_service import get_expense_record_list, get_expense_record_export_rows
+from app.services.expense_record_service import (
+    get_expense_record_export_rows,
+    get_expense_record_list,
+)
 
 router = APIRouter()
 
 
 @router.get(
     "",
-    response_model=Response[Dict[str, Any]],
+    response_model=Response[dict[str, Any]],
     summary="获取费用记录列表",
-    description="获取费用记录列表"
+    description="获取费用记录列表",
 )
 async def list_expense_records(
     store_id: int = Query(None, description="门店ID"),
@@ -42,7 +46,7 @@ async def list_expense_records(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页大小"),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """获取费用记录列表"""
     result = await get_expense_record_list(
@@ -55,21 +59,19 @@ async def list_expense_records(
         page=page,
         page_size=page_size,
     )
-    
+
     return success(
         data={
             "items": result["items"],
             "total": result["total"],
             "page": result["page"],
-            "page_size": result["page_size"]
+            "page_size": result["page_size"],
         }
     )
 
 
 @router.get(
-    "/export",
-    summary="导出费用记录",
-    description="导出费用记录列表为Excel文件"
+    "/export", summary="导出费用记录", description="导出费用记录列表为Excel文件"
 )
 async def export_expense_records(
     request: Request,
@@ -78,7 +80,7 @@ async def export_expense_records(
     start_date: date = Query(None, description="开始日期"),
     end_date: date = Query(None, description="结束日期"),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """导出费用记录列表"""
     # 权限检查
@@ -91,17 +93,19 @@ async def export_expense_records(
         start_date=start_date,
         end_date=end_date,
     )
-    
+
     # 创建Excel工作簿
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "费用记录"
-    
+
     # 设置表头样式
-    header_fill = PatternFill(start_color="E67E22", end_color="E67E22", fill_type="solid")
+    header_fill = PatternFill(
+        start_color="E67E22", end_color="E67E22", fill_type="solid"
+    )
     header_font = Font(color="FFFFFF", bold=True)
     header_alignment = Alignment(horizontal="center", vertical="center")
-    
+
     # 写入表头
     headers = ["序号", "门店", "费用类型", "费用分类", "金额", "费用日期", "备注"]
     for col, header in enumerate(headers, 1):
@@ -109,31 +113,37 @@ async def export_expense_records(
         cell.fill = header_fill
         cell.font = header_font
         cell.alignment = header_alignment
-    
+
     # 写入数据
     for idx, row in enumerate(rows, 1):
-        ws.cell(row=idx+1, column=1, value=idx)
-        ws.cell(row=idx+1, column=2, value=row.store_name or '未知门店')
-        ws.cell(row=idx+1, column=3, value=row.expense_type_name or '未知类型')
-        ws.cell(row=idx+1, column=4, value=row.expense_type_category or '未分类')
-        ws.cell(row=idx+1, column=5, value=float(row.ExpenseRecord.amount or 0))
-        ws.cell(row=idx+1, column=6, value=row.ExpenseRecord.biz_date.strftime('%Y-%m-%d') if row.ExpenseRecord.biz_date else '')
-        ws.cell(row=idx+1, column=7, value=row.ExpenseRecord.remark or '')
-    
+        ws.cell(row=idx + 1, column=1, value=idx)
+        ws.cell(row=idx + 1, column=2, value=row.store_name or "未知门店")
+        ws.cell(row=idx + 1, column=3, value=row.expense_type_name or "未知类型")
+        ws.cell(row=idx + 1, column=4, value=row.expense_type_category or "未分类")
+        ws.cell(row=idx + 1, column=5, value=float(row.ExpenseRecord.amount or 0))
+        ws.cell(
+            row=idx + 1,
+            column=6,
+            value=row.ExpenseRecord.biz_date.strftime("%Y-%m-%d")
+            if row.ExpenseRecord.biz_date
+            else "",
+        )
+        ws.cell(row=idx + 1, column=7, value=row.ExpenseRecord.remark or "")
+
     # 调整列宽
-    ws.column_dimensions['A'].width = 8
-    ws.column_dimensions['B'].width = 15
-    ws.column_dimensions['C'].width = 18
-    ws.column_dimensions['D'].width = 15
-    ws.column_dimensions['E'].width = 15
-    ws.column_dimensions['F'].width = 15
-    ws.column_dimensions['G'].width = 30
-    
+    ws.column_dimensions["A"].width = 8
+    ws.column_dimensions["B"].width = 15
+    ws.column_dimensions["C"].width = 18
+    ws.column_dimensions["D"].width = 15
+    ws.column_dimensions["E"].width = 15
+    ws.column_dimensions["F"].width = 15
+    ws.column_dimensions["G"].width = 30
+
     # 保存到内存
     excel_file = io.BytesIO()
     wb.save(excel_file)
     excel_file.seek(0)
-    
+
     # 记录审计日志
     await create_audit_log(
         db=db,
@@ -146,13 +156,13 @@ async def export_expense_records(
             "expense_type_id": expense_type_id,
             "start_date": start_date.isoformat() if start_date else None,
             "end_date": end_date.isoformat() if end_date else None,
-            "count": len(rows)
+            "count": len(rows),
         },
         request=request,
-        status_code=200
+        status_code=200,
     )
     await db.commit()
-    
+
     # 返回Excel文件
     filename = f"费用记录_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     encoded_filename = quote(filename)
@@ -161,7 +171,7 @@ async def export_expense_records(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={
             "Content-Disposition": f"attachment; filename=expenses.xlsx; filename*=UTF-8''{encoded_filename}"
-        }
+        },
     )
 
 
@@ -169,23 +179,25 @@ async def export_expense_records(
     "/{record_id}",
     response_model=Response[dict],
     summary="获取费用记录详情",
-    description="获取费用记录详情"
+    description="获取费用记录详情",
 )
 async def get_expense_record(
     record_id: int,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """获取费用记录详情"""
-    result = await db.execute(select(ExpenseRecord).where(ExpenseRecord.id == record_id))
+    result = await db.execute(
+        select(ExpenseRecord).where(ExpenseRecord.id == record_id)
+    )
     record = result.scalar_one_or_none()
-    
+
     if not record:
         raise NotFoundException("费用记录不存在")
-    
+
     # 数据权限校验：检查是否有权访问该门店的数据
     await assert_store_access(db, current_user, record.store_id)
-    
+
     return success(
         data={
             "id": record.id,
@@ -197,7 +209,7 @@ async def get_expense_record(
             "vendor": record.vendor,
             "payment_method": record.payment_method,
             "created_at": record.created_at.isoformat(),
-            "updated_at": record.updated_at.isoformat()
+            "updated_at": record.updated_at.isoformat(),
         }
     )
 
@@ -206,41 +218,43 @@ async def get_expense_record(
     "",
     response_model=Response[dict],
     summary="创建费用记录",
-    description="创建新的费用记录"
+    description="创建新的费用记录",
 )
 async def create_expense_record(
     data: ExpenseRecordCreate,
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """创建费用记录"""
     # 数据权限校验：检查是否有权访问该门店
     await assert_store_access(db, current_user, data.store_id)
-    
+
     # 验证门店存在
     store_result = await db.execute(select(Store).where(Store.id == data.store_id))
     if not store_result.scalar_one_or_none():
         raise NotFoundException("门店不存在")
-    
+
     # 验证费用类型存在
-    type_result = await db.execute(select(ExpenseType).where(ExpenseType.id == data.expense_type_id))
+    type_result = await db.execute(
+        select(ExpenseType).where(ExpenseType.id == data.expense_type_id)
+    )
     if not type_result.scalar_one_or_none():
         raise NotFoundException("费用类型不存在")
-    
+
     # 创建费用记录
     record = ExpenseRecord(
         store_id=data.store_id,
         expense_type_id=data.expense_type_id,
         biz_date=data.biz_date,
         amount=data.amount,
-        remark=data.remark
+        remark=data.remark,
     )
-    
+
     db.add(record)
     await db.commit()
     await db.refresh(record)
-    
+
     # 记录审计日志
     await create_audit_log(
         db=db,
@@ -252,13 +266,13 @@ async def create_expense_record(
             "store_id": data.store_id,
             "expense_type_id": data.expense_type_id,
             "biz_date": data.biz_date.isoformat(),
-            "amount": float(data.amount)
+            "amount": float(data.amount),
         },
         request=request,
-        status_code=201
+        status_code=201,
     )
     await db.commit()
-    
+
     return success(
         data={
             "id": record.id,
@@ -267,7 +281,7 @@ async def create_expense_record(
             "biz_date": record.biz_date.isoformat(),
             "amount": float(record.amount),
             "remark": record.remark,
-            "created_at": record.created_at.isoformat()
+            "created_at": record.created_at.isoformat(),
         }
     )
 
@@ -276,39 +290,41 @@ async def create_expense_record(
     "/{record_id}",
     response_model=Response[dict],
     summary="更新费用记录",
-    description="更新费用记录信息"
+    description="更新费用记录信息",
 )
 async def update_expense_record(
     record_id: int,
     data: ExpenseRecordUpdate,
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """更新费用记录"""
     # 查询记录
-    result = await db.execute(select(ExpenseRecord).where(ExpenseRecord.id == record_id))
+    result = await db.execute(
+        select(ExpenseRecord).where(ExpenseRecord.id == record_id)
+    )
     record = result.scalar_one_or_none()
-    
+
     if not record:
         raise NotFoundException("费用记录不存在")
-    
+
     # 数据权限校验：检查是否有权访问原门店
     await assert_store_access(db, current_user, record.store_id)
-    
+
     # 如果要更改门店，校验新门店权限
     if data.store_id is not None and data.store_id != record.store_id:
         await assert_store_access(db, current_user, data.store_id)
-    
+
     # 保存旧值用于审计
     old_values = {
         "store_id": record.store_id,
         "expense_type_id": record.expense_type_id,
         "biz_date": record.biz_date.isoformat(),
         "amount": float(record.amount),
-        "remark": record.remark
+        "remark": record.remark,
     }
-    
+
     # 更新字段
     if data.store_id is not None:
         # 验证门店存在
@@ -316,50 +332,49 @@ async def update_expense_record(
         if not store_result.scalar_one_or_none():
             raise NotFoundException("门店不存在")
         record.store_id = data.store_id
-    
+
     if data.expense_type_id is not None:
         # 验证费用类型存在
-        type_result = await db.execute(select(ExpenseType).where(ExpenseType.id == data.expense_type_id))
+        type_result = await db.execute(
+            select(ExpenseType).where(ExpenseType.id == data.expense_type_id)
+        )
         if not type_result.scalar_one_or_none():
             raise NotFoundException("费用类型不存在")
         record.expense_type_id = data.expense_type_id
-    
+
     if data.biz_date is not None:
         record.biz_date = data.biz_date
-    
+
     if data.amount is not None:
         record.amount = data.amount
-    
+
     if data.remark is not None:
         record.remark = data.remark
-    
+
     await db.commit()
     await db.refresh(record)
-    
+
     # 记录审计日志
     new_values = {
         "store_id": record.store_id,
         "expense_type_id": record.expense_type_id,
         "biz_date": record.biz_date.isoformat(),
         "amount": float(record.amount),
-        "remark": record.remark
+        "remark": record.remark,
     }
-    
+
     await create_audit_log(
         db=db,
         user=current_user,
         action="UPDATE_EXPENSE",
         resource="expense",
         resource_id=str(record.id),
-        detail={
-            "old": old_values,
-            "new": new_values
-        },
+        detail={"old": old_values, "new": new_values},
         request=request,
-        status_code=200
+        status_code=200,
     )
     await db.commit()
-    
+
     return success(
         data={
             "id": record.id,
@@ -368,7 +383,7 @@ async def update_expense_record(
             "biz_date": record.biz_date.isoformat(),
             "amount": float(record.amount),
             "remark": record.remark,
-            "updated_at": record.updated_at.isoformat()
+            "updated_at": record.updated_at.isoformat(),
         }
     )
 
@@ -377,38 +392,40 @@ async def update_expense_record(
     "/{record_id}",
     response_model=Response[dict],
     summary="删除费用记录",
-    description="删除费用记录"
+    description="删除费用记录",
 )
 async def delete_expense_record(
     record_id: int,
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """删除费用记录"""
     # 查询记录
-    result = await db.execute(select(ExpenseRecord).where(ExpenseRecord.id == record_id))
+    result = await db.execute(
+        select(ExpenseRecord).where(ExpenseRecord.id == record_id)
+    )
     record = result.scalar_one_or_none()
-    
+
     if not record:
         raise NotFoundException("费用记录不存在")
-    
+
     # 数据权限校验：检查是否有权访问该门店
     await assert_store_access(db, current_user, record.store_id)
-    
+
     # 保存记录信息用于审计
     record_info = {
         "store_id": record.store_id,
         "expense_type_id": record.expense_type_id,
         "biz_date": record.biz_date.isoformat(),
         "amount": float(record.amount),
-        "remark": record.remark
+        "remark": record.remark,
     }
-    
+
     # 删除记录
     await db.delete(record)
     await db.commit()
-    
+
     # 记录审计日志
     await create_audit_log(
         db=db,
@@ -418,9 +435,8 @@ async def delete_expense_record(
         resource_id=str(record_id),
         detail=record_info,
         request=request,
-        status_code=200
+        status_code=200,
     )
     await db.commit()
-    
-    return success(data={"message": "费用记录已删除"})
 
+    return success(data={"message": "费用记录已删除"})

@@ -159,7 +159,7 @@ export function useECharts(chartRef: Ref<HTMLElement | null>) {
     };
 
     // 自动为折线图注入平滑与渐变属性
-    let injectedOption = { ...option };
+    const injectedOption = { ...option };
     
     if (Array.isArray(injectedOption.series)) {
       injectedOption.series = injectedOption.series.map((s: any, index: number) => {

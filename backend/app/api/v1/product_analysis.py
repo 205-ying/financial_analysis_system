@@ -5,19 +5,18 @@
 """
 
 from datetime import date
-from typing import List
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user, check_permission
+from app.api.deps import check_permission, get_current_user, get_db
 from app.models.user import User
 from app.schemas.common import Response
 from app.schemas.product_analysis import (
-    ProductSalesRankingItem,
     CategorySalesItem,
-    ProductProfitItem,
     ProductABCItem,
+    ProductProfitItem,
+    ProductSalesRankingItem,
     ProductStoreCrossItem,
 )
 from app.services import product_analysis_service
@@ -27,7 +26,7 @@ from app.services.data_scope_service import filter_stores_by_access
 router = APIRouter()
 
 
-@router.get("/sales-ranking", response_model=Response[List[ProductSalesRankingItem]])
+@router.get("/sales-ranking", response_model=Response[list[ProductSalesRankingItem]])
 async def get_sales_ranking(
     request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
@@ -75,7 +74,7 @@ async def get_sales_ranking(
     return Response(code=200, message="查询成功", data=data)
 
 
-@router.get("/category-distribution", response_model=Response[List[CategorySalesItem]])
+@router.get("/category-distribution", response_model=Response[list[CategorySalesItem]])
 async def get_category_distribution(
     request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
@@ -117,7 +116,7 @@ async def get_category_distribution(
     return Response(code=200, message="查询成功", data=data)
 
 
-@router.get("/profit-contribution", response_model=Response[List[ProductProfitItem]])
+@router.get("/profit-contribution", response_model=Response[list[ProductProfitItem]])
 async def get_profit_contribution(
     request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
@@ -162,7 +161,7 @@ async def get_profit_contribution(
     return Response(code=200, message="查询成功", data=data)
 
 
-@router.get("/abc-classification", response_model=Response[List[ProductABCItem]])
+@router.get("/abc-classification", response_model=Response[list[ProductABCItem]])
 async def get_abc_classification(
     request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),
@@ -208,7 +207,9 @@ async def get_abc_classification(
     return Response(code=200, message="查询成功", data=data)
 
 
-@router.get("/product-store-cross", response_model=Response[List[ProductStoreCrossItem]])
+@router.get(
+    "/product-store-cross", response_model=Response[list[ProductStoreCrossItem]]
+)
 async def get_product_store_cross(
     request: Request,
     start_date: str = Query(..., description="开始日期 (YYYY-MM-DD)"),

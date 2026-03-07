@@ -12,7 +12,7 @@ from decimal import Decimal
 from typing import Any
 
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.kpi import KpiDailyStore
@@ -20,11 +20,10 @@ from app.models.store import Store
 from app.schemas.comparison import (
     MetricComparison,
     PeriodComparisonResponse,
+    StoreComparisonItem,
     TrendComparisonItem,
     TrendComparisonResponse,
-    StoreComparisonItem,
 )
-
 
 # ──────────────────── 工具函数 ────────────────────
 
@@ -71,7 +70,9 @@ def _resolve_compare_period(
         )
     else:  # custom
         if compare_start_date is None or compare_end_date is None:
-            raise ValueError("自定义对比模式下必须提供 compare_start_date 和 compare_end_date")
+            raise ValueError(
+                "自定义对比模式下必须提供 compare_start_date 和 compare_end_date"
+            )
         return compare_start_date, compare_end_date
 
 
@@ -116,9 +117,7 @@ async def _aggregate_period(
 ) -> dict[str, float]:
     """对指定期间进行汇总聚合，返回各指标值的字典"""
     # 构造聚合列 (排除 avg_order_value，单独处理)
-    agg_columns = [
-        col for name, _, col in _METRIC_DEFS if col is not None
-    ]
+    agg_columns = [col for name, _, col in _METRIC_DEFS if col is not None]
     query = select(*agg_columns)
     query = query.select_from(KpiDailyStore)
     query = _kpi_base_filter(query, start, end, accessible_store_ids)
@@ -254,7 +253,11 @@ async def get_trend_comparison(
         cur_date = start_date + timedelta(days=i)
         prev_date = prev_start + timedelta(days=i)
 
-        date_label = cur_date.strftime("%m-%d") if i < current_days else prev_date.strftime("%m-%d")
+        date_label = (
+            cur_date.strftime("%m-%d")
+            if i < current_days
+            else prev_date.strftime("%m-%d")
+        )
         cur_val = current_data.get(cur_date, 0.0) if i < current_days else 0.0
         prev_val = previous_data.get(prev_date, 0.0) if i < prev_days else 0.0
 
@@ -374,7 +377,9 @@ async def get_store_comparison(
         .select_from(KpiDailyStore)
         .group_by(KpiDailyStore.store_id)
     )
-    prev_query = _kpi_base_filter(prev_query, prev_start, prev_end, accessible_store_ids)
+    prev_query = _kpi_base_filter(
+        prev_query, prev_start, prev_end, accessible_store_ids
+    )
     prev_result = await db.execute(prev_query)
     prev_map: dict[int, dict[str, float]] = {}
     for row in prev_result.all():

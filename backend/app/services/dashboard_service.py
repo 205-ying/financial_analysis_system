@@ -12,19 +12,19 @@ from decimal import Decimal
 from typing import Any
 
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import select, func, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.expense import ExpenseRecord, ExpenseType
 from app.models.kpi import KpiDailyStore
 from app.models.store import Store
 from app.schemas.dashboard import (
-    SummaryCard,
-    TrendDataPoint,
-    StoreRankItem,
-    ExpenseStructureItem,
     ChannelDistribution,
     DashboardOverview,
+    ExpenseStructureItem,
+    StoreRankItem,
+    SummaryCard,
+    TrendDataPoint,
 )
 
 
@@ -84,7 +84,9 @@ async def _aggregate_kpi(
     order_count = _to_float(row[4])
 
     avg_order_value = round(net_revenue / order_count, 2) if order_count > 0 else 0.0
-    profit_rate = round(operating_profit / net_revenue * 100, 2) if net_revenue > 0 else 0.0
+    profit_rate = (
+        round(operating_profit / net_revenue * 100, 2) if net_revenue > 0 else 0.0
+    )
 
     return {
         "revenue": revenue,
@@ -142,8 +144,12 @@ async def get_dashboard_overview(
             label="营业利润",
             value=round(current["operating_profit"], 2),
             unit="元",
-            yoy_growth=_calc_growth_rate(current["operating_profit"], yoy["operating_profit"]),
-            mom_growth=_calc_growth_rate(current["operating_profit"], mom["operating_profit"]),
+            yoy_growth=_calc_growth_rate(
+                current["operating_profit"], yoy["operating_profit"]
+            ),
+            mom_growth=_calc_growth_rate(
+                current["operating_profit"], mom["operating_profit"]
+            ),
         ),
         SummaryCard(
             label="订单总数",
@@ -156,16 +162,24 @@ async def get_dashboard_overview(
             label="客单价",
             value=round(current["avg_order_value"], 2),
             unit="元",
-            yoy_growth=_calc_growth_rate(current["avg_order_value"], yoy["avg_order_value"]),
-            mom_growth=_calc_growth_rate(current["avg_order_value"], mom["avg_order_value"]),
+            yoy_growth=_calc_growth_rate(
+                current["avg_order_value"], yoy["avg_order_value"]
+            ),
+            mom_growth=_calc_growth_rate(
+                current["avg_order_value"], mom["avg_order_value"]
+            ),
         ),
         SummaryCard(
             label="利润率",
             value=round(current["profit_rate"], 2),
             unit="%",
             # 利润率增长用百分点变动
-            yoy_growth=round(current["profit_rate"] - yoy["profit_rate"], 2) if yoy["profit_rate"] != 0 else None,
-            mom_growth=round(current["profit_rate"] - mom["profit_rate"], 2) if mom["profit_rate"] != 0 else None,
+            yoy_growth=round(current["profit_rate"] - yoy["profit_rate"], 2)
+            if yoy["profit_rate"] != 0
+            else None,
+            mom_growth=round(current["profit_rate"] - mom["profit_rate"], 2)
+            if mom["profit_rate"] != 0
+            else None,
         ),
         SummaryCard(
             label="门店数",
@@ -188,7 +202,9 @@ async def get_dashboard_overview(
         .group_by(KpiDailyStore.biz_date)
         .order_by(KpiDailyStore.biz_date)
     )
-    trend_query = _kpi_base_filter(trend_query, start_date, end_date, accessible_store_ids)
+    trend_query = _kpi_base_filter(
+        trend_query, start_date, end_date, accessible_store_ids
+    )
     trend_result = await db.execute(trend_query)
 
     revenue_trend: list[TrendDataPoint] = [
@@ -214,7 +230,9 @@ async def get_dashboard_overview(
         .order_by(desc("revenue"))
         .limit(5)
     )
-    rank_query = _kpi_base_filter(rank_query, start_date, end_date, accessible_store_ids)
+    rank_query = _kpi_base_filter(
+        rank_query, start_date, end_date, accessible_store_ids
+    )
     rank_result = await db.execute(rank_query)
 
     store_ranking: list[StoreRankItem] = [
@@ -258,7 +276,9 @@ async def get_dashboard_overview(
         func.sum(KpiDailyStore.delivery_revenue),
         func.sum(KpiDailyStore.online_revenue),
     ).select_from(KpiDailyStore)
-    channel_query = _kpi_base_filter(channel_query, start_date, end_date, accessible_store_ids)
+    channel_query = _kpi_base_filter(
+        channel_query, start_date, end_date, accessible_store_ids
+    )
     channel_result = await db.execute(channel_query)
     ch_row = channel_result.one()
 

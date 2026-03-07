@@ -47,15 +47,15 @@
           <el-button
             type="primary"
             :icon="Search"
-            @click="handleQuery"
             class="financial-button financial-button--primary financial-button--medium"
+            @click="handleQuery"
           >
             查询
           </el-button>
           <el-button
             :icon="Refresh"
-            @click="handleReset"
             class="financial-button financial-button--outline financial-button--medium"
+            @click="handleReset"
           >
             重置
           </el-button>
@@ -63,8 +63,8 @@
             v-permission="PERMISSIONS.ORDER_CREATE"
             type="success"
             :icon="Plus"
-            @click="handleCreate"
             class="financial-button financial-button--success financial-button--medium"
+            @click="handleCreate"
           >
             新增订单
           </el-button>
@@ -73,8 +73,8 @@
             type="warning"
             :icon="Download"
             :loading="exportLoading"
-            @click="handleExport"
             class="financial-button financial-button--warning financial-button--medium"
+            @click="handleExport"
           >
             导出
           </el-button>

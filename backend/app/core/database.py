@@ -9,8 +9,7 @@ import os
 import platform
 import sys
 from collections import namedtuple
-
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 # Work around Windows WMI hang during platform detection in SQLAlchemy.
 if sys.platform == "win32":
@@ -32,26 +31,23 @@ if sys.platform == "win32":
     platform.uname = _safe_uname
     platform.machine = lambda: os.environ.get("PROCESSOR_ARCHITECTURE", "")
 
-from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 from app.models.base import Base
-
 
 # 创建异步数据库引擎
 engine = create_async_engine(
     settings.database_url,
     echo=settings.database_echo,  # 是否打印 SQL 语句
     pool_pre_ping=True,  # 连接前检查连接是否有效
-    pool_recycle=3600,   # 连接回收时间（秒）
-    pool_size=10,        # 连接池大小
-    max_overflow=20,     # 连接池溢出大小
+    pool_recycle=3600,  # 连接回收时间（秒）
+    pool_size=10,  # 连接池大小
+    max_overflow=20,  # 连接池溢出大小
 )
 
 # 创建异步会话工厂
@@ -59,17 +55,17 @@ AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,  # 事务提交后不过期对象
-    autoflush=False,         # 不自动刷新
+    autoflush=False,  # 不自动刷新
 )
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     获取数据库会话的依赖注入函数
-    
+
     用于 FastAPI 依赖注入系统，确保每个请求都有独立的数据库会话，
     并在请求结束后正确关闭会话。
-    
+
     Yields:
         AsyncSession: 异步数据库会话
     """
@@ -83,7 +79,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def create_tables():
     """
     创建数据库表
-    
+
     在应用启动时调用，用于创建数据库表结构。
     生产环境建议使用 Alembic 进行数据库迁移管理。
     """
@@ -94,7 +90,7 @@ async def create_tables():
 async def drop_tables():
     """
     删除数据库表
-    
+
     主要用于测试环境清理数据。
     """
     async with engine.begin() as conn:

@@ -70,7 +70,9 @@ async def get_order_list(
     total = total_result.scalar() or 0
 
     offset = (page - 1) * page_size
-    query = query.order_by(OrderHeader.order_time.desc()).offset(offset).limit(page_size)
+    query = (
+        query.order_by(OrderHeader.order_time.desc()).offset(offset).limit(page_size)
+    )
 
     result = await db.execute(query)
     rows = result.all()
@@ -83,7 +85,9 @@ async def get_order_list(
             "store_name": row.store_name or "未知门店",
             "channel": row.OrderHeader.channel or "未知",
             "amount": float(row.OrderHeader.net_amount or 0),
-            "order_time": row.OrderHeader.order_time.isoformat() if row.OrderHeader.order_time else "",
+            "order_time": row.OrderHeader.order_time.isoformat()
+            if row.OrderHeader.order_time
+            else "",
             "remark": row.OrderHeader.remark or "",
             "status": row.OrderHeader.status or "completed",
         }

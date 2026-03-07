@@ -14,7 +14,7 @@
 
 示例：
     from app.services.audit import create_audit_log
-    
+
     @router.post("/orders")
     async def create_order(request: Request, ...):
         order = await create_order_logic(...)
@@ -124,7 +124,9 @@ async def create_audit_log(
         action=action,
         resource=resource,  # 必填字段
         resource_type=resource,  # 冗余存储，保持兼容
-        resource_id=int(resource_id) if resource_id and str(resource_id).isdigit() else None,
+        resource_id=int(resource_id)
+        if resource_id and str(resource_id).isdigit()
+        else None,
         method=method,
         path=path,
         detail=str(detail) if detail else None,

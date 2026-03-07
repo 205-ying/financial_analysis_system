@@ -9,7 +9,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user, check_permission
+from app.api.deps import check_permission, get_current_user, get_db
 from app.models.user import User
 from app.schemas.common import Response
 from app.schemas.dashboard import DashboardOverview

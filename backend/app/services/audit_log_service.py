@@ -15,7 +15,7 @@
 
 示例1（脚本/任务）：
     from app.services.audit_log_service import log_audit
-    
+
     # 定时任务中记录操作
     await log_audit(
         db=db,
@@ -27,7 +27,7 @@
 
 示例2（复杂查询）：
     from app.services.audit_log_service import AuditLogService
-    
+
     service = AuditLogService(db)
     logs = await service.list_logs(
         user_id=1,
@@ -41,7 +41,7 @@ import json
 from typing import Optional
 
 from fastapi import Request
-from sqlalchemy import select, and_, func, desc, asc
+from sqlalchemy import and_, asc, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit_log import AuditLog

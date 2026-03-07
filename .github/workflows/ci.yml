@@ -10,6 +10,9 @@ jobs:
   backend-test:
     name: 后端测试
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/financial_analysis_test
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/financial_analysis_test
     
     services:
       postgres:
@@ -59,8 +62,6 @@ jobs:
         continue-on-error: true
       
       - name: 运行测试
-        env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/financial_analysis_test
         run: |
           cd backend
           pytest --cov=app --cov-report=xml --cov-report=term
