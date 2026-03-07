@@ -119,8 +119,41 @@ python scripts/clean_bulk_data.py
 - `docs/backend_structure.md`：后端分层与关键模块
 - `docs/frontend_structure.md`：前端路由、状态与模块组织
 - `docs/dependency_guide.md`：后端依赖管理规范
+- `docs/docker_deployment.md`：Docker 容器部署说明
+- `docs/github_ghcr_setup.md`：GitHub 与 GHCR 发布检查清单
 - `docs/performance_baseline.md`：性能基线采集与对比
 - `qa_scripts/README.md`：QA 脚本总览
+
+## Docker 部署
+
+项目已提供两种容器部署方式：
+
+- 从源码本地构建镜像运行
+- 直接拉取已发布镜像运行
+
+本地构建方式：
+
+```bash
+cp .env.docker.example .env
+docker compose up -d --build
+```
+
+Windows PowerShell 可使用：
+
+```powershell
+Copy-Item .env.docker.example .env
+docker compose up -d --build
+```
+
+镜像拉取方式：
+
+```bash
+cp .env.images.example .env
+docker compose -f docker-compose.images.yml pull
+docker compose -f docker-compose.images.yml up -d
+```
+
+详细说明见 `docs/docker_deployment.md`。
 
 ## 质量检查建议
 
