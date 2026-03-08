@@ -128,7 +128,9 @@ async def ensure_role_permission(
     )
     if result.first() is None:
         await session.execute(
-            role_permission.insert().values(role_id=role_id, permission_id=permission_id)
+            role_permission.insert().values(
+                role_id=role_id, permission_id=permission_id
+            )
         )
 
 
@@ -168,7 +170,9 @@ async def ensure_user_role(session: AsyncSession, user_id: int, role_id: int) ->
         )
     )
     if result.first() is None:
-        await session.execute(user_role.insert().values(user_id=user_id, role_id=role_id))
+        await session.execute(
+            user_role.insert().values(user_id=user_id, role_id=role_id)
+        )
 
 
 async def get_or_create_store(session: AsyncSession) -> Store:
