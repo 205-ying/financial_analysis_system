@@ -22,7 +22,6 @@ from app.models.store import Product, ProductCategory, Store
 from app.models.user import Permission, Role, User, role_permission, user_role
 from app.models.user_store import UserStorePermission
 
-
 PERMISSIONS = [
     ("dashboard:view", "查看经营看板", "dashboard", "view"),
     ("store:view", "查看门店", "store", "view"),
