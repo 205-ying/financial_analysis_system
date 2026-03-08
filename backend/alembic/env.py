@@ -48,11 +48,11 @@ def run_migrations_offline() -> None:
     这种配置了"离线"模式，在这种模式下我们不实际连接到数据库，
     而是把迁移配置成使用 URL 来生成 DDL 语句。
     """
-    # 优先使用运行时环境变量中的数据库地址，避免被 alembic.ini 的本地默认值覆盖
-    if 'settings' in globals():
+    # 从配置中获取数据库 URL，如果没有设置，则使用应用配置
+    url = config.get_main_option("sqlalchemy.url")
+    if url is None and 'settings' in globals():
+        # 将异步 URL 转换为同步 URL 用于离线模式
         url = settings.database_url.replace("+asyncpg", "")
-    else:
-        url = config.get_main_option("sqlalchemy.url")
     
     context.configure(
         url=url,
@@ -93,8 +93,8 @@ async def run_async_migrations() -> None:
     # 创建异步配置副本
     configuration = config.get_section(config.config_ini_section, {})
     
-    # 优先使用运行时环境变量中的数据库地址，避免容器或 CI 中连接到错误实例
-    if 'settings' in globals():
+    # 如果没有配置数据库 URL，使用应用配置
+    if not configuration.get("sqlalchemy.url") and 'settings' in globals():
         configuration["sqlalchemy.url"] = settings.database_url
 
     # 创建异步引擎
@@ -124,13 +124,9 @@ def run_migrations_online() -> None:
     else:
         # 回退到同步模式
         from sqlalchemy import engine_from_config
-
-        configuration = config.get_section(config.config_ini_section, {})
-        if 'settings' in globals():
-            configuration["sqlalchemy.url"] = settings.database_url
         
         connectable = engine_from_config(
-            configuration,
+            config.get_section(config.config_ini_section, {}),
             prefix="sqlalchemy.",
             poolclass=pool.NullPool,
         )
