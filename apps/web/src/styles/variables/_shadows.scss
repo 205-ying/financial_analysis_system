@@ -1,0 +1,170 @@
+// ============================================================================
+// 阴影变量系统
+// ============================================================================
+
+@use './colors' as *;
+
+// 基础阴影
+$shadow-none: none;
+$shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+// 层级1 - 轻微阴影，用于表单元素、卡片
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-base: 0 4px 20px -2px rgba($color-gray-700, 0.08);
+
+// 层级2 - 中等阴影，用于卡片悬浮、下拉菜单
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+// 层级3 - 强烈阴影，用于模态框、弹出层
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// 特殊阴影
+$shadow-primary: 0 4px 12px rgba($color-primary, 0.15);
+$shadow-success: 0 4px 12px rgba($color-success, 0.15);
+$shadow-warning: 0 4px 12px rgba($color-warning, 0.15);
+$shadow-danger: 0 4px 12px rgba($color-danger, 0.15);
+
+// 深度阴影（用于浮动元素）
+$shadow-deep: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+// 柔和面板阴影
+$shadow-glass: 0 12px 30px rgba($color-gray-700, 0.12);
+$backdrop-blur: blur(10px);
+
+// 文本阴影
+$text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+$text-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+$text-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+// 悬浮效果
+$shadow-hover-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+$shadow-hover-md: 0 8px 16px rgba(0, 0, 0, 0.12);
+$shadow-hover-lg: 0 16px 32px rgba(0, 0, 0, 0.12);
+
+// 聚焦效果
+$shadow-focus-primary: 0 0 0 3px rgba($color-primary, 0.2);
+$shadow-focus-success: 0 0 0 3px rgba($color-success, 0.2);
+$shadow-focus-warning: 0 0 0 3px rgba($color-warning, 0.2);
+$shadow-focus-danger: 0 0 0 3px rgba($color-danger, 0.2);
+
+// CSS变量 - 用于主题切换
+:root {
+  // 基础阴影
+  --shadow-none: #{$shadow-none};
+  --shadow-inner: #{$shadow-inner};
+
+  // 层级阴影
+  --shadow-sm: #{$shadow-sm};
+  --shadow-base: #{$shadow-base};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
+  --shadow-2xl: #{$shadow-2xl};
+
+  // 特殊阴影
+  --shadow-primary: #{$shadow-primary};
+  --shadow-success: #{$shadow-success};
+  --shadow-warning: #{$shadow-warning};
+  --shadow-danger: #{$shadow-danger};
+  --shadow-deep: #{$shadow-deep};
+
+  // 玻璃态效果
+  --shadow-glass: #{$shadow-glass};
+  --backdrop-blur: #{$backdrop-blur};
+
+  // 文本阴影
+  --text-shadow-sm: #{$text-shadow-sm};
+  --text-shadow-md: #{$text-shadow-md};
+  --text-shadow-lg: #{$text-shadow-lg};
+
+  // 悬浮效果
+  --shadow-hover-sm: #{$shadow-hover-sm};
+  --shadow-hover-md: #{$shadow-hover-md};
+  --shadow-hover-lg: #{$shadow-hover-lg};
+
+  // 聚焦效果
+  --shadow-focus-primary: #{$shadow-focus-primary};
+  --shadow-focus-success: #{$shadow-focus-success};
+  --shadow-focus-warning: #{$shadow-focus-warning};
+  --shadow-focus-danger: #{$shadow-focus-danger};
+}
+
+// 阴影工具类混入
+@mixin shadow-sm {
+  box-shadow: $shadow-sm;
+}
+
+@mixin shadow-base {
+  box-shadow: $shadow-base;
+}
+
+@mixin shadow-md {
+  box-shadow: $shadow-md;
+}
+
+@mixin shadow-lg {
+  box-shadow: $shadow-lg;
+}
+
+@mixin shadow-xl {
+  box-shadow: $shadow-xl;
+}
+
+@mixin shadow-2xl {
+  box-shadow: $shadow-2xl;
+}
+
+@mixin shadow-none {
+  box-shadow: $shadow-none;
+}
+
+@mixin shadow-primary {
+  box-shadow: $shadow-primary;
+}
+
+@mixin shadow-success {
+  box-shadow: $shadow-success;
+}
+
+@mixin shadow-warning {
+  box-shadow: $shadow-warning;
+}
+
+@mixin shadow-danger {
+  box-shadow: $shadow-danger;
+}
+
+@mixin shadow-hover {
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: $shadow-hover-md;
+  }
+}
+
+@mixin shadow-focus($color: primary) {
+  &:focus {
+    outline: none;
+
+    @if $color == primary {
+      box-shadow: $shadow-focus-primary;
+    } @else if $color == success {
+      box-shadow: $shadow-focus-success;
+    } @else if $color == warning {
+      box-shadow: $shadow-focus-warning;
+    } @else if $color == danger {
+      box-shadow: $shadow-focus-danger;
+    }
+  }
+}
+
+// 玻璃态效果混入
+@mixin glassmorphism($blur: 10px, $background: rgba(255, 255, 255, 0.1)) {
+  background: $background;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: $shadow-glass;
+}

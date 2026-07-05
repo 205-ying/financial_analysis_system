@@ -1,0 +1,202 @@
+// ============================================================================
+// 颜色变量系统 - 财务分析系统专业配色 (V2)
+// ============================================================================
+
+// 主色调 - 财务红
+$color-primary: #C81E1E;
+$color-primary-light: #DC2F2F;
+$color-primary-lighter: #EF6A62;
+$color-primary-lightest: #FFF1EE;
+$color-primary-dark: #A91419;
+$color-primary-darker: #741014;
+
+// 次要颜色/强调色
+$color-secondary: #D19A36;
+$color-secondary-light: #E0B45D;
+$color-secondary-lighter: #F1D28F;
+$color-secondary-lightest: #FFF7E6;
+$color-secondary-dark: #A66F17;
+$color-secondary-darker: #765012;
+
+// 语义颜色 - 基于Tailwind色彩系统
+$color-success: #2F8F5B;
+$color-success-light: #43A86F;
+$color-success-lighter: #9ED7B7;
+$color-success-lightest: #E8F6EE;
+$color-success-dark: #1F7247;
+$color-success-darker: #155334;
+
+$color-warning: #D98F20;
+$color-warning-light: #E7A640;
+$color-warning-lighter: #F4CB7D;
+$color-warning-lightest: #FFF3DD;
+$color-warning-dark: #A96711;
+$color-warning-darker: #75490E;
+
+$color-danger: #EF4444;
+$color-danger-light: #F87171;
+$color-danger-lighter: #FCA5A5;
+$color-danger-lightest: #FEE2E2;
+$color-danger-dark: #DC2626;
+$color-danger-darker: #B91C1C;
+
+$color-info: #405D65;
+$color-info-light: #5E7A82;
+$color-info-lighter: #A8BBC0;
+$color-info-lightest: #EEF4F5;
+$color-info-dark: #29434A;
+$color-info-darker: #16292F;
+
+// 中性色阶 - 10级灰度，基于灰度系统
+$color-white: #FFFFFF;
+$color-gray-50: #FAF8F4;
+$color-gray-100: #F1EEE8;
+$color-gray-200: #E4DED5;
+$color-gray-300: #D2C9BD;
+$color-gray-400: #A99F94;
+$color-gray-500: #756D64;
+$color-gray-600: #554D46;
+$color-gray-700: #332D28;
+$color-gray-800: #171F20;
+$color-gray-900: #071114;
+$color-black: #000000;
+
+// 文本颜色
+$color-text-primary: $color-gray-900;
+$color-text-secondary: #695F55; // 次要文字颜色
+$color-text-tertiary: $color-gray-500;
+$color-text-placeholder: $color-gray-400;
+$color-text-disabled: $color-gray-300;
+$color-text-inverse: $color-white;
+
+// 背景颜色
+$color-bg-primary: #FFFDF9; // Surface颜色
+$color-bg-secondary: #F5F1EA; // 全局基础背景色
+$color-bg-tertiary: $color-gray-100;
+$color-bg-overlay: rgba($color-gray-900, 0.5);
+
+// 边框颜色
+$color-border-light: $color-gray-200;
+$color-border-base: $color-gray-300;
+$color-border-dark: $color-gray-400;
+$color-border-primary: $color-primary;
+
+// 数据可视化色板
+// 连续色板 - 蓝绿渐变，适用于趋势图
+$color-chart-gradient-start: #C81E1E;
+$color-chart-gradient-mid: #D19A36;
+$color-chart-gradient-end: #2F8F5B;
+
+// 分类色板 - 8种高对比度颜色，适用于饼图、柱状图
+$color-chart-category-1: $color-primary;
+$color-chart-category-2: $color-secondary;
+$color-chart-category-3: $color-success;
+$color-chart-category-4: $color-warning;
+$color-chart-category-5: $color-danger;
+$color-chart-category-6: $color-info;
+$color-chart-category-7: #405D65;
+$color-chart-category-8: #8B5E34;
+
+// 语义色板 - 红-黄-绿渐变，适用于仪表盘
+$color-chart-semantic-bad: #EF4444;
+$color-chart-semantic-warning: #F59E0B;
+$color-chart-semantic-good: #10B981;
+
+// CSS变量 - 用于主题切换
+:root {
+  // 主色调
+  --color-primary: #{$color-primary};
+  --color-primary-light: #{$color-primary-light};
+  --color-primary-lighter: #{$color-primary-lighter};
+  --color-primary-lightest: #{$color-primary-lightest};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-primary-darker: #{$color-primary-darker};
+
+  --color-secondary: #{$color-secondary};
+  --color-secondary-light: #{$color-secondary-light};
+  --color-secondary-lighter: #{$color-secondary-lighter};
+  --color-secondary-lightest: #{$color-secondary-lightest};
+  --color-secondary-dark: #{$color-secondary-dark};
+  --color-secondary-darker: #{$color-secondary-darker};
+
+  // 语义颜色
+  --color-success: #{$color-success};
+  --color-success-light: #{$color-success-light};
+  --color-success-lighter: #{$color-success-lighter};
+  --color-success-lightest: #{$color-success-lightest};
+  --color-success-dark: #{$color-success-dark};
+  --color-success-darker: #{$color-success-darker};
+
+  --color-warning: #{$color-warning};
+  --color-warning-light: #{$color-warning-light};
+  --color-warning-lighter: #{$color-warning-lighter};
+  --color-warning-lightest: #{$color-warning-lightest};
+  --color-warning-dark: #{$color-warning-dark};
+  --color-warning-darker: #{$color-warning-darker};
+
+  --color-danger: #{$color-danger};
+  --color-danger-light: #{$color-danger-light};
+  --color-danger-lighter: #{$color-danger-lighter};
+  --color-danger-lightest: #{$color-danger-lightest};
+  --color-danger-dark: #{$color-danger-dark};
+  --color-danger-darker: #{$color-danger-darker};
+
+  --color-info: #{$color-info};
+  --color-info-light: #{$color-info-light};
+  --color-info-lighter: #{$color-info-lighter};
+  --color-info-lightest: #{$color-info-lightest};
+  --color-info-dark: #{$color-info-dark};
+  --color-info-darker: #{$color-info-darker};
+
+  // 中性色阶
+  --color-white: #{$color-white};
+  --color-gray-50: #{$color-gray-50};
+  --color-gray-100: #{$color-gray-100};
+  --color-gray-200: #{$color-gray-200};
+  --color-gray-300: #{$color-gray-300};
+  --color-gray-400: #{$color-gray-400};
+  --color-gray-500: #{$color-gray-500};
+  --color-gray-600: #{$color-gray-600};
+  --color-gray-700: #{$color-gray-700};
+  --color-gray-800: #{$color-gray-800};
+  --color-gray-900: #{$color-gray-900};
+  --color-black: #{$color-black};
+
+  // 文本颜色
+  --color-text-primary: #{$color-text-primary};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-text-tertiary: #{$color-text-tertiary};
+  --color-text-placeholder: #{$color-text-placeholder};
+  --color-text-disabled: #{$color-text-disabled};
+  --color-text-inverse: #{$color-text-inverse};
+
+  // 背景颜色
+  --color-bg-primary: #{$color-bg-primary};
+  --color-bg-secondary: #{$color-bg-secondary};
+  --color-bg-tertiary: #{$color-bg-tertiary};
+  --color-bg-overlay: #{$color-bg-overlay};
+
+  // 边框颜色
+  --color-border-light: #{$color-border-light};
+  --color-border-base: #{$color-border-base};
+  --color-border-dark: #{$color-border-dark};
+  --color-border-primary: #{$color-border-primary};
+
+  // 图表颜色
+  --color-chart-gradient-start: #{$color-chart-gradient-start};
+  --color-chart-gradient-mid: #{$color-chart-gradient-mid};
+  --color-chart-gradient-end: #{$color-chart-gradient-end};
+
+  --color-chart-category-1: #{$color-chart-category-1};
+  --color-chart-category-2: #{$color-chart-category-2};
+  --color-chart-category-3: #{$color-chart-category-3};
+  --color-chart-category-4: #{$color-chart-category-4};
+  --color-chart-category-5: #{$color-chart-category-5};
+  --color-chart-category-6: #{$color-chart-category-6};
+  --color-chart-category-7: #{$color-chart-category-7};
+  --color-chart-category-8: #{$color-chart-category-8};
+
+  --color-chart-semantic-bad: #{$color-chart-semantic-bad};
+  --color-chart-semantic-warning: #{$color-chart-semantic-warning};
+  --color-chart-semantic-good: #{$color-chart-semantic-good};
+}

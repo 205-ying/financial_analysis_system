@@ -38,38 +38,38 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: backend/requirements_dev.txt
+          cache-dependency-path: services/api/requirements_dev.txt
       
       - name: 安装依赖
         run: |
-          cd backend
+          cd services/api
           pip install -r requirements_dev.txt
       
       - name: 运行Ruff检查
         run: |
-          cd backend
+          cd services/api
           ruff check .
       
       - name: 运行Ruff格式检查
         run: |
-          cd backend
+          cd services/api
           ruff format --check .
       
       - name: 运行类型检查
         run: |
-          cd backend
+          cd services/api
           mypy app --ignore-missing-imports
         continue-on-error: true
       
       - name: 运行测试
         run: |
-          cd backend
+          cd services/api
           pytest --cov=app --cov-report=xml --cov-report=term
       
       - name: 上传覆盖率报告
         uses: codecov/codecov-action@v3
         with:
-          file: ./backend/coverage.xml
+          file: ./services/api/coverage.xml
           flags: backend
         continue-on-error: true
 
@@ -86,36 +86,36 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: apps/web/package-lock.json
       
       - name: 安装依赖
         run: |
-          cd frontend
+          cd apps/web
           npm ci
 
       - name: 校验OpenAPI类型同步
         run: |
-          cd frontend
+          cd apps/web
           npm run openapi:check
       
       - name: 运行ESLint
         run: |
-          cd frontend
+          cd apps/web
           npm run lint
       
       - name: 运行类型检查
         run: |
-          cd frontend
+          cd apps/web
           npm run type-check
       
       - name: 构建检查
         run: |
-          cd frontend
+          cd apps/web
           npm run build
       
       - name: 运行测试
         run: |
-          cd frontend
+          cd apps/web
           npm run test
         continue-on-error: true
 

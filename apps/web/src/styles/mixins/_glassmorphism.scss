@@ -1,0 +1,132 @@
+// ============================================================================
+// 玻璃态效果混入
+// ============================================================================
+
+// 导入阴影变量
+@use '../variables/shadows' as shadows;
+
+// 基础玻璃态效果
+@mixin glassmorphism-base($blur: shadows.$backdrop-blur, $background: rgba(255, 255, 255, 0.1)) {
+  background: $background;
+  backdrop-filter: $blur;
+  -webkit-backdrop-filter: $blur;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: shadows.$shadow-glass;
+}
+
+// 透明玻璃态效果
+@mixin glassmorphism-light($blur: 8px) {
+  @include glassmorphism-base($blur, rgba(255, 255, 255, 0.15));
+}
+
+// 深色玻璃态效果
+@mixin glassmorphism-dark($blur: 10px) {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+}
+
+// 彩色玻璃态效果
+@mixin glassmorphism-tinted($color: rgba(200, 30, 30, 0.1), $blur: 10px) {
+  background: $color;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: shadows.$shadow-glass;
+}
+
+// 毛玻璃卡片效果
+@mixin glassmorphism-card($blur: 12px) {
+  @include glassmorphism-base($blur, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 24px;
+}
+
+// 悬浮玻璃态效果
+@mixin glassmorphism-hover($blur: 10px) {
+  @include glassmorphism-base($blur);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 34px rgba(51, 45, 40, 0.18);
+    transform: translateY(-2px);
+  }
+}
+
+// 渐变玻璃态效果
+@mixin glassmorphism-gradient($blur: 10px) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: shadows.$shadow-glass;
+}
+
+// 边框玻璃态效果
+@mixin glassmorphism-border($blur: 8px) {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+// 响应式玻璃态效果
+@mixin glassmorphism-responsive($blur-base: 8px) {
+  @include glassmorphism-base($blur-base);
+
+  @media (min-width: 768px) {
+    backdrop-filter: blur($blur-base * 1.25);
+    -webkit-backdrop-filter: blur($blur-base * 1.25);
+  }
+
+  @media (min-width: 1024px) {
+    backdrop-filter: blur($blur-base * 1.5);
+    -webkit-backdrop-filter: blur($blur-base * 1.5);
+  }
+}
+
+// 工具类
+.glassmorphism {
+  @include glassmorphism-base;
+}
+
+.glassmorphism-light {
+  @include glassmorphism-light;
+}
+
+.glassmorphism-dark {
+  @include glassmorphism-dark;
+}
+
+.glassmorphism-card {
+  @include glassmorphism-card;
+}
+
+.glassmorphism-hover {
+  @include glassmorphism-hover;
+}
+
+.glassmorphism-gradient {
+  @include glassmorphism-gradient;
+}

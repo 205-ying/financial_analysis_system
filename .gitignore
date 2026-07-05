@@ -293,6 +293,18 @@ Thumbs.db
 logs
 *.log
 
+# Runtime files
+/runtime/*
+!/runtime/.gitignore
+!/runtime/README.md
+!/runtime/test-results/
+!/runtime/test-results/api/
+!/runtime/test-results/api/README.md
+/services/api/logs/
+/services/api/uploads/
+/services/api/backend/uploads/
+/services/api/*.log
+
 # Database
 *.db
 *.sqlite
@@ -305,8 +317,9 @@ logs
 # 论文主体 - 不上传至代码仓库
 论文主体/
 
-# 文档目录 - 不上传至代码仓库
-docs/
-
 # Claude 配置
 .claude/
+
+# Local analysis artifacts
+.codegraph/
+.pydeps/

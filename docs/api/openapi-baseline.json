@@ -1,0 +1,110 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "餐饮企业财务分析与可视化系统",
+    "version": "1.0.0",
+    "description": "餐饮企业财务分析与可视化系统 API"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["健康检查"],
+        "summary": "系统健康检查",
+        "operationId": "health_check_health_get"
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "用户登录",
+        "operationId": "login_auth_login_post"
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["认证"],
+        "summary": "获取当前用户信息",
+        "operationId": "get_current_user_info_auth_me_get"
+      }
+    },
+    "/stores": {
+      "get": {
+        "tags": ["门店管理"],
+        "summary": "获取门店列表",
+        "operationId": "get_stores_stores_get"
+      },
+      "post": {
+        "tags": ["门店管理"], 
+        "summary": "创建门店",
+        "operationId": "create_store_stores_post"
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["订单管理"],
+        "summary": "获取订单列表",
+        "operationId": "get_orders_orders_get"
+      }
+    },
+    "/expense-records": {
+      "get": {
+        "tags": ["费用记录管理"],
+        "summary": "获取费用记录列表",
+        "operationId": "get_expense_records_expense_records_get"
+      }
+    },
+    "/kpi/daily": {
+      "get": {
+        "tags": ["KPI 数据"],
+        "summary": "获取每日KPI数据",
+        "operationId": "get_daily_kpi_kpi_daily_get"
+      }
+    },
+    "/audit": {
+      "get": {
+        "tags": ["审计日志"],
+        "summary": "获取审计日志",
+        "operationId": "get_audit_logs_audit_get"
+      }
+    },
+    "/import-jobs": {
+      "post": {
+        "tags": ["数据导入"],
+        "summary": "创建导入任务",
+        "operationId": "create_import_job_import_jobs_post"
+      }
+    },
+    "/reports/daily-summary": {
+      "get": {
+        "tags": ["报表中心"],
+        "summary": "获取日汇总报表",
+        "operationId": "get_daily_summary_reports_daily_summary_get"
+      }
+    },
+    "/user-stores": {
+      "post": {
+        "tags": ["用户门店权限"],
+        "summary": "分配门店权限",
+        "operationId": "assign_store_permission_user_stores_post"
+      }
+    }
+  },
+  "baseline_info": {
+    "created_at": "2026-01-27T11:10:00Z",
+    "description": "OpenAPI基线契约，用于验收时对比API路径和响应结构",
+    "critical_paths": [
+      "/health",
+      "/auth/login", 
+      "/auth/me",
+      "/stores",
+      "/orders", 
+      "/expense-records",
+      "/kpi/daily",
+      "/audit",
+      "/import-jobs",
+      "/reports/daily-summary",
+      "/user-stores"
+    ],
+    "total_endpoints": 11
+  }
+}

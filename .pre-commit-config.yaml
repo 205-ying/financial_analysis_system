@@ -2,7 +2,7 @@
 # 在提交前自动运行代码检查和格式化
 # 
 # 安装方式：
-#   cd backend
+#   cd services/api
 #   pip install pre-commit
 #   pre-commit install
 #
@@ -17,32 +17,32 @@ repos:
       # Ruff linter
       - id: ruff
         args: [ --fix ]
-        files: ^backend/
+        files: ^services/api/
       # Ruff formatter
       - id: ruff-format
-        files: ^backend/
+        files: ^services/api/
 
   # 通用检查
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^frontend/
+        exclude: ^apps/web/
       - id: end-of-file-fixer
-        exclude: ^frontend/
+        exclude: ^apps/web/
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
       - id: check-merge-conflict
       - id: check-json
-        exclude: ^frontend/(tsconfig|package)\.json$
+        exclude: ^apps/web/(tsconfig|package)\.json$
 
   # Python特定检查
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
-        files: ^backend/
+        files: ^services/api/
         args: ["--profile", "black"]
 
   # 前端 - ESLint
@@ -50,7 +50,7 @@ repos:
     rev: v8.54.0
     hooks:
       - id: eslint
-        files: ^frontend/src/.*\.[jt]sx?$
+        files: ^apps/web/src/.*\.[jt]sx?$
         types: [file]
         args: ['--fix']
         additional_dependencies:
@@ -58,13 +58,13 @@ repos:
           - eslint-plugin-vue@9.18.1
           - '@typescript-eslint/parser@6.12.0'
           - '@typescript-eslint/eslint-plugin@6.12.0'
-        exclude: ^frontend/(node_modules|dist)/
+        exclude: ^apps/web/(node_modules|dist)/
 
   # 前端 - Prettier
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
-        files: ^frontend/src/
+        files: ^apps/web/src/
         types_or: [javascript, jsx, ts, tsx, vue, css, scss, json]
-        exclude: ^frontend/(node_modules|dist)/
+        exclude: ^apps/web/(node_modules|dist)/

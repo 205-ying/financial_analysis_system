@@ -6,23 +6,23 @@
 
 | 功能 | 文件位置 | 说明 |
 |-----|-------|------|
-| **API路由注册** | [backend/app/api/router.py](backend/app/api/router.py) | 所有路由端点的单一入口 |
-| **依赖注入** | [backend/app/api/deps.py](backend/app/api/deps.py) | `get_db`, `get_current_user`, `check_permission` |
-| **异常处理** | [backend/app/core/exceptions.py](backend/app/core/exceptions.py) | 自定义异常类和全局处理器 |
-| **数据库配置** | [backend/app/core/database.py](backend/app/core/database.py) | AsyncSession、引擎配置 |
-| **模型基类** | [backend/app/models/base.py](backend/app/models/base.py) | BaseModel、Mixin组件 |
-| **路由守卫** | [frontend/src/router/guard.ts](frontend/src/router/guard.ts) | 前端权限检查和登录跳转 |
-| **状态管理** | [frontend/src/stores/](frontend/src/stores/) | Pinia Store (authStore, permissionStore等) |
-| **权限指令** | [frontend/src/directives/permission.ts](frontend/src/directives/permission.ts) | v-permission, v-permission-all 指令 |
-| **开发脚本** | [backend/dev.py](backend/dev.py) | test, lint, format, type-check 等命令 |
-| **数据库迁移** | [backend/alembic/versions/](backend/alembic/versions/) | Alembic 迁移脚本 |
+| **API路由注册** | [services/api/app/api/router.py](services/api/app/api/router.py) | 所有路由端点的单一入口 |
+| **依赖注入** | [services/api/app/api/deps.py](services/api/app/api/deps.py) | `get_db`, `get_current_user`, `check_permission` |
+| **异常处理** | [services/api/app/core/exceptions.py](services/api/app/core/exceptions.py) | 自定义异常类和全局处理器 |
+| **数据库配置** | [services/api/app/core/database.py](services/api/app/core/database.py) | AsyncSession、引擎配置 |
+| **模型基类** | [services/api/app/models/base.py](services/api/app/models/base.py) | BaseModel、Mixin组件 |
+| **路由守卫** | [apps/web/src/router/guard.ts](apps/web/src/router/guard.ts) | 前端权限检查和登录跳转 |
+| **状态管理** | [apps/web/src/stores/](apps/web/src/stores/) | Pinia Store (authStore, permissionStore等) |
+| **权限指令** | [apps/web/src/directives/permission.ts](apps/web/src/directives/permission.ts) | v-permission, v-permission-all 指令 |
+| **开发脚本** | [services/api/dev.py](services/api/dev.py) | test, lint, format, type-check 等命令 |
+| **数据库迁移** | [services/api/alembic/versions/](services/api/alembic/versions/) | Alembic 迁移脚本 |
 
 ## 项目架构
 
 这是一个**前后端分离**的餐饮企业财务分析系统:
 - **后端**: FastAPI + SQLAlchemy 2.0 (async/await) + PostgreSQL 15+ + JWT认证 + RBAC权限
 - **前端**: Vue3 + TypeScript + Vite + Element Plus + ECharts + Pinia + vue-router
-- **环境**: 支持 Windows/Mac/Linux，使用 `dev.bat`/Makefile 脚本和统一的 Python CLI (`backend/dev.py`)
+- **环境**: 支持 Windows/Mac/Linux，使用 `dev.bat`/Makefile 脚本和统一的 Python CLI (`services/api/dev.py`)
 - **测试**: pytest + pytest-asyncio 用于后端单元/集成测试
 - **代码质量**: ruff (代码检查+格式化) + mypy (类型检查)
 
@@ -62,7 +62,7 @@ graph TD
 5. **易于重构** - 业务逻辑集中在Service，大规模重构时影响范围小
 
 ### 数据库模型基类系统
-所有模型继承自 [backend/app/models/base.py](backend/app/models/base.py) 的基类:
+所有模型继承自 [services/api/app/models/base.py](services/api/app/models/base.py) 的基类:
 - `BaseModel`: ID + 时间戳 (created_at, updated_at)
 - `BaseModelWithSoftDelete`: + 软删除 (is_deleted, deleted_at)
 - `BaseModelWithUserTracking`: + 用户追踪 (created_by_id, updated_by_id)
@@ -116,7 +116,7 @@ store = db.query(Store).filter(Store.id == store_id).first()
 ## 开发工作流
 
 ### 环境配置
-**必须先配置**: 复制 `backend/.env.example` → `backend/.env`，设置数据库连接:
+**必须先配置**: 复制 `services/api/.env.example` → `services/api/.env`，设置数据库连接:
 ```ini
 DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/financial_analysis
 JWT_SECRET_KEY=your-secret-key-change-in-production
@@ -129,24 +129,24 @@ dev.bat dev-backend      # 启动后端 (http://localhost:8000)
 dev.bat dev-frontend     # 启动前端 (http://localhost:3000)
 
 # 方法2: 使用Python CLI脚本
-cd backend
+cd services/api
 python dev.py start      # 或 python dev.py --help 查看全部命令
 
 # 方法3: 直接使用 uvicorn (需先配置虚拟环境)
-cd backend
+cd services/api
 .\venv\Scripts\Activate.ps1   # Windows PowerShell
 source venv/bin/activate      # Unix/Mac
 uvicorn app.main:app --reload
 
 # 启动前端
-cd frontend
+cd apps/web
 npm run dev              # Vite 开发服务器在 http://localhost:3000
 ```
 
 **首次启动必须**:
-1. 复制 `backend/.env.example` → `backend/.env`，配置数据库连接
+1. 复制 `services/api/.env.example` → `services/api/.env`，配置数据库连接
 2. 运行数据库迁移: `alembic upgrade head`
-3. 初始化数据: `python scripts/seed_data.py` (创建default users)
+3. 初始化数据: `python tooling/api/seed_data.py` (创建 default users)
 
 **后端命令详解**:
 ```bash
@@ -165,10 +165,9 @@ dev.bat check-backend         # 运行所有检查
 ```
 
 ### 初始化数据
-首次部署或重置数据库后运行:
+首次部署或重置数据库后在项目根目录运行:
 ```bash
-cd backend
-python scripts/seed_data.py
+python tooling/api/seed_data.py
 ```
 自动创建:
 - **默认用户**: 
@@ -179,18 +178,18 @@ python scripts/seed_data.py
 - **角色**: 3个预定义角色
 - **示例数据**: 门店、产品分类、产品、费用类型
 
-**批量测试数据生成**: `python scripts/generate_bulk_data.py`
+**批量测试数据生成**: `python tooling/api/generate_bulk_data.py`
 - **用途**: 生成大量真实、详细的中文测试数据，用于性能测试、功能验证和演示
 - **数据量**: 50,000+订单，72个真实菜品，7,000+费用记录，5,400+ KPI记录
 - **时间范围**: 完整365天（一整年数据）
 - **特点**: 真实的中餐菜品（川菜、粤菜、家常菜等），真实的时间分布（午晚餐高峰期），详细的供应商和费用描述
 - **测试账号**: cashier001~018 / manager001~009 / accountant001~003，密码：Test@123
-- **详细说明**: 参见 [backend/scripts/测试数据说明.md](backend/scripts/测试数据说明.md)
-- **清理数据**: `python scripts/clean_bulk_data.py` (保留admin和基础配置)
+- **详细说明**: 参见 [docs/qa/scripts.md](docs/qa/scripts.md)
+- **清理数据**: `python tooling/api/clean_bulk_data.py` (保留 admin 和基础配置)
 
 ### 数据库迁移工作流 (Alembic)
 ```bash
-cd backend
+cd services/api
 
 # 1. 应用已有迁移到数据库
 alembic upgrade head              # 应用所有待处理迁移
@@ -207,7 +206,7 @@ alembic downgrade -1              # 回滚一个版本
 alembic downgrade base            # 回滚到初始状态
 ```
 
-**迁移脚本位置**: `backend/alembic/versions/` (已有4个历史迁移)
+**迁移脚本位置**: `services/api/alembic/versions/` (已有4个历史迁移)
 - 每个迁移文件包含 `upgrade()` 和 `downgrade()` 函数
 - 自动生成的迁移需要审查，特别是删除列、修改类型等危险操作
 - 文件命名格式: `YYYYMMDD_HHMM_{revision_id}_{description}.py`
@@ -218,7 +217,7 @@ alembic downgrade base            # 回滚到初始状态
 
 ### 测试和代码质量
 ```bash
-cd backend
+cd services/api
 python dev.py test        # 运行所有测试 (pytest)
 python dev.py test-cov    # 测试 + 覆盖率报告
 python dev.py lint        # Ruff代码检查
@@ -232,8 +231,8 @@ dev.bat check-backend     # 运行所有检查
 ```
 
 **测试框架**: pytest + pytest-asyncio + pytest-cov
-- 测试文件在 [backend/tests/](backend/tests/)
-- [conftest.py](backend/tests/conftest.py) 提供数据库fixtures和测试客户端
+- 测试文件在 [services/api/tests/](services/api/tests/)
+- [conftest.py](services/api/tests/conftest.py) 提供数据库fixtures和测试客户端
 - 使用 `@pytest.mark.asyncio` 标记异步测试
 
 **为什么选择 pytest？**
@@ -262,7 +261,7 @@ dev.bat check-backend     # 运行所有检查
 - **API文件**: 业务域+Api (storeApi.ts, kpiApi.ts)
 
 ### API响应格式
-所有API响应使用统一格式 ([app/schemas/common.py](backend/app/schemas/common.py)):
+所有API响应使用统一格式 ([app/schemas/common.py](services/api/app/schemas/common.py)):
 ```python
 # 单条数据
 Response[UserSchema](code=200, data={...}, message="操作成功")
@@ -286,7 +285,7 @@ PaginatedResponse[List[StoreSchema]](
 ```
 
 ### API路由结构
-所有API端点在 [app/api/router.py](backend/app/api/router.py) 统一注册，挂载到 `/api/v1` 前缀:
+所有API端点在 [app/api/router.py](services/api/app/api/router.py) 统一注册，挂载到 `/api/v1` 前缀:
 - `/api/v1/auth/*` - 认证和授权 (login, refresh)
 - `/api/v1/stores/*` - 门店管理
 - `/api/v1/user-stores/*` - 用户门店权限管理（数据权限）
@@ -301,13 +300,13 @@ PaginatedResponse[List[StoreSchema]](
 - `/api/v1/permissions/*` - 权限查询（列表、资源类型）
 
 **新增API端点流程**:
-1. 在 [app/api/v1/](backend/app/api/v1/) 创建或修改路由文件
-2. 在 [app/api/router.py](backend/app/api/router.py) 中注册路由 (include_router)
+1. 在 [app/api/v1/](services/api/app/api/v1/) 创建或修改路由文件
+2. 在 [app/api/router.py](services/api/app/api/router.py) 中注册路由 (include_router)
 3. 实现对应的Service层方法
 4. 定义Schema用于请求/响应验证 (Pydantic BaseModel)
 
 ### 错误处理模式
-使用自定义异常类 ([app/core/exceptions.py](backend/app/core/exceptions.py)) 而非直接抛出 `HTTPException`:
+使用自定义异常类 ([app/core/exceptions.py](services/api/app/core/exceptions.py)) 而非直接抛出 `HTTPException`:
 ```python
 # ✅ 推荐 - 使用语义化异常
 from app.core.exceptions import NotFoundException, ValidationException, BusinessException
@@ -369,7 +368,7 @@ sequenceDiagram
 3. 处理器自动转换为统一的 `ErrorResponse` JSON格式（code, message, detail, timestamp）
 
 ### 依赖注入模式
-使用 FastAPI 的依赖注入系统 ([app/api/deps.py](backend/app/api/deps.py)):
+使用 FastAPI 的依赖注入系统 ([app/api/deps.py](services/api/app/api/deps.py)):
 ```python
 from app.api.deps import get_db, get_current_user, check_permission
 
@@ -412,7 +411,7 @@ async def create_store(
 - 权限检查失败自动抛出403
 
 ### KPI计算引擎
-[app/services/kpi_calculator.py](backend/app/services/kpi_calculator.py) 使用SQL聚合而非Python循环:
+[app/services/kpi_calculator.py](services/api/app/services/kpi_calculator.py) 使用SQL聚合而非Python循环:
 ```python
 # ✅ 正确 - 数据库端聚合
 result = await db.execute(
@@ -460,7 +459,7 @@ total = sum(order.total_amount for order in orders.scalars())  # 内存溢出
 ## 前端关键模式
 
 ### 路由结构和守卫
-路由配置在 [frontend/src/router/index.ts](frontend/src/router/index.ts)，守卫在 [frontend/src/router/guard.ts](frontend/src/router/guard.ts):
+路由配置在 [apps/web/src/router/index.ts](apps/web/src/router/index.ts)，守卫在 [apps/web/src/router/guard.ts](apps/web/src/router/guard.ts):
 - **动态路由生成**: 根据用户权限动态添加路由
 - **登录检查**: 未登录自动跳转 `/login?redirect=目标路径`
 - **白名单机制**: `/login`, `/403`, `/404` 无需认证
@@ -507,7 +506,7 @@ flowchart TD
 5. **404处理** - 访问无权限路由自动跳转404，而不是显示错误页面
 
 ### 状态管理 (Pinia)
-使用 Pinia 按业务域划分 Store ([frontend/src/stores/](frontend/src/stores/)):
+使用 Pinia 按业务域划分 Store ([apps/web/src/stores/](apps/web/src/stores/)):
 - **authStore**: 登录状态、token、用户信息、权限列表
   - `isLoggedIn`: 登录状态
   - `hasPermission(code)`: 检查单个权限
@@ -524,7 +523,7 @@ flowchart TD
 5. **性能优化** - Store响应式只在状态改变时更新依赖组件，避免全树重渲染
 
 ### API封装和错误处理
-HTTP客户端 [frontend/src/utils/request.ts](frontend/src/utils/request.ts) 自动处理:
+HTTP客户端 [apps/web/src/utils/request.ts](apps/web/src/utils/request.ts) 自动处理:
 - **请求拦截**: 自动添加 `Authorization: Bearer {token}` 头
 - **响应拦截**: 
   - 401 → 清除登录状态，跳转登录页
@@ -549,7 +548,7 @@ export const storeApi = {
 ```
 
 ### 权限指令
-两个自定义指令 ([frontend/src/directives/permission.ts](frontend/src/directives/permission.ts)):
+两个自定义指令 ([apps/web/src/directives/permission.ts](apps/web/src/directives/permission.ts)):
 ```vue
 <!-- 单个权限或任一权限满足 -->
 <el-button v-permission="'store:create'">创建门店</el-button>
@@ -562,7 +561,7 @@ export const storeApi = {
 **实现原理**: 元素挂载时检查权限，无权限则从DOM中移除（`el.parentNode.removeChild(el)`）
 
 ### 审计日志系统
-自动记录所有关键操作 ([app/services/audit_log_service.py](backend/app/services/audit_log_service.py)):
+自动记录所有关键操作 ([app/services/audit_log_service.py](services/api/app/services/audit_log_service.py)):
 
 **自动触发场景**:
 - 创建/更新/删除资源 (门店、订单、费用等)
@@ -596,7 +595,7 @@ await log_audit(
 - `created_at`: 操作时间
 
 ### 数据权限系统（门店访问控制）
-基于用户-门店关联控制数据访问范围 ([app/services/data_scope_service.py](backend/app/services/data_scope_service.py)):
+基于用户-门店关联控制数据访问范围 ([app/services/data_scope_service.py](services/api/app/services/data_scope_service.py)):
 
 **核心功能**:
 - 超级管理员：访问所有门店数据
@@ -681,7 +680,7 @@ await assert_store_access(db, current_user, store_id=123)
 - `GET /api/v1/user-stores/user/{user_id}` - 查询用户门店权限
 
 ### 数据导入系统
-支持Excel/CSV批量导入订单和费用记录 ([app/services/import_service.py](backend/app/services/import_service.py)):
+支持Excel/CSV批量导入订单和费用记录 ([app/services/import_service.py](services/api/app/services/import_service.py)):
 
 **工作流程**:
 ```
@@ -726,7 +725,7 @@ error_file = await ImportService.download_error_report(db, job.id)
 - 费用记录: biz_date, expense_type_name, amount, description
 
 ### 报表中心
-提供多维度汇总报表和导出功能 ([app/services/report_service.py](backend/app/services/report_service.py)):
+提供多维度汇总报表和导出功能 ([app/services/report_service.py](services/api/app/services/report_service.py)):
 
 **可用报表**:
 1. **日汇总报表**: 按日期汇总营收、订单数、客单价、费用
@@ -759,9 +758,9 @@ return StreamingResponse(
 2. **数据库会话管理** - 使用 `Depends(get_db)` 而非手动创建会话，自动生命周期管理
 3. **KPI计算性能** - 大数据量计算必须在数据库端完成，不要加载到Python内存（使用SQL的 `func.sum()`, `func.count()` 等）
 4. **软删除查询** - 查询业务数据时记得过滤 `is_deleted=False`，或在基础 Query 中自动添加此条件
-5. **CORS配置** - 开发环境已配置 http://localhost:5173、5174 端口，生产修改需同步 [backend/app/core/config.py](backend/app/core/config.py)
+5. **CORS配置** - 开发环境已配置 http://localhost:5173、5174 端口，生产修改需同步 [services/api/app/core/config.py](services/api/app/core/config.py)
 6. **前端路由404** - 动态路由必须在最后添加404通配路由，否则先添加会拦截所有路由
-7. **权限指令失效** - 确保在 [frontend/src/main.ts](frontend/src/main.ts) 中调用 `setupPermissionDirective(app)` 注册指令
+7. **权限指令失效** - 确保在 [apps/web/src/main.ts](apps/web/src/main.ts) 中调用 `setupPermissionDirective(app)` 注册指令
 8. **异常处理层级** - Service层抛出自定义异常，FastAPI 全局异常处理器自动转换为统一响应格式，API层无需额外捕获处理
 9. **模型关系加载** - 使用 `selectinload()` 而非懒加载关联数据，避免异步session关闭后访问导致错误
 10. **导入文件验证** - 导入服务会自动验证文件格式和数据，无需在API层重复验证
@@ -951,13 +950,13 @@ for order in orders:
 4. **缓存Store数据**: Pinia Store 数据缓存，避免重复请求
 
 ### 开发效率技巧
-1. **使用 dev.bat**: 统一脚本管理所有命令，避免记忆多个命令
+1. **使用 dev.bat / Makefile**: 统一脚本管理常用命令，避免记忆多个命令
 2. **利用 Alembic 自动生成**: 修改模型后让 Alembic 自动生成迁移，再人工审查
 3. **pytest fixtures**: 测试数据在 conftest.py 中复用，避免重复创建
 4. **API文档**: 后端启动后访问 http://localhost:8000/docs 查看自动生成的API文档
 
 ### 维护脚本
-[backend/scripts/](backend/scripts/) 目录包含数据库维护和测试工具:
+[tooling/api/](tooling/api/) 目录包含数据库维护和测试工具:
 
 **数据初始化**:
 - `seed_data.py`: 创建初始用户、角色、权限、示例门店
@@ -969,7 +968,7 @@ for order in orders:
 - `clean_old_audit_logs.py`: 清理过期审计日志
 - `verify_data_integrity.py`: 数据完整性检查
 
-**验证脚本** (`qa_scripts/verifications/`):
+**验证脚本** (`tooling/qa/verifications/`):
 - `verify_backend_import_feature.py`: 测试导入功能端到端
 - `verify_backend_import_e2e.py`: 完整导入流程集成测试
 - `verify_backend_reports.py`: 验证报表计算准确性
@@ -977,17 +976,16 @@ for order in orders:
 
 **使用方式**:
 ```bash
-cd backend
-python scripts/seed_data.py                    # 初始化数据
-python scripts/generate_bulk_data.py           # 生成测试数据
-python scripts/maintenance/backup_database.py  # 备份数据库
+cd services/api
+python tooling/api/seed_data.py           # 初始化数据
+python tooling/api/generate_bulk_data.py  # 生成测试数据
 ```
 
 ## 项目文档
 
-- [docs/development_guide.md](docs/development_guide.md): 完整开发指南（包含架构图和数据模型ER图）
-- [docs/backend_structure.md](docs/backend_structure.md): 后端架构详解
-- [docs/frontend_structure.md](docs/frontend_structure.md): 前端架构详解
-- [docs/naming_conventions.md](docs/naming_conventions.md): 命名规范详解
-- [backend/scripts/README.md](backend/scripts/README.md): 维护脚本说明（数据库备份、清理、测试数据生成）
-- [docs/archive/](docs/archive/): 30+ 历史交付和测试报告
+- [docs/README.md](docs/README.md): 文档中心入口
+- [docs/architecture/project-structure.md](docs/architecture/project-structure.md): 项目结构与前后端架构
+- [docs/development/guide.md](docs/development/guide.md): 本地开发、启动、测试与排障
+- [docs/development/dependencies.md](docs/development/dependencies.md): 后端依赖说明
+- [docs/qa/scripts.md](docs/qa/scripts.md): QA 脚本分类与命名规则
+- [docs/api/backend-api.md](docs/api/backend-api.md): 后端 API 导出文档

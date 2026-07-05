@@ -40,11 +40,11 @@ install: install-backend install-frontend
 
 install-backend:
 	@echo "📦 安装后端依赖..."
-	cd backend && pip install -r requirements_dev.txt
+	cd services/api && pip install -r requirements_dev.txt
 
 install-frontend:
 	@echo "📦 安装前端依赖..."
-	cd frontend && npm install
+	cd apps/web && npm install
 
 # 启动开发环境
 dev:
@@ -55,72 +55,72 @@ dev:
 
 dev-backend:
 	@echo "🚀 启动后端开发服务器..."
-	cd backend && python dev.py start
+	cd services/api && python dev.py start
 
 dev-frontend:
 	@echo "🚀 启动前端开发服务器..."
-	cd frontend && npm run dev
+	cd apps/web && npm run dev
 
 # 运行测试
 test: test-backend test-frontend
 
 test-backend:
 	@echo "🧪 运行后端测试..."
-	cd backend && python dev.py test
+	cd services/api && python dev.py test
 
 test-frontend:
 	@echo "🧪 运行前端测试..."
-	cd frontend && npm run test
+	cd apps/web && npm run test
 
 # 代码检查
 lint: lint-backend lint-frontend
 
 lint-backend:
 	@echo "🔍 检查后端代码..."
-	cd backend && python dev.py lint
+	cd services/api && python dev.py lint
 
 lint-frontend:
 	@echo "🔍 检查前端代码..."
-	cd frontend && npm run lint
+	cd apps/web && npm run lint
 
 # 代码格式化
 format: format-backend format-frontend
 
 format-backend:
 	@echo "✨ 格式化后端代码..."
-	cd backend && python dev.py format
+	cd services/api && python dev.py format
 
 format-frontend:
 	@echo "✨ 格式化前端代码..."
-	cd frontend && npm run format
+	cd apps/web && npm run format
 
 # 运行所有检查
 check: check-backend check-frontend
 
 check-backend:
 	@echo "✅ 运行后端所有检查..."
-	cd backend && python dev.py all
+	cd services/api && python dev.py all
 
 check-frontend:
 	@echo "✅ 运行前端所有检查..."
-	cd frontend && npm run lint && npm run type-check && npm run build
+	cd apps/web && npm run lint && npm run type-check && npm run build
 
 # 数据库迁移
 migrate:
 	@echo "🗄️  运行数据库迁移..."
-	cd backend && python dev.py migrate
+	cd services/api && python dev.py migrate
 
 # 清理
 clean:
 	@echo "🧹 清理生成文件..."
-	rm -rf backend/__pycache__
-	rm -rf backend/**/__pycache__
-	rm -rf backend/.pytest_cache
-	rm -rf backend/.mypy_cache
-	rm -rf backend/htmlcov
-	rm -rf backend/.coverage
-	rm -rf frontend/node_modules/.cache
-	rm -rf frontend/dist
+	rm -rf services/api/__pycache__
+	rm -rf services/api/**/__pycache__
+	rm -rf services/api/.pytest_cache
+	rm -rf services/api/.mypy_cache
+	rm -rf services/api/htmlcov
+	rm -rf services/api/.coverage
+	rm -rf apps/web/node_modules/.cache
+	rm -rf apps/web/dist
 	@echo "✅ 清理完成"
 
 # 构建
@@ -128,15 +128,15 @@ build: build-frontend
 
 build-frontend:
 	@echo "🏗️  构建前端..."
-	cd frontend && npm run build
+	cd apps/web && npm run build
 
 # 类型检查
 type-check: type-check-backend type-check-frontend
 
 type-check-backend:
 	@echo "🔤 后端类型检查..."
-	cd backend && python dev.py type-check
+	cd services/api && python dev.py type-check
 
 type-check-frontend:
 	@echo "🔤 前端类型检查..."
-	cd frontend && npm run type-check
+	cd apps/web && npm run type-check
